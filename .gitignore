@@ -13,4 +13,6 @@ TestResults/
 *.ldf
 
 # Local config (keep .example only)
-WpfApp1/App.config
+!WpfApp1/App.config
+!WpfApp1.Tests/App.config
+
