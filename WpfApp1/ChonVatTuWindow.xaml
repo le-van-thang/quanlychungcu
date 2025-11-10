@@ -1,0 +1,66 @@
+﻿<Window x:Class="WpfApp1.ChonVatTuWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Chọn vật tư" Height="420" Width="700"
+        WindowStartupLocation="CenterOwner"
+        Background="#F4F6F7">
+
+    <Border Background="White" CornerRadius="10" Padding="15" BorderBrush="#D5DBDB" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- DataGrid -->
+            <DataGrid x:Name="dgVatTu"
+                      AutoGenerateColumns="False" CanUserAddRows="False"
+                      AlternatingRowBackground="#FBFCFC"
+                      GridLinesVisibility="None" RowHeight="38" FontSize="14"
+                      BorderBrush="#D5DBDB" BorderThickness="1"
+                      HeadersVisibility="Column" Margin="0,0,0,15"
+                      SelectionMode="Extended">
+
+                <DataGrid.Resources>
+                    <!-- Style cho Header -->
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="#2C3E50"/>
+                        <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="FontSize" Value="14"/>
+                        <Setter Property="Height" Value="40"/>
+                        <Setter Property="Padding" Value="10,5"/>
+                        <Setter Property="BorderBrush" Value="#1A252F"/>
+                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                    </Style>
+                </DataGrid.Resources>
+
+                <DataGrid.Columns>
+                    <DataGridCheckBoxColumn Header="✓" Binding="{Binding IsSelected}" Width="50"/>
+                    <DataGridTextColumn Header="Tên vật tư" Binding="{Binding TenVatTu}" Width="*"/>
+                    <DataGridTextColumn Header="Số lượng tồn" Binding="{Binding SoLuongTon}" Width="120"/>
+                    <DataGridTextColumn Header="Đơn giá" Binding="{Binding Gia, StringFormat={}{0:N0}}" Width="150"/>
+                    <!-- Cho nhập số lượng -->
+                    <DataGridTemplateColumn Header="Số lượng chọn" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding SoLuongChon, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         HorizontalAlignment="Center" VerticalAlignment="Center" Width="80"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- Nút -->
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="✔ OK" Width="110" Height="36"
+                        Background="#27AE60" Foreground="White" Margin="5" BorderThickness="0"
+                        Click="BtnOk_Click"/>
+                <Button Content="✖ Hủy" Width="110" Height="36"
+                        Background="#7D3C98" Foreground="White" Margin="5" BorderThickness="0"
+                        Click="BtnCancel_Click"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

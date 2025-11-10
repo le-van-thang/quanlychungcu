@@ -1,0 +1,106 @@
+﻿<Window x:Class="WpfApp1.HoaDonCuDanDetailWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Hóa đơn cư dân"
+        Height="430" Width="780"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"        
+    WindowStyle="SingleBorderWindow"
+    Background="White">
+
+    <Border CornerRadius="8" BorderBrush="#D5DBDB" BorderThickness="1" Padding="20" Background="White">
+        <Grid Margin="8">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Tiêu đề -->
+            <TextBlock Text="Hóa đơn cư dân" FontSize="20" FontWeight="Bold" Foreground="#2C3E50"/>
+
+            <!-- Nội dung -->
+            <Grid Grid.Row="1" Margin="0,14,0,14">
+                <!-- 2 cột -->
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <!-- 4 hàng: 0..3 -->
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <!-- ID / Số tiền -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Hạn TT / Trạng thái -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Căn hộ / Loại dịch vụ -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Người quản lý -->
+                </Grid.RowDefinitions>
+
+                <!-- Hàng 0 -->
+                <StackPanel Grid.Row="0" Grid.Column="0" Margin="8,6">
+                    <TextBlock Text="ID (tự tăng)" FontWeight="Bold"/>
+                    <TextBox x:Name="txtId" Margin="0,6,0,0" IsReadOnly="True" MinHeight="28"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="0" Grid.Column="1" Margin="8,6">
+                    <TextBlock Text="Số tiền (bắt buộc)" FontWeight="Bold"/>
+                    <TextBox x:Name="txtSoTien" Margin="0,6,0,0" MinHeight="28"/>
+                </StackPanel>
+
+                <!-- Hàng 1 -->
+                <StackPanel Grid.Row="1" Grid.Column="0" Margin="8,6">
+                    <TextBlock Text="Hạn thanh toán (bắt buộc)" FontWeight="Bold"/>
+                    <DatePicker x:Name="dpHanTT" Margin="0,6,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Grid.Column="1" Margin="8,6">
+                    <TextBlock Text="Trạng thái (bắt buộc)" FontWeight="Bold"/>
+                    <ComboBox x:Name="cbTrangThai" Margin="0,6,0,0" MinHeight="28">
+                        <ComboBoxItem Content="ChuaThanhToan"/>
+                        <ComboBoxItem Content="DaThanhToan"/>
+                        <ComboBoxItem Content="QuaHan"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <!-- Hàng 2 -->
+                <StackPanel Grid.Row="2" Grid.Column="0" Margin="8,6">
+                    <TextBlock Text="Số căn hộ (bắt buộc)" FontWeight="Bold"/>
+                    <ComboBox x:Name="cbCanHo"
+                    DisplayMemberPath="SoCanHo"
+                    SelectedValuePath="CanHoID"
+                    Margin="0,6,0,0" MinHeight="28"
+                    SelectionChanged="CbCanHo_SelectionChanged"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Grid.Column="1" Margin="8,6">
+                    <TextBlock Text="Loại dịch vụ (bắt buộc)" FontWeight="Bold"/>
+                    <ComboBox x:Name="cbLoaiDichVu" Margin="0,6,0,0" MinHeight="28">
+                        <ComboBoxItem Content="TienDien"/>
+                        <ComboBoxItem Content="TienNuoc"/>
+                        <ComboBoxItem Content="PhiGuiXe"/>
+                        <ComboBoxItem Content="PhiVeSinh"/>
+                        <ComboBoxItem Content="Khac"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <!-- Hàng 3 -->
+                <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Margin="8,6">
+                    <TextBlock Text="Người quản lý (cư dân của căn hộ)" FontWeight="Bold"/>
+                    <TextBox x:Name="txtNguoiQL" Margin="0,6,0,0" IsReadOnly="True" MinHeight="28"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Nút -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="btnSave" Content="Lưu" Width="110" Height="36"
+                Background="#58D68D" Foreground="White" Margin="5"
+                Click="BtnSave_Click"/>
+                <Button Content="Hủy" Width="110" Height="36"
+                Background="#7D3C98" Foreground="White" Margin="5"
+                Click="BtnClose_Click"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

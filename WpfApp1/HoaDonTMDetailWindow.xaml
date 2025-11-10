@@ -1,0 +1,125 @@
+﻿<Window x:Class="WpfApp1.HoaDonTMDetailWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Hóa đơn thương mại" Height="560" Width="850"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        Background="White">
+    <Border CornerRadius="8" BorderBrush="#D5DBDB" BorderThickness="1" Padding="20" Background="White">
+        <Grid Margin="8">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Tiêu đề -->
+            <TextBlock x:Name="lblHeader" Text="🏢 Hóa đơn thương mại"
+                       FontSize="20" FontWeight="Bold" Foreground="#2C3E50"/>
+
+            <!-- Nội dung -->
+            <Grid Grid.Row="1" Margin="0,14,0,14">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Hàng 1 -->
+                <StackPanel Grid.Row="0" Grid.Column="0" Margin="5">
+                    <TextBlock Text="ID (tự tăng)" FontWeight="Bold"/>
+                    <TextBox x:Name="txtId" Margin="0,5,0,0" IsReadOnly="True"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="0" Grid.Column="1" Margin="5">
+                    <TextBlock Text="Số tiền (bắt buộc)" FontWeight="Bold"/>
+                    <TextBox x:Name="txtSoTien" Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <!-- Hàng 2 -->
+                <StackPanel Grid.Row="1" Grid.Column="0" Margin="5">
+                    <TextBlock Text="Hạn thanh toán (bắt buộc)" FontWeight="Bold"/>
+                    <DatePicker x:Name="dpHanTT" Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Grid.Column="1" Margin="5">
+                    <TextBlock Text="Trạng thái (bắt buộc)" FontWeight="Bold"/>
+                    <ComboBox x:Name="cbTrangThai" Margin="0,5,0,0">
+                        <ComboBoxItem Content="Chưa thanh toán"/>
+                        <ComboBoxItem Content="Đã thanh toán"/>
+                        <ComboBoxItem Content="Quá hạn"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <!-- Hàng 3 -->
+                <StackPanel Grid.Row="2" Grid.Column="0" Margin="5">
+                    <TextBlock Text="Mặt bằng thương mại (bắt buộc)" FontWeight="Bold"/>
+                    <ComboBox x:Name="cbMatBang" DisplayMemberPath="TenMatBang"
+                              SelectedValuePath="MatBangID" Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Grid.Column="1" Margin="5">
+                    <TextBlock Text="Ghi chú" FontWeight="Bold"/>
+                    <TextBox x:Name="txtGhiChu" Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <!-- 🔽 DataGrid chi tiết vật tư -->
+                <GroupBox Grid.Row="3" Grid.ColumnSpan="2" Header="Chi tiết vật tư" Margin="5,15,5,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Nút thêm -->
+                        <Button Content="➕ Thêm vật tư" Grid.Row="0"
+                                Width="130" Height="30" Margin="0,0,0,5"
+                                HorizontalAlignment="Right"
+                                Click="BtnThemVatTu_Click"/>
+                        
+
+                        <!-- DataGrid -->
+                        <DataGrid x:Name="dgChiTiet" Grid.Row="1"
+                                  AutoGenerateColumns="False" CanUserAddRows="False"
+                                  IsReadOnly="True" HeadersVisibility="Column"
+                                  AlternatingRowBackground="#F8F9F9"
+                                  GridLinesVisibility="None" RowHeight="30" FontSize="13"
+                                  BorderBrush="#D5DBDB" BorderThickness="1">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Vật tư" Binding="{Binding TenVatTu}" Width="*"/>
+                                <DataGridTextColumn Header="Số lượng" Binding="{Binding SoLuong}" Width="100"/>
+                                <DataGridTextColumn Header="Đơn giá" Binding="{Binding DonGia, StringFormat={}{0:N0}}" Width="120"/>
+                                <DataGridTextColumn Header="Thành tiền" Binding="{Binding ThanhTien, StringFormat={}{0:N0}}" Width="140"/>
+                                <DataGridTemplateColumn Header="Hành động" Width="100">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="🗑 Xóa" 
+                            Background="#E74C3C" 
+                            Foreground="White" 
+                            Padding="5,2"
+                            Click="BtnXoaVatTu_Click"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </GroupBox>
+            </Grid>
+
+            <!-- Nút -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="btnSave" Content="💾 Lưu" Width="110" Height="36"
+                        Background="#58D68D" Foreground="White" Margin="5"
+                        Click="BtnSave_Click"/>
+                <Button Content="❌ Hủy" Width="110" Height="36"
+                        Background="#7D3C98" Foreground="White" Margin="5"
+                        Click="BtnClose_Click"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

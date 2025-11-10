@@ -1,0 +1,16 @@
+﻿# VS / .NET
+bin/
+obj/
+.vs/
+TestResults/
+*.user
+*.suo
+*.cache
+*.log
+
+# Databases
+*.mdf
+*.ldf
+
+# Local config (keep .example only)
+WpfApp1/App.config

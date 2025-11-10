@@ -1,0 +1,111 @@
+﻿<UserControl x:Class="WpfApp1.HomeControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ipack="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             Background="White">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,10">
+            <TextBlock Text="📊 Trang chủ"
+                       FontSize="22"
+                       FontWeight="Bold"
+                       Foreground="#2C3E50"
+                       DockPanel.Dock="Left"/>
+            <TextBlock x:Name="txtWelcome"
+                       DockPanel.Dock="Right"
+                       HorizontalAlignment="Right"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       Foreground="#2C3E50"/>
+        </DockPanel>
+
+        <!-- Stats -->
+        <UniformGrid Grid.Row="1" Columns="3" Rows="2" Margin="20">
+
+            <!-- Căn hộ -->
+            <Border Background="#27AE60" CornerRadius="10" Margin="10" Padding="15">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <ipack:PackIconFontAwesome Kind="HouseSolid" Width="40" Height="40" Foreground="White" Margin="0,0,0,6"/>
+                    <TextBlock x:Name="txtSoCanHo" Text="0" FontSize="28" FontWeight="Bold" Foreground="White" Margin="0,0,0,2"/>
+                    <TextBlock Text="Căn hộ" FontSize="16" Foreground="White" Margin="0,0,0,8"/>
+                    <Button x:Name="btnCanHo" Content="Xem danh sách"
+                            Background="White" Foreground="#27AE60"
+                            FontWeight="Bold" Padding="5,2" Cursor="Hand"
+                            Click="BtnCanHo_Click"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Cư dân -->
+            <Border Background="#E67E22" CornerRadius="10" Margin="10" Padding="15">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <ipack:PackIconFontAwesome Kind="UsersSolid" Width="40" Height="40" Foreground="White" Margin="0,0,0,6"/>
+                    <TextBlock x:Name="txtSoCuDan" Text="0" FontSize="28" FontWeight="Bold" Foreground="White" Margin="0,0,0,2"/>
+                    <TextBlock Text="Cư dân" FontSize="16" Foreground="White" Margin="0,0,0,8"/>
+                    <Button x:Name="btnCuDan" Content="Xem danh sách"
+                            Background="White" Foreground="#E67E22"
+                            FontWeight="Bold" Padding="5,2" Cursor="Hand"
+                            Click="BtnCuDan_Click"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Ô tô -->
+            <Border Background="#2980B9" CornerRadius="10" Margin="10" Padding="15">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <ipack:PackIconFontAwesome Kind="CarSideSolid" Width="40" Height="40" Foreground="White" Margin="0,0,0,6"/>
+                    <TextBlock x:Name="txtSoOto" Text="0" FontSize="28" FontWeight="Bold" Foreground="White" Margin="0,0,0,2"/>
+                    <TextBlock Text="Ô tô" FontSize="16" Foreground="White" Margin="0,0,0,8"/>
+                    <Button x:Name="btnOto" Content="Xem danh sách"
+                            Background="White" Foreground="#2980B9"
+                            FontWeight="Bold" Padding="5,2" Cursor="Hand"
+                            Click="BtnOto_Click"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Xe máy -->
+            <Border Background="#9B59B6" CornerRadius="10" Margin="10" Padding="15">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <ipack:PackIconFontAwesome Kind="MotorcycleSolid" Width="40" Height="40" Foreground="White" Margin="0,0,0,6"/>
+                    <TextBlock x:Name="txtSoXeMay" Text="0" FontSize="28" FontWeight="Bold" Foreground="White" Margin="0,0,0,2"/>
+                    <TextBlock Text="Xe máy" FontSize="16" Foreground="White" Margin="0,0,0,8"/>
+                    <Button x:Name="btnXeMay" Content="Xem danh sách"
+                            Background="White" Foreground="#9B59B6"
+                            FontWeight="Bold" Padding="5,2" Cursor="Hand"
+                            Click="BtnXeMay_Click"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Xe đạp -->
+            <Border Background="#16A085" CornerRadius="10" Margin="10" Padding="15">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <ipack:PackIconFontAwesome Kind="BicycleSolid" Width="40" Height="40" Foreground="White" Margin="0,0,0,6"/>
+                    <TextBlock x:Name="txtSoXeDap" Text="0" FontSize="28" FontWeight="Bold" Foreground="White" Margin="0,0,0,2"/>
+                    <TextBlock Text="Xe đạp" FontSize="16" Foreground="White" Margin="0,0,0,8"/>
+                    <Button x:Name="btnXeDap" Content="Xem danh sách"
+                            Background="White" Foreground="#16A085"
+                            FontWeight="Bold" Padding="5,2" Cursor="Hand"
+                            Click="BtnXeDap_Click"/>
+                </StackPanel>
+            </Border>
+
+            <!-- AI trợ lý -->
+            <Border Background="#8E44AD" CornerRadius="10" Margin="10" Padding="15">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <ipack:PackIconFontAwesome Kind="RobotSolid" Width="40" Height="40" Foreground="White" Margin="0,0,0,6"/>
+                    <TextBlock Text="AI trợ lý" FontSize="28" FontWeight="Bold" Foreground="White" Margin="0,0,0,2"/>
+                    <TextBlock Text="Hỏi đáp / Tìm kiếm" FontSize="16" Foreground="White" Margin="0,0,0,8"/>
+                    <Button x:Name="btnAI" Content="Mở AI"
+                            Background="White" Foreground="#8E44AD"
+                            FontWeight="Bold" Padding="5,2" Cursor="Hand"
+                            Click="BtnAI_Click"/>
+                </StackPanel>
+            </Border>
+
+        </UniformGrid>
+    </Grid>
+</UserControl>

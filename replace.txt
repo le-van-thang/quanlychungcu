@@ -1,0 +1,4 @@
+regex:(?i)(<add\s+key="GoogleClientId"\s+value=")[^"]+(")
+
+regex:(?i)(<add\s+key="GoogleClientSecret"\s+value=")[^"]+(")
+

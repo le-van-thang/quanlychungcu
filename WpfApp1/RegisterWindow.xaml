@@ -1,0 +1,233 @@
+﻿<Window x:Class="WpfApp1.RegisterWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Đăng ký tài khoản" Height="680" Width="920"
+        WindowStartupLocation="CenterScreen" Background="#F6F7FB"
+        ResizeMode="NoResize">
+    <Window.Resources>
+        <!-- Palette -->
+        <Color x:Key="PrimaryColor">#6C63FF</Color>
+        <Color x:Key="PrimaryDark">#5750D5</Color>
+        <Color x:Key="AccentColor">#00BFA6</Color>
+        <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
+        <SolidColorBrush x:Key="PrimaryDarkBrush" Color="{StaticResource PrimaryDark}"/>
+        <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}"/>
+        <SolidColorBrush x:Key="LabelBrush" Color="#4B5563"/>
+        <SolidColorBrush x:Key="InputBg" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="InputBorder" Color="#E5E7EB"/>
+        <Thickness x:Key="CardPadding">28</Thickness>
+
+        <!-- Card style -->
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="18"/>
+            <Setter Property="Padding" Value="{StaticResource CardPadding}"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#000000" BlurRadius="18" ShadowDepth="2" Opacity="0.12"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Label -->
+        <Style TargetType="TextBlock" x:Key="FormLabel">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="{StaticResource LabelBrush}"/>
+            <Setter Property="Margin" Value="0,8,0,6"/>
+        </Style>
+
+        <!-- TextBox -->
+        <Style TargetType="TextBox" x:Key="Input">
+            <Setter Property="Background" Value="{StaticResource InputBg}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource InputBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10">
+                            <ScrollViewer Margin="6,0,6,0" x:Name="PART_ContentHost"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- PasswordBox styled -->
+        <Style TargetType="PasswordBox" x:Key="Pwd">
+            <Setter Property="Background" Value="{StaticResource InputBg}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource InputBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type PasswordBox}">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10">
+                            <ScrollViewer Margin="6,0,6,0" x:Name="PART_ContentHost"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Primary Button -->
+        <Style TargetType="Button" x:Key="PrimaryBtn">
+            <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="12">
+                            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,0"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource PrimaryDarkBrush}"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.6"/>
+                    <Setter Property="Cursor" Value="Arrow"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Secondary Button -->
+        <Style TargetType="Button" x:Key="GhostBtn" BasedOn="{StaticResource PrimaryBtn}">
+            <Setter Property="Background" Value="#EEF2FF"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <!-- Header gradient -->
+        <Grid Height="150" VerticalAlignment="Top" Margin="0,0,0,0">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#6C63FF" Offset="0"/>
+                    <GradientStop Color="#00BFA6" Offset="1"/>
+                </LinearGradientBrush>
+            </Grid.Background>
+            <TextBlock Text="Tạo tài khoản" Foreground="White" FontSize="28" FontWeight="Bold"
+                       Margin="36,32,0,0" VerticalAlignment="Top"/>
+            <TextBlock Text="Điền thông tin bên dưới để đăng ký" Foreground="#F3F4F6"
+                       Margin="36,76,0,0" VerticalAlignment="Top"/>
+        </Grid>
+
+        <!-- Card form -->
+        <Border Style="{StaticResource Card}" Margin="36,90,36,36">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Left column -->
+                <StackPanel Grid.Column="0" Margin="0,4,20,0">
+                    <TextBlock Text="Họ và tên" Style="{StaticResource FormLabel}"/>
+                    <TextBox x:Name="txtFullName" Style="{StaticResource Input}" />
+
+                    <TextBlock Text="Tên đăng nhập" Style="{StaticResource FormLabel}" Margin="0,12,0,6"/>
+                    <TextBox x:Name="txtUsername" Style="{StaticResource Input}" />
+
+                    <TextBlock Text="Email" Style="{StaticResource FormLabel}" Margin="0,12,0,6"/>
+                    <TextBox x:Name="txtEmail" Style="{StaticResource Input}" />
+
+                    <TextBlock Text="Số điện thoại" Style="{StaticResource FormLabel}" Margin="0,12,0,6"/>
+                    <TextBox x:Name="txtPhone" Style="{StaticResource Input}" />
+                </StackPanel>
+
+                <!-- Right column -->
+                <StackPanel Grid.Column="1" Margin="20,4,0,0">
+                    <!-- Mật khẩu -->
+                    <TextBlock Text="Mật khẩu" Style="{StaticResource FormLabel}"/>
+                    <Grid Height="40">
+                        <PasswordBox x:Name="pwdPassword" Style="{StaticResource Pwd}"
+                                     PasswordChanged="pwdPassword_PasswordChanged"/>
+                        <TextBox x:Name="txtPasswordVisible" Style="{StaticResource Input}"
+                                 Visibility="Collapsed"
+                                 TextChanged="txtPasswordVisible_TextChanged"/>
+                        <Button x:Name="btnTogglePwd"
+                                Width="28" Height="28"
+                                HorizontalAlignment="Right" VerticalAlignment="Center"
+                                Margin="0,0,6,0"
+                                Background="Transparent" BorderThickness="0"
+                                Content="👁"
+                                Click="btnTogglePwd_Click"/>
+                    </Grid>
+
+                    <!-- Xác nhận mật khẩu -->
+                    <TextBlock Text="Xác nhận mật khẩu" Style="{StaticResource FormLabel}" Margin="0,12,0,6"/>
+                    <Grid Height="40">
+                        <PasswordBox x:Name="pwdConfirm" Style="{StaticResource Pwd}"
+                                     PasswordChanged="pwdConfirm_PasswordChanged"/>
+                        <TextBox x:Name="txtConfirmVisible" Style="{StaticResource Input}"
+                                 Visibility="Collapsed"
+                                 TextChanged="txtConfirmVisible_TextChanged"/>
+                        <Button x:Name="btnToggleConfirm"
+                                Width="28" Height="28"
+                                HorizontalAlignment="Right" VerticalAlignment="Center"
+                                Margin="0,0,6,0"
+                                Background="Transparent" BorderThickness="0"
+                                Content="👁"
+                                Click="btnToggleConfirm_Click"/>
+                    </Grid>
+                    <TextBlock Text="Ngày sinh" Style="{StaticResource FormLabel}" Margin="0,12,0,6"/>
+                    <DatePicker x:Name="dpBirth" Height="40"/>
+
+                    <TextBlock Text="Giới tính" Style="{StaticResource FormLabel}" Margin="0,12,0,6"/>
+                    <StackPanel Orientation="Horizontal" >
+                        <RadioButton x:Name="radMale" Content="Nam" Margin="0,4,16,0"/>
+                        <RadioButton x:Name="radFemale" Content="Nữ" Margin="0,4,16,0"/>
+                        <RadioButton x:Name="radOther" Content="Khác" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Address & terms (full width) -->
+                <StackPanel Grid.ColumnSpan="2" Margin="0,12,0,0" VerticalAlignment="Bottom">
+                    <TextBlock Text="Địa chỉ" Style="{StaticResource FormLabel}" />
+                    <TextBox x:Name="txtAddress" Style="{StaticResource Input}" Height="50" TextWrapping="Wrap" AcceptsReturn="True"/>
+
+                    <DockPanel Margin="0,10,0,0">
+                        <CheckBox x:Name="chkAgree" VerticalAlignment="Center" Content="Tôi đồng ý với Điều khoản &amp; Chính sách" />
+                        <TextBlock x:Name="txtStatus" Foreground="Tomato" Margin="16,0,0,0" VerticalAlignment="Center"/>
+                    </DockPanel>
+
+                    <Grid Margin="0,16,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0" Content="Trở lại" Style="{StaticResource GhostBtn}" Click="BtnCancel_Click" />
+                        <Button Grid.Column="1" Content="Đăng ký" Style="{StaticResource PrimaryBtn}" Click="BtnRegister_Click" Margin="12,0,0,0"/>
+                    </Grid>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

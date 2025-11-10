@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <configSections>
+    <!-- For more information on Entity Framework configuration, visit http://go.microsoft.com/fwlink/?LinkID=237468 -->
+    <section name="entityFramework" type="System.Data.Entity.Internal.ConfigFile.EntityFrameworkSection, EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" requirePermission="false" />
+  </configSections>
+  <startup>
+    <supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.7.2" />
+  </startup>
+	<connectionStrings>
+		<!-- EF .edmx -->
+		<add name="QuanlychungcuEntities" providerName="System.Data.EntityClient" connectionString="metadata=res://*/Model1.csdl|res://*/Model1.ssdl|res://*/Model1.msl;        provider=System.Data.SqlClient;        provider connection string=&quot;Data Source=(localdb)\MSSQLLocalDB;        Initial Catalog=CondoDB;        Integrated Security=True;        MultipleActiveResultSets=True;        Connect Timeout=30&quot;" />
+
+		<!-- ADO.NET thuần (SqlConnection) -->
+		<add name="CondoDb" providerName="System.Data.SqlClient" connectionString="Data Source=(localdb)\MSSQLLocalDB;                          Initial Catalog=CondoDB;                          Integrated Security=True;                          MultipleActiveResultSets=True;                          Connect Timeout=30" />
+	</connectionStrings>
+
+	<entityFramework>
+    <providers>
+      <provider invariantName="System.Data.SqlClient" type="System.Data.Entity.SqlServer.SqlProviderServices, EntityFramework.SqlServer" />
+    </providers>
+  </entityFramework>
+  <runtime>
+    <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+      <dependentAssembly>
+        <assemblyIdentity name="Google.Apis" publicKeyToken="4b01fa6e34db77ab" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-1.71.0.0" newVersion="1.71.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="Google.Apis.Core" publicKeyToken="4b01fa6e34db77ab" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-1.71.0.0" newVersion="1.71.0.0" />
+      </dependentAssembly>
+    </assemblyBinding>
+  </runtime>
+	<appSettings>
+  <!-- GOOGLE -->
+  <add key="GoogleClientId" value="__GOOGLE_CLIENT_ID__" />
+  <add key="GoogleClientSecret" value="__GOOGLE_CLIENT_SECRET__" />
+
+  <!-- FACEBOOK -->
+  <add key="FacebookAppId" value="__FACEBOOK_APP_ID__" />
+  <add key="FacebookAppSecret" value="__FACEBOOK_APP_SECRET__" />
+  <add key="FacebookRedirectUri" value="http://localhost:5000/" />
+
+  <!-- GEMINI -->
+  <add key="Gemini_ApiKey" value="__GEMINI_API_KEY__" />
+  <add key="Gemini_Model" value="gemini-2.5-flash" />
+
+  <add key="AI_SearchTopN" value="5" />
+  <add key="Bing_ApiKey" value="" />
+</appSettings>
+</configuration>
