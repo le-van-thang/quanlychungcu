@@ -17,10 +17,12 @@ jobs:
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v2
 
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
       - name: Restore packages
         run: nuget restore WpfApp1.sln
 
-      # windows-latest có sẵn MSBuild (Visual Studio Build Tools)
       - name: Build (Release)
         run: msbuild WpfApp1.sln /t:Build /p:Configuration=Release /m
 
