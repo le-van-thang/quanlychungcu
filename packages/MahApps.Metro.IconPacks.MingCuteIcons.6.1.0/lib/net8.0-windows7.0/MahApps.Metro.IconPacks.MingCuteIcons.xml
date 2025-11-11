@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MahApps.Metro.IconPacks.MingCuteIcons</name>
+    </assembly>
+    <members>
+        <member name="T:MahApps.Metro.IconPacks.PackIconMingCuteIcons">
+            <summary>
+            MingCute Icon are licensed under [Apache-2.0 license](<see><cref>https://github.com/Richard9394/MingCute?tab=Apache-2.0-1-ov-file</cref></see>).
+            Contributions, corrections and requests can be made on GitHub <see><cref>https://github.com/Richard9394/MingCute</cref></see>.
+            </summary>
+        </member>
+        <member name="P:MahApps.Metro.IconPacks.PackIconMingCuteIcons.Kind">
+            <summary>
+            Gets or sets the icon to display.
+            </summary>
+        </member>
+        <member name="P:MahApps.Metro.IconPacks.MingCuteIconsCursorExtension.HotSpot">
+            <inheritdoc/>
+        </member>
+        <member name="P:MahApps.Metro.IconPacks.MingCuteIconsCursorExtension.Width">
+            <inheritdoc/>
+        </member>
+        <member name="P:MahApps.Metro.IconPacks.MingCuteIconsCursorExtension.Height">
+            <inheritdoc/>
+        </member>
+        <member name="P:MahApps.Metro.IconPacks.MingCuteIconsCursorExtension.StrokeBrush">
+            <inheritdoc/>
+        </member>
+        <member name="P:MahApps.Metro.IconPacks.MingCuteIconsCursorExtension.StrokeThickness">
+            <inheritdoc/>
+        </member>
+        <member name="M:MahApps.Metro.IconPacks.MingCuteIconsImageExtension.GetPathData(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:MahApps.Metro.IconPacks.MingCuteIconsImageExtension.GetScaleTransform(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="T:MahApps.Metro.IconPacks.PackIconMingCuteIconsKind">
+            ******************************************
+            This code is auto generated. Do not amend.
+            ******************************************
+            <summary>
+            List of available icons for use with <see cref="T:MahApps.Metro.IconPacks.PackIconMingCuteIcons" />.
+            </summary>
+            <remarks>
+            MingCute Icon are licensed under [Apache-2.0 license](<see><cref>https://github.com/Richard9394/MingCute?tab=Apache-2.0-1-ov-file</cref></see>).
+            Contributions, corrections and requests can be made on GitHub <see><cref>https://github.com/Richard9394/MingCute</cref></see>.
+            </remarks>
+        </member>
+        <member name="M:MahApps.Metro.IconPacks.Converter.PackIconMingCuteIconsKindToImageConverter.GetPathData(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:MahApps.Metro.IconPacks.Converter.PackIconMingCuteIconsKindToImageConverter.GetScaleTransform(System.Object)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

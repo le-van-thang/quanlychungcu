@@ -93,7 +93,7 @@ namespace WpfApp1
         private static byte[] Pbkdf2(string password, byte[] salt, int iterations, int length)
         {
             // Dùng using (...) thay vì "using var"
-            using (var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations, HashAlgorithmName.SHA256))
+            using (var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations)) // HMACSHA1 mặc định trên .NET Fx
             {
                 return pbkdf2.GetBytes(length);
             }

@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MahApps.Metro.IconPacks.FontAwesome5</name>
+    </assembly>
+    <members>
+        <member name="T:MahApps.Metro.IconPacks.PackIconFontAwesome5">
+            <summary>
+            All icons sourced from Font Awesome Free <see><cref>https://fontawesome.com/</cref></see> - License <see><cref>https://fontawesome.com/license/free</cref></see>
+            GitHub <see><cref>https://fontawesome.com/</cref></see>
+            </summary>
+        </member>
+        <member name="P:MahApps.Metro.IconPacks.PackIconFontAwesome5.Kind">
+            <summary>
+            Gets or sets the icon to display.
+            </summary>
+        </member>
+        <member name="P:MahApps.Metro.IconPacks.FontAwesome5CursorExtension.HotSpot">
+            <inheritdoc/>
+        </member>
+        <member name="P:MahApps.Metro.IconPacks.FontAwesome5CursorExtension.Width">
+            <inheritdoc/>
+        </member>
+        <member name="P:MahApps.Metro.IconPacks.FontAwesome5CursorExtension.Height">
+            <inheritdoc/>
+        </member>
+        <member name="P:MahApps.Metro.IconPacks.FontAwesome5CursorExtension.StrokeBrush">
+            <inheritdoc/>
+        </member>
+        <member name="P:MahApps.Metro.IconPacks.FontAwesome5CursorExtension.StrokeThickness">
+            <inheritdoc/>
+        </member>
+        <member name="M:MahApps.Metro.IconPacks.FontAwesome5ImageExtension.GetPathData(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="T:MahApps.Metro.IconPacks.PackIconFontAwesome5Kind">
+            ******************************************
+            This code is auto generated. Do not amend.
+            ******************************************
+            <summary>
+            List of available icons for use with <see cref="T:MahApps.Metro.IconPacks.PackIconFontAwesome5" />.
+            </summary>
+            <remarks>
+            All icons sourced from Font Awesome Free <see><cref>https://fontawesome.com/</cref></see> - License <see><cref>https://fontawesome.com/license/free</cref></see>
+            GitHub <see><cref>https://fontawesome.com/</cref></see>
+            </remarks>
+        </member>
+        <member name="M:MahApps.Metro.IconPacks.Converter.PackIconFontAwesome5KindToImageConverter.GetPathData(System.Object)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

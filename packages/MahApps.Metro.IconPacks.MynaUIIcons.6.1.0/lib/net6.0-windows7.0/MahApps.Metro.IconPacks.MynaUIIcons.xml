@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MahApps.Metro.IconPacks.MynaUIIcons</name>
+    </assembly>
+    <members>
+        <member name="T:MahApps.Metro.IconPacks.PackIconMynaUIIcons">
+            <summary>
+            MynaUI Icons are licensed under [MIT license](<see><cref>https://github.com/praveenjuge/mynaui-icons?tab=MIT-1-ov-file</cref></see>).
+            Contributions, corrections and requests can be made on GitHub <see><cref>https://github.com/praveenjuge/mynaui-icons</cref></see>.
+            </summary>
+        </member>
+        <member name="P:MahApps.Metro.IconPacks.PackIconMynaUIIcons.Kind">
+            <summary>
+            Gets or sets the icon to display.
+            </summary>
+        </member>
+        <member name="P:MahApps.Metro.IconPacks.MynaUIIconsCursorExtension.HotSpot">
+            <inheritdoc/>
+        </member>
+        <member name="P:MahApps.Metro.IconPacks.MynaUIIconsCursorExtension.Width">
+            <inheritdoc/>
+        </member>
+        <member name="P:MahApps.Metro.IconPacks.MynaUIIconsCursorExtension.Height">
+            <inheritdoc/>
+        </member>
+        <member name="P:MahApps.Metro.IconPacks.MynaUIIconsCursorExtension.StrokeBrush">
+            <inheritdoc/>
+        </member>
+        <member name="P:MahApps.Metro.IconPacks.MynaUIIconsCursorExtension.StrokeThickness">
+            <inheritdoc/>
+        </member>
+        <member name="M:MahApps.Metro.IconPacks.MynaUIIconsImageExtension.GetPathData(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:MahApps.Metro.IconPacks.MynaUIIconsImageExtension.GetScaleTransform(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="T:MahApps.Metro.IconPacks.PackIconMynaUIIconsKind">
+            ******************************************
+            This code is auto generated. Do not amend.
+            ******************************************
+            <summary>
+            List of available icons for use with <see cref="T:MahApps.Metro.IconPacks.PackIconMynaUIIcons" />.
+            </summary>
+            <remarks>
+            MynaUI Icons are licensed under [MIT license](<see><cref>https://github.com/praveenjuge/mynaui-icons?tab=MIT-1-ov-file</cref></see>).
+            Contributions, corrections and requests can be made on GitHub <see><cref>https://github.com/praveenjuge/mynaui-icons</cref></see>.
+            </remarks>
+        </member>
+        <member name="M:MahApps.Metro.IconPacks.Converter.PackIconMynaUIIconsKindToImageConverter.GetPathData(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:MahApps.Metro.IconPacks.Converter.PackIconMynaUIIconsKindToImageConverter.GetScaleTransform(System.Object)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>
