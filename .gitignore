@@ -1,18 +1,26 @@
 ﻿# VS / .NET
-bin/
-obj/
 .vs/
+**/bin/
+**/obj/
 TestResults/
 *.user
 *.suo
 *.cache
 *.log
 
-# Databases
+# NuGet (tránh push packages cồng kềnh)
+packages/
+**/packages/*
+*.nupkg
+!**/packages/repositories.config
+
+# Databases (local only)
 *.mdf
 *.ldf
+*.sqlite*
+*.db*
 
-# Local config (keep .example only)
+# App.config: ignore tất cả, chỉ giữ 2 file được phép
+**/App.config
 !WpfApp1/App.config
 !WpfApp1.Tests/App.config
-
