@@ -1,4 +1,4 @@
-name: build-and-test
+name: CondoApp Build & Tests
 
 on:
   push:
@@ -7,41 +7,58 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout
+      # ----- LẤY CODE -----
+      - name: Checkout source
         uses: actions/checkout@v4
 
+      # ----- CÀI CÔNG CỤ XÂY DỰNG -----
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v2
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
-      - name: Restore packages
+      # ----- RESTORE -----
+      - name: Restore NuGet packages
         run: nuget restore WpfApp1.sln
 
+      # ----- BUILD -----
       - name: Build solution (Debug)
         run: msbuild WpfApp1.sln /t:Build /p:Configuration=Debug /m
 
+      # ----- RUN UNIT TESTS -----
       - name: Run MSTest tests
-        run: |
-          & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe" `
-            "WpfApp1.Tests\bin\Debug\WpfApp1.Tests.dll" /Settings:Test.runsettings /Logger:trx
+        run: >
+          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe"
+          WpfApp1.Tests\bin\Debug\WpfApp1.Tests.dll
+          /Settings:Test.runsettings
+          /Logger:trx
+        # CHÚ Ý: không dùng continue-on-error: true
+        # để test fail → workflow fail (đúng chuẩn)
 
+      # ----- GENERATE REPORT HTML -----
       - name: Generate HTML test report
+        shell: pwsh
         run: .\GenerateTestReport.ps1
+        continue-on-error: true
 
+      # ----- UPLOAD TEST RESULT ARTIFACT -----
       - name: Upload Test Results (.trx + .html)
         uses: actions/upload-artifact@v4
         with:
           name: TestResults
-          path: Reports/TestResults/
+          path: |
+            Reports/TestResults/
+            **/*.trx
 
-      - name: Upload app binaries (optional)
+      # ----- UPLOAD BINARY BUILD OUTPUT -----
+      - name: Upload app binaries
         uses: actions/upload-artifact@v4
         with:
-          name: WpfApp1-bin-Release
-          path: WpfApp1/bin/Debug/
+          name: WpfApp1-bin-Debug
+          path: |
+            WpfApp1/bin/Debug/
