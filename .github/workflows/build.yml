@@ -31,12 +31,14 @@ jobs:
         run: msbuild WpfApp1.sln /t:Build /p:Configuration=Debug /m
 
       # ----- RUN UNIT TESTS -----
-      - name: Run MSTest tests
+        - name: Run MSTest tests
+        shell: pwsh
         run: >
-          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe"
-          WpfApp1.Tests\bin\Debug\WpfApp1.Tests.dll
+          & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe"
+          "WpfApp1.Tests\bin\Debug\WpfApp1.Tests.dll"
           /Settings:Test.runsettings
           /Logger:trx
+
         # CHÚ Ý: không dùng continue-on-error: true
         # để test fail → workflow fail (đúng chuẩn)
 
