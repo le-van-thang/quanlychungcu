@@ -1,4 +1,4 @@
-name: Build
+name: CondoApp Tests
 
 on:
   push:
@@ -7,28 +7,32 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    - name: Checkout source code
+      uses: actions/checkout@v3   # (có thể nâng lên @v4 nhưng @v3 vẫn OK)
 
-      - name: Setup NuGet
-        uses: NuGet/setup-nuget@v2
+    - name: Setup .NET 4.7.2 + MSBuild
+      uses: microsoft/setup-msbuild@v1.3.1
 
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1.2.0
 
-      - name: Restore packages
-        run: nuget restore WpfApp1.sln
+    - name: Restore NuGet packages
+      run: nuget restore WpfApp1.sln
 
-      - name: Build (Release)
-        run: msbuild WpfApp1.sln /t:Build /p:Configuration=Release /m
+    - name: Build the solution
+      run: msbuild WpfApp1.sln /p:Configuration=Debug
 
-      - name: Upload artifact (app binaries)
-        uses: actions/upload-artifact@v4
-        with:
-          name: WpfApp1-bin-Release
-          path: |
-            WpfApp1/bin/Release/
+    - name: Run MSTest unit tests
+      run: |
+        vstest.console.exe WpfApp1.Tests/bin/Debug/WpfApp1.Tests.dll /Logger:trx
+      continue-on-error: true
+
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: TestResults
+        path: '**/*.trx'
