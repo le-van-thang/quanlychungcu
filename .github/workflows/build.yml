@@ -11,27 +11,28 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      # ----- LẤY CODE -----
+      # 1. Lấy source từ GitHub
       - name: Checkout source
         uses: actions/checkout@v4
 
-      # ----- CÀI CÔNG CỤ XÂY DỰNG -----
+      # 2. Cài NuGet CLI
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v2
 
+      # 3. Cài MSBuild (build tools)
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
-      # ----- RESTORE -----
+      # 4. Khôi phục package cho solution
       - name: Restore NuGet packages
         run: nuget restore WpfApp1.sln
 
-      # ----- BUILD -----
+      # 5. Build solution (Debug) để có DLL test
       - name: Build solution (Debug)
         run: msbuild WpfApp1.sln /t:Build /p:Configuration=Debug /m
 
-      # ----- RUN UNIT TESTS -----
-        - name: Run MSTest tests
+      # 6. Chạy MSTest bằng vstest.console.exe
+      - name: Run MSTest tests
         shell: pwsh
         run: >
           & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe"
@@ -39,16 +40,12 @@ jobs:
           /Settings:Test.runsettings
           /Logger:trx
 
-        # CHÚ Ý: không dùng continue-on-error: true
-        # để test fail → workflow fail (đúng chuẩn)
-
-      # ----- GENERATE REPORT HTML -----
+      # 7. Sinh báo cáo HTML từ file .trx (script của bạn)
       - name: Generate HTML test report
         shell: pwsh
         run: .\GenerateTestReport.ps1
-        continue-on-error: true
 
-      # ----- UPLOAD TEST RESULT ARTIFACT -----
+      # 8. Upload kết quả test (.trx + .html)
       - name: Upload Test Results (.trx + .html)
         uses: actions/upload-artifact@v4
         with:
@@ -57,8 +54,8 @@ jobs:
             Reports/TestResults/
             **/*.trx
 
-      # ----- UPLOAD BINARY BUILD OUTPUT -----
-      - name: Upload app binaries
+      # 9. Upload binary app (tùy chọn, nhưng nên có cho đề tài)
+      - name: Upload app binaries (Debug)
         uses: actions/upload-artifact@v4
         with:
           name: WpfApp1-bin-Debug
