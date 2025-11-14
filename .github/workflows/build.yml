@@ -1,4 +1,4 @@
-name: CondoApp Tests
+name: CondoApp Build & Tests
 
 on:
   push:
@@ -11,28 +11,48 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout source code
-      uses: actions/checkout@v3   # (có thể nâng lên @v4 nhưng @v3 vẫn OK)
+      - name: Checkout source
+        uses: actions/checkout@v4
 
-    - name: Setup .NET 4.7.2 + MSBuild
-      uses: microsoft/setup-msbuild@v1.3.1
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
 
-    - name: Setup NuGet
-      uses: NuGet/setup-nuget@v1.2.0
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
 
-    - name: Restore NuGet packages
-      run: nuget restore WpfApp1.sln
+      - name: Restore NuGet packages
+        run: nuget restore WpfApp1.sln
 
-    - name: Build the solution
-      run: msbuild WpfApp1.sln /p:Configuration=Debug
+      - name: Build solution (Debug)
+        run: msbuild WpfApp1.sln /t:Build /p:Configuration=Debug /m
 
-    - name: Run MSTest unit tests
-      run: |
-        vstest.console.exe WpfApp1.Tests/bin/Debug/WpfApp1.Tests.dll /Logger:trx
-      continue-on-error: true
+      # ----- CHẠY TEST -----
+      - name: Run MSTest tests
+        run: >
+          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe"
+          WpfApp1.Tests\bin\Debug\WpfApp1.Tests.dll
+          /Settings:Test.runsettings
+          /Logger:trx
+        continue-on-error: true
 
-    - name: Upload Test Results
-      uses: actions/upload-artifact@v3
-      with:
-        name: TestResults
-        path: '**/*.trx'
+      # Nếu bạn có script GenerateTestReport.ps1 thì chạy thêm:
+      - name: Generate HTML test report
+        shell: pwsh
+        run: .\GenerateTestReport.ps1
+        continue-on-error: true
+
+      # ----- UPLOAD KẾT QUẢ TEST + BINARY -----
+      - name: Upload Test Results (.trx + .html)
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults
+          path: |
+            Reports/TestResults/
+            **/*.trx
+
+      - name: Upload app binaries (optional)
+        uses: actions/upload-artifact@v4
+        with:
+          name: WpfApp1-bin-Debug
+          path: |
+            WpfApp1/bin/Debug/
