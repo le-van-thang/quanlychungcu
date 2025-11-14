@@ -1,4 +1,4 @@
-name: CondoApp Build & Tests
+name: build-and-test
 
 on:
   push:
@@ -7,11 +7,11 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout source
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup NuGet
@@ -20,39 +20,28 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
-      - name: Restore NuGet packages
+      - name: Restore packages
         run: nuget restore WpfApp1.sln
 
       - name: Build solution (Debug)
         run: msbuild WpfApp1.sln /t:Build /p:Configuration=Debug /m
 
-      # ----- CHẠY TEST -----
       - name: Run MSTest tests
-        run: >
-          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe"
-          WpfApp1.Tests\bin\Debug\WpfApp1.Tests.dll
-          /Settings:Test.runsettings
-          /Logger:trx
-        continue-on-error: true
+        run: |
+          & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe" `
+            "WpfApp1.Tests\bin\Debug\WpfApp1.Tests.dll" /Settings:Test.runsettings /Logger:trx
 
-      # Nếu bạn có script GenerateTestReport.ps1 thì chạy thêm:
       - name: Generate HTML test report
-        shell: pwsh
         run: .\GenerateTestReport.ps1
-        continue-on-error: true
 
-      # ----- UPLOAD KẾT QUẢ TEST + BINARY -----
       - name: Upload Test Results (.trx + .html)
         uses: actions/upload-artifact@v4
         with:
           name: TestResults
-          path: |
-            Reports/TestResults/
-            **/*.trx
+          path: Reports/TestResults/
 
       - name: Upload app binaries (optional)
         uses: actions/upload-artifact@v4
         with:
-          name: WpfApp1-bin-Debug
-          path: |
-            WpfApp1/bin/Debug/
+          name: WpfApp1-bin-Release
+          path: WpfApp1/bin/Debug/
