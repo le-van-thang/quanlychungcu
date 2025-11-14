@@ -16,6 +16,9 @@ namespace WpfApp1.Tests.Integration
     /// - Nếu là SQL Server: InnerException có thể là SqlException với mã 547 (FK violation).
     /// </summary>
     [TestClass]
+    /// <summary>
+    /// TC23–TC24: kiểm tra ràng buộc FK CanHo – HoaDonCuDan.
+    /// </summary>
     public class EFforeignKeyTests
     {
         /// <summary>
@@ -27,6 +30,10 @@ namespace WpfApp1.Tests.Integration
         /// - Sau khi bị chặn, bản ghi Căn hộ vẫn CÒN trong DB.
         /// </summary>
         [TestMethod]
+        /// <summary>
+        /// TC24: Prevent deletion of apartment with residents/invoices.
+        /// Xóa căn hộ đã có hóa đơn → phải bị FK chặn.
+        /// </summary>
         public void Delete_CanHo_HasInvoices_ShouldThrow()
         {
             using (var db = new QuanlychungcuEntities())
@@ -93,6 +100,7 @@ namespace WpfApp1.Tests.Integration
         /// - Sau khi SaveChanges, bản ghi Căn hộ phải MẤT (không còn tồn tại).
         /// </summary>
         [TestMethod]
+        /// TC23: Delete apartment without residents/invoices → cho phép.
         public void Delete_CanHo_NoInvoices_ShouldSucceed()
         {
             using (var db = new QuanlychungcuEntities())

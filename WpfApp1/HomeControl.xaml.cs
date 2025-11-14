@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -13,10 +14,10 @@ namespace WpfApp1
             InitializeComponent();
             currentUser = user;
 
-            if (currentUser != null)
-                txtWelcome.Text = $"Xin chào {currentUser.Username} ({currentUser.VaiTro})";
-            else
-                txtWelcome.Text = "Xin chào";
+            var display = ComputeDisplayName(currentUser);
+            txtWelcome.Text = currentUser != null
+                ? $"Xin chào {display} ({currentUser.VaiTro})"
+                : "Xin chào";
 
             LoadDashboardData();
         }
@@ -44,22 +45,50 @@ namespace WpfApp1
             catch
             {
                 MessageBox.Show("Không thể tải dữ liệu thống kê!", "Lỗi",
-                                MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private static string ComputeDisplayName(TaiKhoan tk)
+        {
+            if (tk == null) return "";
+
+            try
+            {
+                using (var db = new QuanlychungcuEntities())
+                {
+                    var oa = db.OAuthAccounts
+                               .Where(a => a.TaiKhoanID == tk.TaiKhoanID)
+                               .OrderByDescending(a => a.LinkedAt)
+                               .FirstOrDefault();
+
+                    if (oa != null)
+                    {
+                        if (!string.IsNullOrWhiteSpace(oa.FullName)) return oa.FullName;
+                        if (!string.IsNullOrWhiteSpace(oa.Email)) return oa.Email;
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            if (!string.IsNullOrWhiteSpace(tk.Email)) return tk.Email;
+
+            var u = tk.Username ?? "";
+            const string fbPrefix = "Facebook:";
+            if (u.StartsWith(fbPrefix, StringComparison.OrdinalIgnoreCase))
+                return u.Substring(fbPrefix.Length);
+
+            return u.Length > 0 ? u : "(unknown)";
         }
 
         private void Navigate(UserControl uc)
         {
             var shell = Window.GetWindow(this) as DashboardWindow;
-            if (shell?.MainContent != null)
-            {
-                shell.MainContent.Content = uc;
-            }
-            else
-            {
-                MessageBox.Show("Không tìm thấy vùng nội dung để điều hướng.", "Thông báo",
-                                MessageBoxButton.OK, MessageBoxImage.Information);
-            }
+            if (shell?.MainContent != null) shell.MainContent.Content = uc;
+            else MessageBox.Show("Không tìm thấy vùng nội dung để điều hướng.", "Thông báo",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void BtnCanHo_Click(object sender, RoutedEventArgs e)
@@ -77,7 +106,6 @@ namespace WpfApp1
         private void BtnXeDap_Click(object sender, RoutedEventArgs e)
             => Navigate(new XeDapControl(currentUser));
 
-        // NEW: mở cửa sổ AI
         private void BtnAI_Click(object sender, RoutedEventArgs e)
         {
             var win = new AIWindow(currentUser);

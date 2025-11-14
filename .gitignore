@@ -24,3 +24,4 @@ packages/
 **/App.config
 !WpfApp1/App.config
 !WpfApp1.Tests/App.config
+WpfApp1/App.Secrets.config

@@ -1,4 +1,5 @@
 ﻿using Google.Apis.Auth.OAuth2;
+using Google.Apis.Auth.OAuth2.Responses;
 using Google.Apis.Oauth2.v2;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
@@ -6,13 +7,13 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Configuration;
 using System.Data.Entity.Core.EntityClient;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using WpfApp1.Models;
-using System.Data.SqlTypes;
 
 namespace WpfApp1.Services
 {
@@ -31,7 +32,6 @@ namespace WpfApp1.Services
                 throw new InvalidOperationException("Provider connection string is empty. Check 'QuanlychungcuEntities'.");
         }
 
-        // Clamp cho DateTime? (nullable)
         private static DateTime? ClampToSqlDateTime(DateTime? dt)
         {
             if (!dt.HasValue) return null;
@@ -43,7 +43,6 @@ namespace WpfApp1.Services
             return v;
         }
 
-        // Clamp cho DateTime (non-nullable)
         private static DateTime ClampToSqlDateTimeNonNull(DateTime dt)
         {
             var min = (DateTime)SqlDateTime.MinValue;
@@ -53,7 +52,7 @@ namespace WpfApp1.Services
             return dt;
         }
 
-        // ---------------- GOOGLE ----------------
+        // GOOGLE
         public async Task<OAuthUserInfo> SignInWithGoogleAsync()
         {
             var clientId = ConfigurationManager.AppSettings["GoogleClientId"];
@@ -64,9 +63,15 @@ namespace WpfApp1.Services
             var scopes = new[] { "openid", "email", "profile" };
             var store = new FileDataStore("GoogleOAuth_" + clientId, true);
 
+            // luôn xoá token cũ để được chọn account mới
+            await store.DeleteAsync<TokenResponse>("user");
+
             var cred = await GoogleWebAuthorizationBroker.AuthorizeAsync(
                 new ClientSecrets { ClientId = clientId, ClientSecret = clientSecret ?? string.Empty },
-                scopes, "user", CancellationToken.None, store);
+                scopes,
+                "user",
+                CancellationToken.None,
+                store);
 
             var svc = new Oauth2Service(new BaseClientService.Initializer
             {
@@ -77,6 +82,7 @@ namespace WpfApp1.Services
             try
             {
                 var me = await svc.Userinfo.Get().ExecuteAsync();
+
                 var issued = (cred.Token.IssuedUtc == default(DateTime) ? DateTime.UtcNow : cred.Token.IssuedUtc);
                 var exp = issued.AddSeconds(cred.Token.ExpiresInSeconds ?? 3600).ToLocalTime();
 
@@ -93,17 +99,21 @@ namespace WpfApp1.Services
             }
             catch (Google.GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.Unauthorized)
             {
-                await store.DeleteAsync<Google.Apis.Auth.OAuth2.Responses.TokenResponse>("user");
+                await store.DeleteAsync<TokenResponse>("user");
 
                 var cred2 = await GoogleWebAuthorizationBroker.AuthorizeAsync(
                     new ClientSecrets { ClientId = clientId, ClientSecret = clientSecret ?? string.Empty },
-                    scopes, "user", CancellationToken.None, store);
+                    scopes,
+                    "user",
+                    CancellationToken.None,
+                    store);
 
                 var svc2 = new Oauth2Service(new BaseClientService.Initializer
                 {
                     HttpClientInitializer = cred2,
                     ApplicationName = "CondoLoginApp"
                 });
+
                 var me2 = await svc2.Userinfo.Get().ExecuteAsync();
 
                 var issued2 = (cred2.Token.IssuedUtc == default(DateTime) ? DateTime.UtcNow : cred2.Token.IssuedUtc);
@@ -122,7 +132,7 @@ namespace WpfApp1.Services
             }
         }
 
-        // ---------------- FACEBOOK ----------------
+        // FACEBOOK
         public async Task<OAuthUserInfo> GetFacebookUserAsync(string accessToken)
         {
             if (string.IsNullOrWhiteSpace(accessToken))
@@ -146,14 +156,13 @@ namespace WpfApp1.Services
             }
         }
 
-        // ---------------- UPSERT DB ----------------
-        public async Task UpsertExternalUserAsync(OAuthUserInfo u, string defaultRole = "User")
+        // Lưu / cập nhật user + OAuthAccount + Token trong DB
+        public async Task<TaiKhoan> UpsertExternalUserAsync(OAuthUserInfo u, string defaultRole = "User")
         {
             if (u == null) throw new ArgumentNullException(nameof(u));
 
             using (var db = new QuanlychungcuEntities())
             {
-                // Provider
                 var provider = db.OAuthProviders.FirstOrDefault(p => p.Name == u.ProviderName);
                 if (provider == null)
                 {
@@ -162,16 +171,70 @@ namespace WpfApp1.Services
                     await db.SaveChangesAsync();
                 }
 
-                // Tài khoản cục bộ
-                TaiKhoan tk = null;
+                var oaByUser = db.OAuthAccounts
+                                 .Include("TaiKhoan")
+                                 .FirstOrDefault(x => x.ProviderID == provider.ProviderID
+                                                   && x.ProviderUserId == u.ProviderUserId);
+
+                TaiKhoan tk;
+
+                if (oaByUser != null)
+                {
+                    tk = oaByUser.TaiKhoan;
+
+                    oaByUser.Email = u.Email ?? oaByUser.Email;
+                    oaByUser.FullName = u.FullName ?? oaByUser.FullName;
+                    oaByUser.LinkedAt = ClampToSqlDateTimeNonNull(DateTime.Now);
+                    await db.SaveChangesAsync();
+
+                    var tok = db.OAuthTokens.FirstOrDefault(t => t.OAuthAccountID == oaByUser.OAuthAccountID);
+                    if (tok == null)
+                    {
+                        tok = new OAuthToken
+                        {
+                            OAuthAccountID = oaByUser.OAuthAccountID,
+                            AccessToken = u.AccessToken,
+                            RefreshToken = u.RefreshToken,
+                            ExpiresAt = ClampToSqlDateTime(u.ExpiresAt),
+                            Scope = "openid email profile",
+                            CreatedAt = ClampToSqlDateTimeNonNull(DateTime.UtcNow)
+                        };
+                        db.OAuthTokens.Add(tok);
+                    }
+                    else
+                    {
+                        tok.AccessToken = u.AccessToken;
+                        if (!string.IsNullOrEmpty(u.RefreshToken)) tok.RefreshToken = u.RefreshToken;
+                        tok.ExpiresAt = ClampToSqlDateTime(u.ExpiresAt);
+                        tok.Scope = "openid email profile";
+                    }
+
+                    await db.SaveChangesAsync();
+                    return tk;
+                }
+
+                tk = null;
                 if (!string.IsNullOrEmpty(u.Email))
-                    tk = db.TaiKhoans.FirstOrDefault(x => x.Email == u.Email);
+                {
+                    var em = u.Email.Trim().ToLowerInvariant();
+                    tk = db.TaiKhoans.FirstOrDefault(x => (x.Email ?? "").ToLower() == em);
+                }
 
                 if (tk == null)
                 {
-                    var username = !string.IsNullOrEmpty(u.Email)
-                                   ? u.Email.Trim().ToLowerInvariant()
-                                   : (u.ProviderName + ":" + (u.ProviderUserId ?? Guid.NewGuid().ToString("N")));
+                    string username = !string.IsNullOrEmpty(u.Email)
+                                        ? u.Email.Trim().ToLowerInvariant()
+                                        : $"Facebook:{(u.ProviderUserId ?? Guid.NewGuid().ToString("N"))}";
+                    username = username.Length > 255 ? username.Substring(0, 255) : username;
+
+                    string baseName = username;
+                    int suffix = 1;
+                    while (db.TaiKhoans.Any(x => x.Username == username))
+                    {
+                        var add = "_" + suffix++;
+                        var take = Math.Max(1, 255 - add.Length);
+                        username = baseName.Substring(0, Math.Min(baseName.Length, take)) + add;
+                    }
 
                     tk = new TaiKhoan
                     {
@@ -185,58 +248,31 @@ namespace WpfApp1.Services
                     await db.SaveChangesAsync();
                 }
 
-                // Liên kết OAuthAccount
-                var oa = db.OAuthAccounts.FirstOrDefault(x =>
-                    x.ProviderID == provider.ProviderID &&
-                    x.TaiKhoanID == tk.TaiKhoanID);
-
-                if (oa == null)
+                var oa = new OAuthAccount
                 {
-                    oa = new OAuthAccount
-                    {
-                        ProviderID = provider.ProviderID,
-                        TaiKhoanID = tk.TaiKhoanID,
-                        ProviderUserId = u.ProviderUserId,
-                        Email = u.Email,
-                        FullName = u.FullName,
-                        LinkedAt = ClampToSqlDateTimeNonNull(DateTime.Now)
-                    };
-                    db.OAuthAccounts.Add(oa);
-                    await db.SaveChangesAsync();
-                }
-                else
-                {
-                    oa.Email = u.Email;
-                    oa.FullName = u.FullName;
-                    oa.LinkedAt = ClampToSqlDateTimeNonNull(DateTime.Now);
-                    await db.SaveChangesAsync();
-                }
-
-                // Token
-                var tok = db.OAuthTokens.FirstOrDefault(t => t.OAuthAccountID == oa.OAuthAccountID);
-                if (tok == null)
-                {
-                    tok = new OAuthToken
-                    {
-                        OAuthAccountID = oa.OAuthAccountID,
-                        AccessToken = u.AccessToken,
-                        RefreshToken = u.RefreshToken,
-                        ExpiresAt = ClampToSqlDateTime(u.ExpiresAt),
-                        Scope = "openid email profile",
-                        CreatedAt = ClampToSqlDateTimeNonNull(DateTime.UtcNow)
-                    };
-                    db.OAuthTokens.Add(tok);
-                }
-                else
-                {
-                    tok.AccessToken = u.AccessToken;
-                    if (!string.IsNullOrEmpty(u.RefreshToken))
-                        tok.RefreshToken = u.RefreshToken;
-                    tok.ExpiresAt = ClampToSqlDateTime(u.ExpiresAt);
-                    tok.Scope = "openid email profile";
-                }
-
+                    ProviderID = provider.ProviderID,
+                    TaiKhoanID = tk.TaiKhoanID,
+                    ProviderUserId = u.ProviderUserId,
+                    Email = u.Email,
+                    FullName = u.FullName,
+                    LinkedAt = ClampToSqlDateTimeNonNull(DateTime.Now)
+                };
+                db.OAuthAccounts.Add(oa);
                 await db.SaveChangesAsync();
+
+                var tokNew = new OAuthToken
+                {
+                    OAuthAccountID = oa.OAuthAccountID,
+                    AccessToken = u.AccessToken,
+                    RefreshToken = u.RefreshToken,
+                    ExpiresAt = ClampToSqlDateTime(u.ExpiresAt),
+                    Scope = "openid email profile",
+                    CreatedAt = ClampToSqlDateTimeNonNull(DateTime.UtcNow)
+                };
+                db.OAuthTokens.Add(tokNew);
+                await db.SaveChangesAsync();
+
+                return tk;
             }
         }
     }

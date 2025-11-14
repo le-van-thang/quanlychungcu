@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Google.Apis.Auth.OAuth2.Responses;
+using System;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -17,7 +18,6 @@ namespace WpfApp1
         {
             InitializeComponent();
 
-            // Tải "Ghi nhớ" nếu có
             var rem = RememberStore.Load();
             if (rem != null)
             {
@@ -55,7 +55,6 @@ namespace WpfApp1
                         return;
                     }
 
-                    // Kiểm tra mật khẩu theo format salt$sha256(password+salt)
                     if (!VerifyPassword(pass, tk.PasswordHash))
                     {
                         MessageBox.Show("Mật khẩu không đúng!", "Sai mật khẩu",
@@ -63,7 +62,6 @@ namespace WpfApp1
                         return;
                     }
 
-                    // Khóa tài khoản?
                     if (TryGetBool(tk, "IsActive") == false)
                     {
                         MessageBox.Show("Tài khoản đã bị khóa.", "Thông báo",
@@ -71,9 +69,10 @@ namespace WpfApp1
                         return;
                     }
 
-                    // Ghi nhớ đăng nhập
                     if (chkRemember.IsChecked == true) RememberStore.Save(user, pass);
                     else RememberStore.Clear();
+
+                    SessionStore.Save(tk.TaiKhoanID);
 
                     MessageBox.Show("Đăng nhập thành công!", "Thành công",
                         MessageBoxButton.OK, MessageBoxImage.Information);
@@ -94,7 +93,6 @@ namespace WpfApp1
         {
             try
             {
-                // 1) Nhập email
                 string email = AskEmail();
                 if (string.IsNullOrEmpty(email)) return;
 
@@ -115,15 +113,19 @@ namespace WpfApp1
                         return;
                     }
 
-                    // 2) Sinh OTP và gửi mail
                     var key = "reset:" + email;
                     var otp = OtpStore.Issue(key, TimeSpan.FromMinutes(5));
 
                     try
                     {
                         await Mailer.SendAsync(email, "Xác nhận đặt lại mật khẩu",
-     $"Xin chào,\n\nMã OTP của bạn là: {otp}\nMã có hiệu lực trong 5 phút.\nVui lòng không chia sẻ mã này cho bất kỳ ai.\n\nNếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này.");
+$@"Xin chào,
 
+Mã OTP của bạn là: {otp}
+Mã có hiệu lực trong 5 phút.
+Vui lòng không chia sẻ mã này cho bất kỳ ai.
+
+Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này.");
                     }
                     catch (Exception exMail)
                     {
@@ -135,11 +137,9 @@ namespace WpfApp1
                     MessageBox.Show("Mã OTP đã được gửi. Vui lòng kiểm tra email.",
                         "Đã gửi OTP", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                    // 3) Xác minh OTP (tối đa 3 lần nhập sai)
                     bool otpOk = AskOtp(key, 3);
                     if (!otpOk) return;
 
-                    // 4) Nhập mật khẩu mới
                     var newPwd1 = InputBox.Show("Nhập mật khẩu mới:", "Đặt lại mật khẩu");
                     if (string.IsNullOrWhiteSpace(newPwd1)) return;
                     var newPwd2 = InputBox.Show("Nhập lại mật khẩu mới:", "Xác nhận mật khẩu");
@@ -150,7 +150,6 @@ namespace WpfApp1
                         return;
                     }
 
-                    // 5) Lưu vào DB
                     tk.PasswordHash = BuildPasswordHash(newPwd1);
                     db.SaveChanges();
 
@@ -202,16 +201,13 @@ namespace WpfApp1
                 txtPasswordPlaceholder.Visibility = Visibility.Visible;
         }
 
-        // ===================== HỖ TRỢ QUÊN MẬT KHẨU (đồng bộ) =====================
-
-        // Hỏi email -> trả về null nếu người dùng Hủy/Trở lại
         private string AskEmail()
         {
             while (true)
             {
                 var dlg = new InputDialog("Nhập email đã đăng ký để nhận mã OTP:", "Quên mật khẩu");
                 bool? ok = dlg.ShowDialog();
-                if (ok != true) return null; // Hủy/Trở lại
+                if (ok != true) return null;
 
                 var email = (dlg.Result ?? "").Trim().ToLowerInvariant();
                 if (email.Length == 0)
@@ -230,14 +226,13 @@ namespace WpfApp1
             }
         }
 
-        // Hỏi OTP -> trả về false nếu Hủy/Trở lại; true nếu verify thành công
         private bool AskOtp(string key, int maxAttempts = 3)
         {
             for (int i = 0; i < maxAttempts; i++)
             {
                 var dlg = new InputDialog("Nhập mã OTP vừa nhận email:", "Xác minh OTP");
                 bool? ok = dlg.ShowDialog();
-                if (ok != true) return false; // Hủy/Trở lại
+                if (ok != true) return false;
 
                 var otpInput = (dlg.Result ?? "").Trim();
                 if (otpInput.Length == 0)
@@ -252,12 +247,9 @@ namespace WpfApp1
                 MessageBox.Show("OTP sai hoặc đã hết hạn.", "Lỗi",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            return false; // hết số lần cho phép
+            return false;
         }
 
-        // ===================== Helpers =====================
-
-        // Verify theo format: salt$sha256(password+salt)
         private static bool VerifyPassword(string input, string stored)
         {
             if (string.IsNullOrEmpty(stored)) return false;
@@ -269,11 +261,9 @@ namespace WpfApp1
                 var calc = Sha256Hex(input + salt);
                 return string.Equals(calc, hash, StringComparison.OrdinalIgnoreCase);
             }
-            // fallback: so khớp plain (nếu DB cũ để plain)
             return string.Equals(input.Trim(), stored.Trim(), StringComparison.Ordinal);
         }
 
-        // Tạo hash mới theo format salt$sha256(password+salt)
         private static string BuildPasswordHash(string password)
         {
             var saltBytes = new byte[16];
@@ -312,7 +302,7 @@ namespace WpfApp1
             try
             {
                 var svc = new ExternalAuthService();
-                var u = await svc.SignInWithGoogleAsync();   // nếu đến đây là user đã xác thực OK
+                var u = await svc.SignInWithGoogleAsync();
 
                 MessageBox.Show($"Google xác thực OK!\nEmail: {u.Email}\nTên: {u.FullName}",
                                 "Đăng nhập Google", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -340,7 +330,9 @@ namespace WpfApp1
                         db.SaveChanges();
                     }
 
-                    await svc.UpsertExternalUserAsync(u, "User"); // lưu/ghép OAuthAccount + Token
+                    await svc.UpsertExternalUserAsync(u, "User");
+
+                    SessionStore.Save(tk.TaiKhoanID);
 
                     MessageBox.Show("Đăng nhập Google thành công! Chuyển vào Trang chủ.",
                                     "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -350,7 +342,7 @@ namespace WpfApp1
                     Close();
                 }
             }
-            catch (Google.Apis.Auth.OAuth2.Responses.TokenResponseException trex)
+            catch (TokenResponseException trex)
             {
                 MessageBox.Show("Đổi code lấy token thất bại: " +
                     (trex.Error?.ErrorDescription ?? trex.Message),
@@ -358,7 +350,6 @@ namespace WpfApp1
             }
             catch (Exception ex)
             {
-                // xem lỗi chi tiết của EF/SQL
                 var msg = ex.InnerException?.InnerException?.Message
                           ?? ex.InnerException?.Message
                           ?? ex.Message;
@@ -367,74 +358,48 @@ namespace WpfApp1
             }
         }
 
-
-
         private async void BtnLoginFacebook_Click(object sender, RoutedEventArgs e)
         {
             try
             {
                 var win = new FacebookLoginWindow { Owner = this };
-                var ok = win.ShowDialog();
-
-                if (ok != true)
+                if (win.ShowDialog() != true || string.IsNullOrEmpty(win.AccessToken))
                 {
                     MessageBox.Show("Bạn đã hủy đăng nhập Facebook.", "Thông báo",
                                     MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
 
-                // Có access token
-                if (string.IsNullOrEmpty(win.AccessToken))
-                {
-                    MessageBox.Show("Không lấy được Facebook access token.", "Lỗi",
-                                    MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
                 var svc = new ExternalAuthService();
-                var u = await svc.GetFacebookUserAsync(win.AccessToken); // có thể thiếu email
+                var u = await svc.GetFacebookUserAsync(win.AccessToken);
 
-                MessageBox.Show($"Facebook xác thực OK!\nID: {u.ProviderUserId}\nEmail: {u.Email}\nTên: {u.FullName}",
-                                "Đăng nhập Facebook", MessageBoxButton.OK, MessageBoxImage.Information);
+                var tk = await svc.UpsertExternalUserAsync(u, "User");
 
-                using (var db = new QuanlychungcuEntities())
-                {
-                    var username = !string.IsNullOrEmpty(u.Email)
-                                   ? u.Email.Trim().ToLowerInvariant()
-                                   : ("Facebook:" + (u.ProviderUserId ?? Guid.NewGuid().ToString("N")));
+                SessionStore.Save(tk.TaiKhoanID);
 
-                    var tk = db.TaiKhoans
-                               .FirstOrDefault(x => (x.Email ?? "") == u.Email || (x.Username ?? "") == username);
+                MessageBox.Show("Đăng nhập Facebook thành công! Chuyển vào Trang chủ.",
+                                "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                    if (tk == null)
-                    {
-                        tk = new TaiKhoan
-                        {
-                            Username = username,
-                            Email = u.Email,     // có thể null
-                            PasswordHash = null,
-                            VaiTro = "User",
-                            IsActive = true
-                        };
-                        db.TaiKhoans.Add(tk);
-                        db.SaveChanges();
-                    }
-
-                    await svc.UpsertExternalUserAsync(u, "User");
-
-                    MessageBox.Show("Đăng nhập Facebook thành công! Chuyển vào Trang chủ.",
-                                    "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                    var main = new DashboardWindow(tk);
-                    main.Show();
-                    Close();
-                }
+                var main = new DashboardWindow(tk);
+                main.Show();
+                Close();
+            }
+            catch (System.Data.Entity.Infrastructure.DbUpdateException ex)
+            {
+                var msg = ex.InnerException?.InnerException?.Message
+                       ?? ex.InnerException?.Message
+                       ?? ex.Message;
+                MessageBox.Show("Facebook login error (DbUpdate): " + msg,
+                                "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Facebook login error: " + ex.Message,
+                var msg = ex.InnerException?.InnerException?.Message
+                       ?? ex.InnerException?.Message
+                       ?? ex.Message;
+                MessageBox.Show("Facebook login error (detail): " + msg,
                                 "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
-    }
+}

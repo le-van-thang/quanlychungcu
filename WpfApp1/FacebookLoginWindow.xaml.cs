@@ -9,10 +9,12 @@ namespace WpfApp1.Windows
 {
     public partial class FacebookLoginWindow : Window
     {
-        public string AccessToken { get; private set; }  // có thể null trước khi login xong
+        public string AccessToken { get; private set; }
 
         private string _appId = "";
         private string _redirect = "";
+
+        private const bool ForceClearFacebookCookiesOnOpen = true;
 
         public FacebookLoginWindow()
         {
@@ -23,7 +25,6 @@ namespace WpfApp1.Windows
 
         private async void FacebookLoginWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            // Đọc cấu hình
             _appId = ConfigurationManager.AppSettings["FacebookAppId"] ?? "";
             _redirect = ConfigurationManager.AppSettings["FacebookRedirectUri"] ?? "";
 
@@ -35,20 +36,23 @@ namespace WpfApp1.Windows
                 return;
             }
 
-            // Khởi tạo WebView2
             await EnsureWebView2Async();
 
-            // Gắn sự kiện để bắt token
-            webView.CoreWebView2.NavigationStarting += Core_NavigationStarting; // bắt query (không có fragment)
-            webView.CoreWebView2.SourceChanged += Core_SourceChanged;           // đọc fragment qua JS
+            if (ForceClearFacebookCookiesOnOpen)
+            {
+                try { await ClearFacebookCookiesAsync(); } catch { }
+            }
 
-            // Điều hướng đến OAuth
-            var scope = "email,public_profile";
+            webView.CoreWebView2.NavigationStarting += Core_NavigationStarting;
+            webView.CoreWebView2.SourceChanged += Core_SourceChanged;
+
+            var scope = "public_profile,email";
             var url =
                 "https://www.facebook.com/v19.0/dialog/oauth" +
                 "?client_id=" + Uri.EscapeDataString(_appId) +
                 "&redirect_uri=" + Uri.EscapeDataString(_redirect) +
                 "&response_type=token" +
+                "&display=popup" +
                 "&scope=" + Uri.EscapeDataString(scope);
 
             webView.Source = new Uri(url);
@@ -59,61 +63,91 @@ namespace WpfApp1.Windows
             if (webView.CoreWebView2 == null)
             {
                 await webView.EnsureCoreWebView2Async();
-                // Tuỳ chọn: cấu hình settings tại đây nếu cần
-                // webView.CoreWebView2.Settings.UserAgent = webView.CoreWebView2.Settings.UserAgent + " WpfApp1";
             }
         }
 
-        // 1) Bắt ở NavigationStarting (URI không chứa fragment #...)
+        private async Task ClearFacebookCookiesAsync()
+        {
+            if (webView.CoreWebView2 == null) return;
+
+            var mgr = webView.CoreWebView2.CookieManager;
+
+            await DeleteAllFor(mgr, "https://facebook.com/");
+            await DeleteAllFor(mgr, "https://www.facebook.com/");
+            await DeleteAllFor(mgr, "https://m.facebook.com/");
+        }
+
+        private static async Task DeleteAllFor(CoreWebView2CookieManager mgr, string uri)
+        {
+            var cookies = await mgr.GetCookiesAsync(uri);
+            foreach (var ck in cookies)
+            {
+                var del = mgr.CreateCookie(ck.Name, ck.Value, ck.Domain, ck.Path);
+                del.Expires = ck.Expires;
+                del.IsHttpOnly = ck.IsHttpOnly;
+                del.IsSecure = ck.IsSecure;
+                del.SameSite = ck.SameSite;
+                mgr.DeleteCookie(del);
+            }
+        }
+
         private void Core_NavigationStarting(object sender, CoreWebView2NavigationStartingEventArgs e)
         {
             if (TryHandleRedirectUrl(e.Uri))
             {
-                e.Cancel = true; // đã lấy token -> không cần tải trang nữa
+                e.Cancel = true;
             }
         }
 
-        // 2) Bắt ở SourceChanged: dùng JS lấy location.href (có fragment)
         private async void Core_SourceChanged(object sender, object e)
         {
             try
             {
-                string hrefJson = await webView.ExecuteScriptAsync("location.href"); // trả về chuỗi JSON có ngoặc kép
+                string hrefJson = await webView.ExecuteScriptAsync("location.href");
                 string href = Unquote(hrefJson);
                 TryHandleRedirectUrl(href);
             }
             catch
             {
-                // bỏ qua lỗi nhỏ của script/designer
             }
         }
 
-        // Bóc bỏ dấu ngoặc kép JSON và các escape cơ bản (không dùng index ^1)
         private static string Unquote(string jsonString)
         {
             if (string.IsNullOrEmpty(jsonString)) return jsonString;
 
-            if (jsonString.Length >= 2 && jsonString[0] == '\"' && jsonString[jsonString.Length - 1] == '\"')
+            if (jsonString.Length >= 2 && jsonString[0] == '"' &&
+                jsonString[jsonString.Length - 1] == '"')
             {
                 string s = jsonString.Substring(1, jsonString.Length - 2);
-                s = s.Replace("\\u0026", "&").Replace("\\/", "/");
+                s = s.Replace("\\u0026", "&")
+                     .Replace("\\/", "/");
                 return s;
             }
             return jsonString;
         }
 
-        // Trả true nếu lấy được access_token và đóng cửa sổ
         private bool TryHandleRedirectUrl(string url)
         {
             if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(_redirect)) return false;
-            if (!url.StartsWith(_redirect, StringComparison.OrdinalIgnoreCase)) return false;
+
+            if (!url.StartsWith(_redirect, StringComparison.OrdinalIgnoreCase))
+                return false;
 
             Uri uri;
             try { uri = new Uri(url); }
             catch { return false; }
 
-            string fragment = uri.Fragment; // "#access_token=..."
+            string fragment = uri.Fragment;
             string query = uri.Query;
+
+            if ((!string.IsNullOrEmpty(fragment) && fragment.Contains("error=access_denied")) ||
+                (!string.IsNullOrEmpty(query) && query.Contains("error=access_denied")))
+            {
+                DialogResult = false;
+                Close();
+                return true;
+            }
 
             string token = null;
 
@@ -122,6 +156,7 @@ namespace WpfApp1.Windows
                 var m = Regex.Match(fragment, @"access_token=([^&]+)");
                 if (m.Success) token = Uri.UnescapeDataString(m.Groups[1].Value);
             }
+
             if (token == null && !string.IsNullOrEmpty(query))
             {
                 var m = Regex.Match(query, @"access_token=([^&]+)");
@@ -129,10 +164,7 @@ namespace WpfApp1.Windows
             }
 
             if (string.IsNullOrEmpty(token))
-            {
-                // Có thể kiểm tra error=access_denied trong fragment/query để biết user hủy
                 return false;
-            }
 
             AccessToken = token;
             DialogResult = true;
@@ -150,7 +182,9 @@ namespace WpfApp1.Windows
                     webView.CoreWebView2.SourceChanged -= Core_SourceChanged;
                 }
             }
-            catch { }
+            catch
+            {
+            }
         }
     }
 }

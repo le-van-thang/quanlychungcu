@@ -3,4 +3,13 @@
 	<RunConfiguration>
 		<ResultsDirectory>Reports\TestResults</ResultsDirectory>
 	</RunConfiguration>
+	<MSTest>
+		<DeploymentEnabled>false</DeploymentEnabled>
+	</MSTest>
+	<LoggerRunSettings>
+		<Loggers>
+			<!-- Bật logger trx -->
+			<Logger friendlyName="trx" enabled="true" />
+		</Loggers>
+	</LoggerRunSettings>
 </RunSettings>

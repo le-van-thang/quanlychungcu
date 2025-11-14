@@ -22,17 +22,22 @@ namespace WpfApp1
 
             _currentUser = user;
 
-            // Hiển thị tên user trên Title
-            var userLabel = TryGet(_currentUser, "HoTen")
-                            ?? TryGet(_currentUser, "FullName")
-                            ?? TryGet(_currentUser, "Username")
-                            ?? "(unknown)";
-            Title = $"Trang chủ - Quản lý chung cư — {userLabel}";
+            string displayName = TryGet(_currentUser, "HoTen")
+                                 ?? TryGet(_currentUser, "FullName")
+                                 ?? TryGet(_currentUser, "Email");
 
-            // Thiết lập menu theo vai trò
+            if (string.IsNullOrWhiteSpace(displayName))
+            {
+                var username = TryGet(_currentUser, "Username");
+                displayName = (username != null && username.StartsWith("Facebook:", StringComparison.OrdinalIgnoreCase))
+                                ? username.Substring("Facebook:".Length)
+                                : (username ?? "(unknown)");
+            }
+
+            Title = $"Trang chủ - Quản lý chung cư — {displayName}";
+
             SetupMenuByRole();
 
-            // Màn hình mặc định
             Navigate(new HomeControl(_currentUser));
         }
 
@@ -47,7 +52,6 @@ namespace WpfApp1
             expPhuongTien.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
             btnMenuKhuVucThuongMai.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
 
-            // Cư dân + Tài khoản cá nhân thì ai cũng thấy
             expKhuVucDanCu.Visibility = Visibility.Visible;
             expTaiKhoan.Visibility = Visibility.Visible;
         }
@@ -69,7 +73,6 @@ namespace WpfApp1
             return v?.ToString();
         }
 
-        // ============== Menu handlers ==============
         private void BtnHome_Click(object sender, RoutedEventArgs e)
             => Navigate(new HomeControl(_currentUser));
 
@@ -84,6 +87,8 @@ namespace WpfApp1
             if (MessageBox.Show("Bạn có chắc muốn đăng xuất?",
                     "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
+                SessionStore.Clear();
+
                 var login = new LoginWindow();
                 login.Show();
                 Application.Current.MainWindow = login;
@@ -91,26 +96,22 @@ namespace WpfApp1
             }
         }
 
-        // Dân cư
         private void BtnCuDan_Click(object sender, RoutedEventArgs e)
             => Navigate(new CuDanControl(_currentUser));
 
         private void BtnCanHo_Click(object sender, RoutedEventArgs e)
             => Navigate(new CanHoControl(_currentUser));
 
-        // Tài chính
         private void BtnHoaDonCuDan_Click(object sender, RoutedEventArgs e)
         {
             MainContent.Content = new HoaDonCuDanControl(_currentUser);
         }
 
-        // 🏢 Hóa đơn thương mại
         private void BtnHoaDonThuongMai_Click(object sender, RoutedEventArgs e)
         {
             MainContent.Content = new HoaDonThuongMaiControl();
         }
 
-        // Phương tiện
         private void BtnXeOTo_Click(object sender, RoutedEventArgs e)
             => Navigate(new XeOToControl());
 
@@ -120,7 +121,6 @@ namespace WpfApp1
         private void BtnXeDap_Click(object sender, RoutedEventArgs e)
             => Navigate(new XeDapControl());
 
-        // Tài khoản
         private void BtnTaiKhoanInfo_Click(object sender, RoutedEventArgs e)
             => Navigate(new TaiKhoanInfoControl(_currentUser));
 

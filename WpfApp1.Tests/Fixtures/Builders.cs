@@ -1,9 +1,11 @@
 ﻿using System.Linq;
-using System.Data.Entity;
 using WpfApp1;
 
 namespace WpfApp1.Tests.Fixtures
 {
+    /// <summary>
+    /// Builders: tiện tạo dữ liệu demo cho test.
+    /// </summary>
     public static class Builders
     {
         public static Tang MakeTang(QuanlychungcuEntities db, string ten = "Tầng 1")
@@ -17,11 +19,14 @@ namespace WpfApp1.Tests.Fixtures
             return t;
         }
 
-        public static CanHo MakeCanHo(QuanlychungcuEntities db, string so = "A101",
-                                      decimal dt = 60, decimal gt = 1_000_000)
+        public static CanHo MakeCanHo(
+            QuanlychungcuEntities db,
+            string so = "A101",
+            decimal dt = 60,
+            decimal gt = 1_000_000)
         {
             var tang = MakeTang(db);
-            var ch = db.Set<CanHo>().Add(new CanHo
+            var ch = db.CanHoes.Add(new CanHo
             {
                 SoCanHo = so,
                 TangID = tang.TangID,
@@ -32,8 +37,10 @@ namespace WpfApp1.Tests.Fixtures
             return ch;
         }
 
-        public static CuDan MakeCuDan(QuanlychungcuEntities db, int? canHoId = null,
-                                      string ten = "Nguyen Van A")
+        public static CuDan MakeCuDan(
+            QuanlychungcuEntities db,
+            int? canHoId = null,
+            string ten = "Nguyen Van A")
         {
             var cd = db.CuDans.Add(new CuDan
             {

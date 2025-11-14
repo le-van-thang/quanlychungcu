@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="CondoDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="CondoDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="CostSeries">
           <Key>
             <PropertyRef Name="Id" />
@@ -213,9 +213,9 @@
           <Property Name="OAuthAccountID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="TaiKhoanID" Type="int" Nullable="false" />
           <Property Name="ProviderID" Type="int" Nullable="false" />
-          <Property Name="ProviderUserId" Type="nvarchar" MaxLength="200" Nullable="false" />
-          <Property Name="Email" Type="nvarchar" MaxLength="200" />
-          <Property Name="FullName" Type="nvarchar" MaxLength="200" />
+          <Property Name="ProviderUserId" Type="nvarchar" MaxLength="256" Nullable="false" />
+          <Property Name="Email" Type="nvarchar" MaxLength="255" />
+          <Property Name="FullName" Type="nvarchar" MaxLength="255" />
           <Property Name="LinkedAt" Type="datetime" Nullable="false" />
         </EntityType>
         <EntityType Name="OAuthProvider">
@@ -235,7 +235,7 @@
           <Property Name="OAuthAccountID" Type="int" Nullable="false" />
           <Property Name="AccessToken" Type="nvarchar(max)" />
           <Property Name="RefreshToken" Type="nvarchar(max)" />
-          <Property Name="ExpiresAt" Type="datetime" />
+          <Property Name="ExpiresAt" Type="datetime2" Precision="7" />
           <Property Name="Scope" Type="nvarchar" MaxLength="400" />
           <Property Name="CreatedAt" Type="datetime" Nullable="false" />
         </EntityType>
@@ -254,10 +254,10 @@
             <PropertyRef Name="TaiKhoanID" />
           </Key>
           <Property Name="TaiKhoanID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Username" Type="nvarchar" MaxLength="50" Nullable="false" />
-          <Property Name="PasswordHash" Type="nvarchar" MaxLength="255" Nullable="false" />
-          <Property Name="VaiTro" Type="nvarchar" MaxLength="20" Nullable="false" />
-          <Property Name="Email" Type="nvarchar" MaxLength="100" />
+          <Property Name="Username" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="PasswordHash" Type="nvarchar" MaxLength="512" />
+          <Property Name="VaiTro" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Email" Type="nvarchar" MaxLength="255" />
           <Property Name="IsActive" Type="bit" Nullable="false" />
           <Property Name="CreatedAt" Type="datetime" />
           <Property Name="SecurityStamp" Type="nvarchar" MaxLength="60" />
@@ -846,8 +846,7 @@
             <End Role="XeOTo" EntitySet="XeOTo" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="CondoDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -1084,9 +1083,9 @@
           <Property Name="OAuthAccountID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TaiKhoanID" Type="Int32" Nullable="false" />
           <Property Name="ProviderID" Type="Int32" Nullable="false" />
-          <Property Name="ProviderUserId" Type="String" MaxLength="200" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Email" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="FullName" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="ProviderUserId" Type="String" MaxLength="256" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Email" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="FullName" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
           <Property Name="LinkedAt" Type="DateTime" Nullable="false" Precision="3" />
           <NavigationProperty Name="OAuthProvider" Relationship="Self.FK_OAuthAcc_Provider" FromRole="OAuthAccount" ToRole="OAuthProvider" />
           <NavigationProperty Name="TaiKhoan" Relationship="Self.FK_OAuthAcc_TaiKhoan" FromRole="OAuthAccount" ToRole="TaiKhoan" />
@@ -1110,7 +1109,7 @@
           <Property Name="OAuthAccountID" Type="Int32" Nullable="false" />
           <Property Name="AccessToken" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="RefreshToken" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="ExpiresAt" Type="DateTime" Precision="3" />
+          <Property Name="ExpiresAt" Type="DateTime" Precision="7" />
           <Property Name="Scope" Type="String" MaxLength="400" FixedLength="false" Unicode="true" />
           <Property Name="CreatedAt" Type="DateTime" Nullable="false" Precision="3" />
           <NavigationProperty Name="OAuthAccount" Relationship="Self.FK_OAuthToken_Account" FromRole="OAuthToken" ToRole="OAuthAccount" />
@@ -1131,10 +1130,10 @@
             <PropertyRef Name="TaiKhoanID" />
           </Key>
           <Property Name="TaiKhoanID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Username" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="PasswordHash" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="VaiTro" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Email" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Username" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="PasswordHash" Type="String" MaxLength="512" FixedLength="false" Unicode="true" Nullable="true" />
+          <Property Name="VaiTro" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Email" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
           <Property Name="IsActive" Type="Boolean" Nullable="false" />
           <Property Name="CreatedAt" Type="DateTime" Precision="3" />
           <Property Name="SecurityStamp" Type="String" MaxLength="60" FixedLength="false" Unicode="true" />

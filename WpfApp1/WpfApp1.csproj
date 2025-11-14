@@ -438,6 +438,7 @@
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="SecureVault.cs" />
+    <Compile Include="SessionStore.cs" />
     <Compile Include="SpeechSupport.cs" />
     <Compile Include="TaiKhoan.cs">
       <DependentUpon>Model1.tt</DependentUpon>
@@ -457,6 +458,7 @@
     <Compile Include="User.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="UserDisplay.cs" />
     <Compile Include="VaiTro.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -651,6 +653,7 @@
       <Generator>EntityModelCodeGenerator</Generator>
       <LastGenOutput>Model1.Designer.cs</LastGenOutput>
     </EntityDeploy>
+    <None Include="App.Secrets.config" />
     <None Include="Model1.edmx.diagram">
       <DependentUpon>Model1.edmx</DependentUpon>
     </None>

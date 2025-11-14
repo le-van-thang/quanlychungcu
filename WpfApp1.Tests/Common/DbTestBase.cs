@@ -3,6 +3,10 @@ using System.Transactions;
 
 namespace WpfApp1.Tests.Common
 {
+    /// <summary>
+    /// Base class cho các test dùng DB.
+    /// Mỗi test chạy trong TransactionScope và rollback khi kết thúc.
+    /// </summary>
     public abstract class DbTestBase
     {
         private TransactionScope _scope;
@@ -10,11 +14,10 @@ namespace WpfApp1.Tests.Common
         [TestInitialize]
         public void Begin()
         {
-            // Cho phép async flow nếu cần
             _scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
         }
 
         [TestCleanup]
-        public void Rollback() => _scope?.Dispose(); // auto-rollback
+        public void Rollback() => _scope?.Dispose();
     }
 }
