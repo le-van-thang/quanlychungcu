@@ -26,33 +26,48 @@ jobs:
       - name: Build solution (Debug)
         run: msbuild WpfApp1.sln /t:Build /p:Configuration=Debug /m
 
-      # ----- CHẠY TEST -----
+
+      # ============================
+      #     RUN MSTest correctly
+      # ============================
       - name: Run MSTest tests
-        run: >
-          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe"
-          WpfApp1.Tests\bin\Debug\WpfApp1.Tests.dll
-          /Settings:Test.runsettings
-          /Logger:trx
-        continue-on-error: true
-
-      # Nếu bạn có script GenerateTestReport.ps1 thì chạy thêm:
-      - name: Generate HTML test report
         shell: pwsh
-        run: .\GenerateTestReport.ps1
-        continue-on-error: true
+        run: |
+          & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe" `
+            "WpfApp1.Tests\bin\Debug\WpfApp1.Tests.dll" `
+            /Logger:trx
+      
 
-      # ----- UPLOAD KẾT QUẢ TEST + BINARY -----
-      - name: Upload Test Results (.trx + .html)
+      # ============================
+      # Generate test report (optional)
+      # ============================
+      - name: Generate HTML test report
+        if: always()
+        shell: pwsh
+        run: |
+          if (Test-Path "Reports\TestResults") {
+            Write-Host "Report folder exists"
+          } else {
+            mkdir Reports\TestResults
+          }
+
+
+      # ============================
+      # Upload test results
+      # ============================
+      - name: Upload Test Results (.trx)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: TestResults
           path: |
-            Reports/TestResults/
-            */.trx
+            **/*.trx
 
+      # ============================
+      # Upload app binaries
+      # ============================
       - name: Upload app binaries (optional)
         uses: actions/upload-artifact@v4
         with:
-          name: WpfApp1-bin-Debug
-          path: |
-            WpfApp1/bin/Debug/
+          name: WpfApp1-debug
+          path: WpfApp1/bin/Debug/
