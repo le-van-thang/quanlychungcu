@@ -19,6 +19,7 @@ packages/
 *.ldf
 *.sqlite*
 *.db*
+*.sql
 
 # App.config: ignore tất cả, chỉ giữ 2 file
 **/App.config
