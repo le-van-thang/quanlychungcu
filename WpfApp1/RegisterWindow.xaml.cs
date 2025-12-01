@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 
@@ -46,14 +44,14 @@ namespace WpfApp1
             {
                 txtConfirmVisible.Text = pwdConfirm.Password;
                 txtConfirmVisible.Visibility = Visibility.Visible;
-                pwdConfirm.Visibility = Visibility.Collapsed;
+                pwdConfirm.Visibility = System.Windows.Visibility.Collapsed;
                 btnToggleConfirm.Content = "🙈";
             }
             else
             {
                 pwdConfirm.Password = txtConfirmVisible.Text;
-                pwdConfirm.Visibility = Visibility.Visible;
-                txtConfirmVisible.Visibility = Visibility.Collapsed;
+                pwdConfirm.Visibility = System.Windows.Visibility.Visible;
+                txtConfirmVisible.Visibility = System.Windows.Visibility.Collapsed;
                 btnToggleConfirm.Content = "👁";
             }
         }
@@ -131,23 +129,25 @@ namespace WpfApp1
                 return;
             }
 
-            // Hash password (password + salt) theo format salt$sha256(password+salt)
-            string salt = Guid.NewGuid().ToString("N").Substring(0, 8);
-            string passwordHash = HashSHA256(password + salt);
-            string stored = $"{salt}${passwordHash}";
+            // ✅ Hash mật khẩu bằng SecureVault (giống Login + ForgotPassword)
+            string stored = SecureVault.HashPassword(password);
 
             var tk = new TaiKhoan
             {
                 Username = username,
                 PasswordHash = stored,
                 Email = email,
-                VaiTro = "User",
+                VaiTro = "User",      // người đăng ký mới luôn là User
                 IsActive = true,
                 CreatedAt = DateTime.Now
             };
 
             db.TaiKhoans.Add(tk);
             db.SaveChanges();
+
+            AuditLogger.Log("Register", "TaiKhoan",
+                tk.TaiKhoanID.ToString(),
+                $"Đăng ký tài khoản mới: {username} ({email})");
 
             MessageBox.Show("Đăng ký thành công!", "Thành công",
                 MessageBoxButton.OK, MessageBoxImage.Information);
@@ -177,23 +177,12 @@ namespace WpfApp1
             if (pwd.Length >= 8) s++;
             if (Regex.IsMatch(pwd, @"[A-Z]")) s++;
             if (Regex.IsMatch(pwd, @"[a-z]")) s++;
-            if (Regex.IsMatch(pwd, @"\d")) s++;                  // ✅ sửa: \d
+            if (Regex.IsMatch(pwd, @"\d")) s++;                    // ✅ sửa \\d -> \d
             if (Regex.IsMatch(pwd, @"[^a-zA-Z0-9]")) s++;
             return s <= 2 ? "Mật khẩu yếu"
                  : s == 3 ? "Mật khẩu trung bình"
                  : s == 4 ? "Mật khẩu khá"
                  : "Mật khẩu mạnh";
-        }
-
-        private static string HashSHA256(string raw)
-        {
-            using (var sha = SHA256.Create())
-            {
-                var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(raw));
-                var sb = new StringBuilder();
-                foreach (var b in bytes) sb.Append(b.ToString("x2"));
-                return sb.ToString();
-            }
         }
     }
 }

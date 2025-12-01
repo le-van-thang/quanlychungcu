@@ -8,36 +8,34 @@ namespace WpfApp1
     {
         private TaiKhoan _currentUser;
 
-        // ctor mặc định (designer, hoặc không cần phân quyền)
         public XeOToControl()
         {
             InitializeComponent();
-            ApplyRolePermission();   // sẽ ẩn/hiện nếu có _currentUser
             LoadData();
         }
 
-        // ctor có user (khuyến nghị dùng từ HomeControl)
         public XeOToControl(TaiKhoan user) : this()
         {
             _currentUser = user;
             ApplyRolePermission();
         }
 
-        // Ẩn/hiện các nút theo vai trò (Admin/QuanLy mới thấy)
         private void ApplyRolePermission()
         {
-            var role = _currentUser?.VaiTro?.ToLower() ?? "";
-            bool isAdmin = role == "admin" || role == "administrator" || role == "quanly";
+            if (_currentUser == null) return;
 
-            // Hỗ trợ cả 2 kiểu tên nút: btnAdd/btnEdit/btnDelete hoặc btnThem/btnSua/btnXoa
-            if (FindName("btnAdd") is Button add) add.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
-            if (FindName("btnEdit") is Button edit) edit.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
-            if (FindName("btnDelete") is Button del) del.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
+            bool canEdit = RoleHelper.CanEditData(_currentUser);
 
-            if (FindName("btnThem") is Button them) them.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
-            if (FindName("btnSua") is Button sua) sua.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
-            if (FindName("btnXoa") is Button xoa) xoa.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
+            if (FindName("btnAdd") is Button add) add.Visibility = canEdit ? Visibility.Visible : Visibility.Collapsed;
+            if (FindName("btnEdit") is Button edit) edit.Visibility = canEdit ? Visibility.Visible : Visibility.Collapsed;
+            if (FindName("btnDelete") is Button del) del.Visibility = canEdit ? Visibility.Visible : Visibility.Collapsed;
+
+            if (FindName("btnThem") is Button them) them.Visibility = canEdit ? Visibility.Visible : Visibility.Collapsed;
+            if (FindName("btnSua") is Button sua) sua.Visibility = canEdit ? Visibility.Visible : Visibility.Collapsed;
+            if (FindName("btnXoa") is Button xoa) xoa.Visibility = canEdit ? Visibility.Visible : Visibility.Collapsed;
         }
+
+        private bool CanEdit => RoleHelper.CanEditData(_currentUser);
 
         private void LoadData(string keyword = null)
         {
@@ -55,9 +53,8 @@ namespace WpfApp1
                 {
                     var k = keyword.Trim().ToLower();
                     q = q.Where(x =>
-                        (!string.IsNullOrEmpty(x.BKS) && x.BKS.ToLower().Contains(k)) ||
-                        (!string.IsNullOrEmpty(x.TenCuDan) && x.TenCuDan.ToLower().Contains(k))
-                    );
+                        (x.BKS ?? "").ToLower().Contains(k) ||
+                        (x.TenCuDan ?? "").ToLower().Contains(k));
                 }
 
                 if (FindName("dgXeOTo") is DataGrid grid)
@@ -75,13 +72,20 @@ namespace WpfApp1
 
         private void BtnSearch_Click(object sender, RoutedEventArgs e)
         {
-            string kw = (FindName("txtSearch") as TextBox)?.Text;
+            var txt = FindName("txtSearch") as TextBox;
+            var kw = txt?.Text;
             LoadData(kw);
+
+            if (!string.IsNullOrWhiteSpace(kw))
+            {
+                AuditLogger.Log("Search", "XeOTo", null,
+                    $"Tìm kiếm ô tô với từ khóa: \"{kw}\"");
+            }
         }
 
         private void BtnReload_Click(object sender, RoutedEventArgs e)
         {
-            if (FindName("txtSearch") is TextBox t) t.Text = string.Empty;
+            if (FindName("txtSearch") is TextBox t) t.Text = "";
             LoadData();
         }
 
@@ -90,58 +94,78 @@ namespace WpfApp1
             var row = Current();
             if (row == null) { MessageBox.Show("Chọn 1 ô tô."); return; }
             new XeOToDetailWindow(row.XeOToID, readOnly: true).ShowDialog();
+
+            AuditLogger.Log("View", "XeOTo", row.XeOToID.ToString(),
+                $"Xem ô tô BKS={row.BKS}, Cư dân={row.TenCuDan}");
         }
 
         private void BtnAdd_Click(object sender, RoutedEventArgs e)
         {
+            if (!CanEdit)
+            {
+                MessageBox.Show("Chỉ Manager/Admin được thêm ô tô.",
+                    "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var w = new XeOToDetailWindow(null);
             if (w.ShowDialog() == true)
             {
-                string kw = (FindName("txtSearch") as TextBox)?.Text;
-                LoadData(kw);
+                LoadData((FindName("txtSearch") as TextBox)?.Text);
+                AuditLogger.Log("Create", "XeOTo", null,
+                    "Thêm ô tô mới (qua màn hình chi tiết ô tô)");
             }
         }
 
         private void BtnEdit_Click(object sender, RoutedEventArgs e)
         {
+            if (!CanEdit)
+            {
+                MessageBox.Show("Chỉ Manager/Admin được sửa ô tô.",
+                    "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var row = Current();
             if (row == null) { MessageBox.Show("Chọn 1 ô tô cần sửa."); return; }
 
             var w = new XeOToDetailWindow(row.XeOToID);
             if (w.ShowDialog() == true)
             {
-                string kw = (FindName("txtSearch") as TextBox)?.Text;
-                LoadData(kw);
+                LoadData((FindName("txtSearch") as TextBox)?.Text);
+                AuditLogger.Log("Update", "XeOTo", row.XeOToID.ToString(),
+                    $"Sửa ô tô BKS={row.BKS}, Cư dân={row.TenCuDan}");
             }
         }
 
         private void BtnDelete_Click(object sender, RoutedEventArgs e)
         {
+            if (!CanEdit)
+            {
+                MessageBox.Show("Chỉ Manager/Admin được xóa ô tô.",
+                    "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var row = Current();
             if (row == null) { MessageBox.Show("Chọn 1 ô tô cần xóa."); return; }
 
             if (MessageBox.Show($"Xóa ô tô biển số [{row.BKS}]?",
-                "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+                    "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
 
             using (var db = new QuanlychungcuEntities())
             {
                 var entity = db.XeOToes.FirstOrDefault(x => x.XeOToID == row.XeOToID);
                 if (entity == null) { MessageBox.Show("Không tìm thấy bản ghi."); return; }
 
-                try
-                {
-                    db.XeOToes.Remove(entity);
-                    db.SaveChanges();
-                }
-                catch (System.Exception ex)
-                {
-                    MessageBox.Show("Không xóa được: " + ex.Message);
-                    return;
-                }
+                db.XeOToes.Remove(entity);
+                db.SaveChanges();
             }
 
-            string kw2 = (FindName("txtSearch") as TextBox)?.Text;
-            LoadData(kw2);
+            AuditLogger.Log("Delete", "XeOTo", row.XeOToID.ToString(),
+                $"Xóa ô tô BKS={row.BKS}, Cư dân={row.TenCuDan}");
+
+            LoadData((FindName("txtSearch") as TextBox)?.Text);
         }
     }
 

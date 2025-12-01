@@ -25,6 +25,7 @@ namespace WpfApp1
         public string TenMatBang { get; set; }
         public Nullable<decimal> DienTich { get; set; }
         public Nullable<decimal> GiaThue { get; set; }
+        public string GhiChu { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<HoaDonTM> HoaDonTMs { get; set; }

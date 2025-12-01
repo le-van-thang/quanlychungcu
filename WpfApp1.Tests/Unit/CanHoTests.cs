@@ -19,6 +19,7 @@ namespace WpfApp1.Tests.Unit
     /// - TC52: Concurrent insert cùng SoCanHo.
     /// </summary>
     [TestClass]
+    [TestCategory("Unit")]
     public class CanHoTests : DbTestBase
     {
         [TestMethod]

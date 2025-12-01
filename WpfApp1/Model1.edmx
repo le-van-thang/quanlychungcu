@@ -76,6 +76,18 @@
           <Property Name="Embedding" Type="varbinary(max)" />
           <Property Name="UpdatedAt" Type="datetime" Nullable="false" />
         </EntityType>
+        <EntityType Name="ActivityLog">
+          <Key>
+            <PropertyRef Name="LogID" />
+          </Key>
+          <Property Name="LogID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserId" Type="int" />
+          <Property Name="Action" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="EntityName" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="EntityId" Type="nvarchar" MaxLength="50" />
+          <Property Name="Detail" Type="nvarchar(max)" />
+          <Property Name="CreatedAt" Type="datetime" Nullable="false" />
+        </EntityType>
         <EntityType Name="Admin">
           <Key>
             <PropertyRef Name="AdminID" />
@@ -188,6 +200,7 @@
           <Property Name="TenMatBang" Type="nvarchar" MaxLength="100" />
           <Property Name="DienTich" Type="decimal" Precision="10" Scale="2" />
           <Property Name="GiaThue" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="GhiChu" Type="nvarchar" MaxLength="500" />
         </EntityType>
         <EntityType Name="NhanVien">
           <Key>
@@ -277,6 +290,19 @@
           </Key>
           <Property Name="TangID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="TenTang" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Ticket">
+          <Key>
+            <PropertyRef Name="TicketID" />
+          </Key>
+          <Property Name="TicketID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CuDanID" Type="int" Nullable="false" />
+          <Property Name="Title" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="Content" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Status" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="CreatedAt" Type="datetime" Nullable="false" />
+          <Property Name="UpdatedAt" Type="datetime" />
+          <Property Name="AssignedTo" Type="int" />
         </EntityType>
         <EntityType Name="User">
           <Key>
@@ -620,6 +646,30 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Ticket_CuDan">
+          <End Role="CuDan" Type="Self.CuDan" Multiplicity="1" />
+          <End Role="Ticket" Type="Self.Ticket" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CuDan">
+              <PropertyRef Name="CuDanID" />
+            </Principal>
+            <Dependent Role="Ticket">
+              <PropertyRef Name="CuDanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Ticket_TaiKhoan_Assigned">
+          <End Role="TaiKhoan" Type="Self.TaiKhoan" Multiplicity="0..1" />
+          <End Role="Ticket" Type="Self.Ticket" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TaiKhoan">
+              <PropertyRef Name="TaiKhoanID" />
+            </Principal>
+            <Dependent Role="Ticket">
+              <PropertyRef Name="AssignedTo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_TKVT_TK">
           <End Role="TaiKhoan" Type="Self.TaiKhoan" Multiplicity="1" />
           <End Role="TaiKhoan_VaiTro" Type="Self.TaiKhoan_VaiTro" Multiplicity="*" />
@@ -699,6 +749,7 @@
           <EntitySet Name="JobRun" EntityType="Self.JobRun" Schema="ai" store:Type="Tables" />
           <EntitySet Name="ModelRegistry" EntityType="Self.ModelRegistry" Schema="ai" store:Type="Tables" />
           <EntitySet Name="SearchIndex" EntityType="Self.SearchIndex" Schema="ai" store:Type="Tables" />
+          <EntitySet Name="ActivityLog" EntityType="Self.ActivityLog" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Admin" EntityType="Self.Admin" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CanHo" EntityType="Self.CanHo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CanHo_CuDan" EntityType="Self.CanHo_CuDan" Schema="dbo" store:Type="Tables" />
@@ -719,6 +770,7 @@
           <EntitySet Name="TaiKhoan" EntityType="Self.TaiKhoan" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TaiKhoan_VaiTro" EntityType="Self.TaiKhoan_VaiTro" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Tang" EntityType="Self.Tang" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Ticket" EntityType="Self.Ticket" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="VaiTro" EntityType="Self.VaiTro" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="VatTu" EntityType="Self.VatTu" Schema="dbo" store:Type="Tables" />
@@ -820,6 +872,14 @@
           <AssociationSet Name="FK_PwdHist_TaiKhoan" Association="Self.FK_PwdHist_TaiKhoan">
             <End Role="TaiKhoan" EntitySet="TaiKhoan" />
             <End Role="PasswordHistory" EntitySet="PasswordHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Ticket_CuDan" Association="Self.FK_Ticket_CuDan">
+            <End Role="CuDan" EntitySet="CuDan" />
+            <End Role="Ticket" EntitySet="Ticket" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Ticket_TaiKhoan_Assigned" Association="Self.FK_Ticket_TaiKhoan_Assigned">
+            <End Role="TaiKhoan" EntitySet="TaiKhoan" />
+            <End Role="Ticket" EntitySet="Ticket" />
           </AssociationSet>
           <AssociationSet Name="FK_TKVT_TK" Association="Self.FK_TKVT_TK">
             <End Role="TaiKhoan" EntitySet="TaiKhoan" />
@@ -989,6 +1049,7 @@
           <NavigationProperty Name="XeDaps" Relationship="Self.FK_XeDap_CuDan" FromRole="CuDan" ToRole="XeDap" />
           <NavigationProperty Name="XeMays" Relationship="Self.FK_XeMay_CuDan" FromRole="CuDan" ToRole="XeMay" />
           <NavigationProperty Name="XeOToes" Relationship="Self.FK_XeOTo_CuDan" FromRole="CuDan" ToRole="XeOTo" />
+          <NavigationProperty Name="Tickets" Relationship="CondoDBModel.FK_Ticket_CuDan" FromRole="CuDan" ToRole="Ticket" />
         </EntityType>
         <EntityType Name="HoaDonCuDan">
           <Key>
@@ -1065,6 +1126,7 @@
           <Property Name="GiaThue" Type="Decimal" Precision="18" Scale="2" />
           <NavigationProperty Name="HoaDonTMs" Relationship="Self.FK_HoaDonTM_MatBang" FromRole="MatBangThuongMai" ToRole="HoaDonTM" />
           <NavigationProperty Name="MatBang_VatTu" Relationship="Self.FK_MBV_MatBang" FromRole="MatBangThuongMai" ToRole="MatBang_VatTu" />
+          <Property Name="GhiChu" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="NhanVien">
           <Key>
@@ -1143,6 +1205,7 @@
           <NavigationProperty Name="PasswordHistories" Relationship="Self.FK_PwdHist_TaiKhoan" FromRole="TaiKhoan" ToRole="PasswordHistory" />
           <NavigationProperty Name="Users" Relationship="Self.FK_User_TaiKhoan" FromRole="TaiKhoan" ToRole="User" />
           <NavigationProperty Name="VaiTroes" Relationship="Self.TaiKhoan_VaiTro" FromRole="TaiKhoan" ToRole="VaiTro" />
+          <NavigationProperty Name="Tickets" Relationship="CondoDBModel.FK_Ticket_TaiKhoan_Assigned" FromRole="TaiKhoan" ToRole="Ticket" />
         </EntityType>
         <EntityType Name="Tang">
           <Key>
@@ -1680,7 +1743,68 @@
             <End Role="TaiKhoan" EntitySet="TaiKhoans" />
             <End Role="VaiTro" EntitySet="VaiTroes" />
           </AssociationSet>
+          <EntitySet Name="ActivityLogs" EntityType="CondoDBModel.ActivityLog" />
+          <EntitySet Name="Tickets" EntityType="CondoDBModel.Ticket" />
+          <AssociationSet Name="FK_Ticket_CuDan" Association="CondoDBModel.FK_Ticket_CuDan">
+            <End Role="CuDan" EntitySet="CuDans" />
+            <End Role="Ticket" EntitySet="Tickets" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Ticket_TaiKhoan_Assigned" Association="CondoDBModel.FK_Ticket_TaiKhoan_Assigned">
+            <End Role="TaiKhoan" EntitySet="TaiKhoans" />
+            <End Role="Ticket" EntitySet="Tickets" />
+          </AssociationSet>
         </EntityContainer>
+        <EntityType Name="ActivityLog">
+          <Key>
+            <PropertyRef Name="LogID" />
+          </Key>
+          <Property Name="LogID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserId" Type="Int32" />
+          <Property Name="Action" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="EntityName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="EntityId" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Detail" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedAt" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+        <EntityType Name="Ticket">
+          <Key>
+            <PropertyRef Name="TicketID" />
+          </Key>
+          <Property Name="TicketID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CuDanID" Type="Int32" Nullable="false" />
+          <Property Name="Title" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="Content" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Status" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedAt" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="UpdatedAt" Type="DateTime" Precision="3" />
+          <Property Name="AssignedTo" Type="Int32" />
+          <NavigationProperty Name="CuDan" Relationship="CondoDBModel.FK_Ticket_CuDan" FromRole="Ticket" ToRole="CuDan" />
+          <NavigationProperty Name="TaiKhoan" Relationship="CondoDBModel.FK_Ticket_TaiKhoan_Assigned" FromRole="Ticket" ToRole="TaiKhoan" />
+        </EntityType>
+        <Association Name="FK_Ticket_CuDan">
+          <End Type="CondoDBModel.CuDan" Role="CuDan" Multiplicity="1" />
+          <End Type="CondoDBModel.Ticket" Role="Ticket" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CuDan">
+              <PropertyRef Name="CuDanID" />
+            </Principal>
+            <Dependent Role="Ticket">
+              <PropertyRef Name="CuDanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Ticket_TaiKhoan_Assigned">
+          <End Type="CondoDBModel.TaiKhoan" Role="TaiKhoan" Multiplicity="0..1" />
+          <End Type="CondoDBModel.Ticket" Role="Ticket" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TaiKhoan">
+              <PropertyRef Name="TaiKhoanID" />
+            </Principal>
+            <Dependent Role="Ticket">
+              <PropertyRef Name="AssignedTo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -1878,6 +2002,7 @@
           <EntitySetMapping Name="MatBangThuongMais">
             <EntityTypeMapping TypeName="CondoDBModel.MatBangThuongMai">
               <MappingFragment StoreEntitySet="MatBangThuongMai">
+                <ScalarProperty Name="GhiChu" ColumnName="GhiChu" />
                 <ScalarProperty Name="MatBangID" ColumnName="MatBangID" />
                 <ScalarProperty Name="TenMatBang" ColumnName="TenMatBang" />
                 <ScalarProperty Name="DienTich" ColumnName="DienTich" />
@@ -2041,6 +2166,33 @@
               <ScalarProperty Name="VaiTroID" ColumnName="VaiTroID" />
             </EndProperty>
           </AssociationSetMapping>
+          <EntitySetMapping Name="ActivityLogs">
+            <EntityTypeMapping TypeName="CondoDBModel.ActivityLog">
+              <MappingFragment StoreEntitySet="ActivityLog">
+                <ScalarProperty Name="CreatedAt" ColumnName="CreatedAt" />
+                <ScalarProperty Name="Detail" ColumnName="Detail" />
+                <ScalarProperty Name="EntityId" ColumnName="EntityId" />
+                <ScalarProperty Name="EntityName" ColumnName="EntityName" />
+                <ScalarProperty Name="Action" ColumnName="Action" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="LogID" ColumnName="LogID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Tickets">
+            <EntityTypeMapping TypeName="CondoDBModel.Ticket">
+              <MappingFragment StoreEntitySet="Ticket">
+                <ScalarProperty Name="AssignedTo" ColumnName="AssignedTo" />
+                <ScalarProperty Name="UpdatedAt" ColumnName="UpdatedAt" />
+                <ScalarProperty Name="CreatedAt" ColumnName="CreatedAt" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Content" ColumnName="Content" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="CuDanID" ColumnName="CuDanID" />
+                <ScalarProperty Name="TicketID" ColumnName="TicketID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

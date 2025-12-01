@@ -83,6 +83,10 @@ namespace WpfApp1
                     var win = new CuDanDetailWindow("View", cuDan);
                     win.Owner = Window.GetWindow(this);
                     win.ShowDialog();
+
+                    // === LOG: xem cư dân ===
+                    AuditLogger.Log("View", "CuDan", id.ToString(),
+                        $"Xem thông tin cư dân: {cuDan.HoTen} (ID={id})");
                 }
             }
         }
@@ -91,7 +95,14 @@ namespace WpfApp1
         {
             var win = new CuDanDetailWindow("Add");
             win.Owner = Window.GetWindow(this);
-            if (win.ShowDialog() == true) LoadData();
+            if (win.ShowDialog() == true)
+            {
+                LoadData();
+
+                // === LOG: thêm cư dân ===
+                AuditLogger.Log("Create", "CuDan", null,
+                    "Thêm cư dân mới (qua màn hình chi tiết cư dân)");
+            }
         }
 
         private void BtnSua_Click(object sender, RoutedEventArgs e)
@@ -112,7 +123,14 @@ namespace WpfApp1
                 {
                     var win = new CuDanDetailWindow("Edit", cuDan);
                     win.Owner = Window.GetWindow(this);
-                    if (win.ShowDialog() == true) LoadData();
+                    if (win.ShowDialog() == true)
+                    {
+                        LoadData();
+
+                        // === LOG: sửa cư dân ===
+                        AuditLogger.Log("Update", "CuDan", id.ToString(),
+                            $"Sửa thông tin cư dân: {cuDan.HoTen} (ID={id})");
+                    }
                 }
             }
         }
@@ -147,6 +165,10 @@ namespace WpfApp1
                     {
                         db.CuDans.Remove(entity);
                         db.SaveChanges();
+
+                        // === LOG: xóa cư dân ===
+                        AuditLogger.Log("Delete", "CuDan", id.ToString(),
+                            $"Xóa cư dân: {entity.HoTen} (ID={id})");
                     }
                     catch (Exception ex)
                     {
@@ -190,6 +212,13 @@ namespace WpfApp1
                 }
 
                 dgCuDan.ItemsSource = ds;
+            }
+
+            // (tuỳ chọn) log tìm kiếm
+            if (!string.IsNullOrWhiteSpace(txtSearch.Text))
+            {
+                AuditLogger.Log("Search", "CuDan", null,
+                    $"Tìm kiếm cư dân với từ khóa: \"{txtSearch.Text}\"");
             }
         }
 

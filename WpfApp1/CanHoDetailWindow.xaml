@@ -1,77 +1,189 @@
 ﻿<Window x:Class="WpfApp1.CanHoDetailWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Thông tin căn hộ" Height="400" Width="720"
+        Title="Thông tin căn hộ"
+        Height="420"
+        Width="760"
         WindowStartupLocation="CenterOwner"
-        ResizeMode="NoResize"
-        Background="White">
+        ResizeMode="NoResize">
 
-    <Border CornerRadius="8" BorderBrush="#D5DBDB" BorderThickness="1" Padding="20" Background="White">
-        <Grid Margin="10">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+    <!-- ============ RESOURCES ============ -->
+    <Window.Resources>
 
-            <!-- Header -->
-            <TextBlock x:Name="lblHeader" Text="Thông tin căn hộ"
-                       FontSize="20" FontWeight="Bold" Foreground="#2C3E50" />
+        <!-- Nền mờ cho cả window -->
+        <LinearGradientBrush x:Key="WindowBgBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#E3EDF7" Offset="0"/>
+            <GradientStop Color="#F5FAFF" Offset="1"/>
+        </LinearGradientBrush>
 
-            <!-- Form -->
-            <Grid Grid.Row="1" Margin="0,15,0,15">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+        <!-- Card -->
+        <SolidColorBrush x:Key="CardBgBrush" Color="#FFFFFF"/>
+        <DropShadowEffect x:Key="CardShadow"
+                          Color="#000000"
+                          Direction="270"
+                          ShadowDepth="8"
+                          BlurRadius="20"
+                          Opacity="0.30"/>
+
+        <!-- Header gradient -->
+        <LinearGradientBrush x:Key="HeaderBrush" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#4CAF50" Offset="0"/>
+            <GradientStop Color="#1E88E5" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Label cho field -->
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#34495E"/>
+            <Setter Property="Margin" Value="0,0,0,2"/>
+        </Style>
+
+        <!-- Text "bắt buộc" -->
+        <Style x:Key="RequiredLabel" TargetType="TextBlock" BasedOn="{StaticResource FieldLabel}">
+            <Setter Property="Foreground" Value="#C0392B"/>
+            <Setter Property="FontSize" Value="11"/>
+        </Style>
+
+    </Window.Resources>
+
+    <!-- ============ LAYOUT ============ -->
+    <Grid Background="{StaticResource WindowBgBrush}">
+        <Border CornerRadius="18"
+                Padding="20"
+                Margin="24"
+                Background="{StaticResource CardBgBrush}"
+                BorderBrush="#D5DBDB"
+                BorderThickness="1"
+                Effect="{StaticResource CardShadow}">
+
+            <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!-- Số căn hộ (bắt buộc) -->
-                <StackPanel Grid.Row="0" Grid.Column="0" Margin="5">
-                    <TextBlock Text="Số căn hộ (bắt buộc)" FontWeight="Bold"/>
-                    <TextBox x:Name="txtSoCanHo" Margin="0,5,0,0" />
-                </StackPanel>
+                <!-- ==== HEADER ==== -->
+                <Border Grid.Row="0"
+                        Background="{StaticResource HeaderBrush}"
+                        CornerRadius="12"
+                        Padding="14"
+                        Margin="0,0,0,16">
+                    <DockPanel LastChildFill="True">
+                        <!-- Icon -->
+                        <Border Width="36" Height="36"
+                                CornerRadius="18"
+                                Background="#FFFFFF22"
+                                Margin="0,0,10,0"
+                                VerticalAlignment="Center">
+                            <TextBlock Text="🏢"
+                                       FontSize="22"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
 
-                <!-- Số tầng (bắt buộc) -->
-                <StackPanel Grid.Row="0" Grid.Column="1" Margin="5">
-                    <TextBlock Text="Số tầng (bắt buộc)" FontWeight="Bold"/>
-                    <ComboBox x:Name="cbTang" Margin="0,5,0,0"
-                              DisplayMemberPath="TenTang"
-                              SelectedValuePath="TangID"/>
-                </StackPanel>
+                        <!-- Text -->
+                        <StackPanel>
+                            <TextBlock x:Name="lblHeader"
+                                       Text="Thông tin căn hộ"
+                                       FontSize="18"
+                                       FontWeight="Bold"
+                                       Foreground="White"/>
+                            <TextBlock Text="Nhập hoặc chỉnh sửa thông tin chi tiết cho căn hộ đã chọn"
+                                       FontSize="11"
+                                       Foreground="#EAF3FF"/>
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
 
-                <!-- Diện tích -->
-                <StackPanel Grid.Row="1" Grid.Column="0" Margin="5">
-                    <TextBlock Text="Diện tích (m²)" FontWeight="Bold"/>
-                    <TextBox x:Name="txtDienTich" Margin="0,5,0,0"/>
-                </StackPanel>
+                <!-- ==== FORM ==== -->
+                <Grid Grid.Row="1" Margin="0,0,0,14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                <!-- Giá trị -->
-                <StackPanel Grid.Row="1" Grid.Column="1" Margin="5">
-                    <TextBlock Text="Giá trị" FontWeight="Bold"/>
-                    <TextBox x:Name="txtGiaTri" Margin="0,5,0,0"/>
-                </StackPanel>
+                    <!-- Số căn hộ (bắt buộc) -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Margin="6">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Số căn hộ"
+                                       Style="{StaticResource FieldLabel}"/>
+                            <TextBlock Text="  (bắt buộc)"
+                                       Style="{StaticResource RequiredLabel}"/>
+                        </StackPanel>
+                        <TextBox x:Name="txtSoCanHo"
+                                 Margin="0,4,0,0"
+                                 Style="{StaticResource InputTextBox}"/>
+                    </StackPanel>
 
-                <!-- Số cư dân (readonly) -->
-                <StackPanel Grid.Row="2" Grid.Column="0" Margin="5">
-                    <TextBlock Text="Số cư dân" FontWeight="Bold"/>
-                    <TextBox x:Name="txtSoCuDan" Margin="0,5,0,0" IsReadOnly="True"/>
+                    <!-- Số tầng (bắt buộc) -->
+                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="6">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Tầng"
+                                       Style="{StaticResource FieldLabel}"/>
+                            <TextBlock Text="  (bắt buộc)"
+                                       Style="{StaticResource RequiredLabel}"/>
+                        </StackPanel>
+                        <ComboBox x:Name="cbTang"
+                                  Margin="0,4,0,0"
+                                  DisplayMemberPath="TenTang"
+                                  SelectedValuePath="TangID"/>
+                    </StackPanel>
+
+                    <!-- Diện tích -->
+                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="6">
+                        <TextBlock Text="Diện tích (m²)"
+                                   Style="{StaticResource FieldLabel}"/>
+                        <TextBox x:Name="txtDienTich"
+                                 Margin="0,4,0,0"
+                                 Style="{StaticResource InputTextBox}"/>
+                    </StackPanel>
+
+                    <!-- Giá trị -->
+                    <StackPanel Grid.Row="1" Grid.Column="1" Margin="6">
+                        <TextBlock Text="Giá trị"
+                                   Style="{StaticResource FieldLabel}"/>
+                        <TextBox x:Name="txtGiaTri"
+                                 Margin="0,4,0,0"
+                                 Style="{StaticResource InputTextBox}"/>
+                    </StackPanel>
+
+                    <!-- Số cư dân (readonly) -->
+                    <StackPanel Grid.Row="2" Grid.Column="0" Margin="6">
+                        <TextBlock Text="Số cư dân (chỉ đọc)"
+                                   Style="{StaticResource FieldLabel}"/>
+                        <TextBox x:Name="txtSoCuDan"
+                                 Margin="0,4,0,0"
+                                 IsReadOnly="True"
+                                 Style="{StaticResource InputTextBox}"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- ==== BUTTONS ==== -->
+                <StackPanel Grid.Row="2"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            Margin="0,4,0,0">
+                    <Button x:Name="btnSave"
+                            Content="💾  Lưu"
+                            Width="120" Height="36"
+                            Margin="0,0,8,0"
+                            Style="{StaticResource ModernButton}"
+                            Background="#27AE60"
+                            Click="BtnSave_Click"/>
+
+                    <Button Content="✕  Hủy"
+                            Width="110" Height="36"
+                            Style="{StaticResource ModernButton}"
+                            Background="#7D3C98"
+                            Click="BtnClose_Click"/>
                 </StackPanel>
             </Grid>
-
-            <!-- Buttons -->
-            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button x:Name="btnSave" Content="Lưu" Width="110" Height="35"
-                        Background="#58D68D" Foreground="White" Margin="5"
-                        Click="BtnSave_Click"/>
-                <Button Content="Hủy" Width="110" Height="35"
-                        Background="#7D3C98" Foreground="White" Margin="5"
-                        Click="BtnClose_Click"/>
-            </StackPanel>
-        </Grid>
-    </Border>
+        </Border>
+    </Grid>
 </Window>

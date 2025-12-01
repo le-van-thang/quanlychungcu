@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.ComponentModel;   // <-- THÊM DÒNG NÀY
 
 namespace WpfApp1
 {
@@ -19,14 +20,36 @@ namespace WpfApp1
                 ? $"Xin chào {display} ({currentUser.VaiTro})"
                 : "Xin chào";
 
-            LoadDashboardData();
+            ApplyRoleUi();
+
+            // Chỉ load DB khi đang RUN, không phải khi mở trong Designer
+            if (!DesignerProperties.GetIsInDesignMode(this))
+                LoadDashboardData();
         }
 
         public HomeControl()
         {
             InitializeComponent();
             txtWelcome.Text = "Xin chào";
-            LoadDashboardData();
+
+            ApplyRoleUi();
+
+            if (!DesignerProperties.GetIsInDesignMode(this))
+                LoadDashboardData();
+        }
+
+        /// <summary>
+        /// Ẩn/hiện các nút trên trang chủ theo vai trò
+        /// </summary>
+        private void ApplyRoleUi()
+        {
+            bool isAdmin = RoleHelper.IsAdmin(currentUser);
+            bool isManager = RoleHelper.IsManager(currentUser);
+            bool canViewLog = isAdmin || isManager;
+
+            // User thường: không thấy nút nhật ký
+            if (!canViewLog && btnViewLog != null)
+                btnViewLog.Visibility = Visibility.Collapsed;
         }
 
         private void LoadDashboardData()
@@ -112,5 +135,25 @@ namespace WpfApp1
             win.Owner = Window.GetWindow(this);
             win.ShowDialog();
         }
+
+        // ==== Phản ánh / Ticket ====
+        private void BtnTicket_Click(object sender, RoutedEventArgs e)
+            => Navigate(new TicketControl(currentUser));
+
+        // ==== Nhật ký: Admin + Manager mở được ====
+        private void BtnViewLog_Click(object sender, RoutedEventArgs e)
+        {
+            if (!RoleHelper.IsAdmin(currentUser) && !RoleHelper.IsManager(currentUser))
+            {
+                MessageBox.Show("Bạn không có quyền xem nhật ký hoạt động.",
+                                "Không có quyền",
+                                MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // TRUYỀN currentUser VÀO ĐÂY
+            Navigate(new ActivityLogControl(currentUser));
+        }
+
     }
 }

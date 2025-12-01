@@ -16,6 +16,7 @@ namespace WpfApp1.Tests.Integration
     /// - Nếu là SQL Server: InnerException có thể là SqlException với mã 547 (FK violation).
     /// </summary>
     [TestClass]
+    [TestCategory("Integration")]
     /// <summary>
     /// TC23–TC24: kiểm tra ràng buộc FK CanHo – HoaDonCuDan.
     /// </summary>

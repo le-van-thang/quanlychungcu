@@ -2,13 +2,61 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Tài khoản"
-        Height="420" Width="720"
+        Height="520" Width="820"
+        MinHeight="500" MinWidth="780"
         WindowStartupLocation="CenterOwner"
-        Background="#F4F6F7"
-        ResizeMode="CanResize"
+        Background="#F0F2F5"
         WindowStyle="SingleBorderWindow">
 
-    <Border Background="White" CornerRadius="10" Padding="20" Margin="12">
+    <Window.Resources>
+
+        <!-- CARD SHADOW -->
+        <DropShadowEffect x:Key="CardShadow"
+                          Color="#000000"
+                          Direction="270"
+                          BlurRadius="20"
+                          ShadowDepth="7"
+                          Opacity="0.22"/>
+
+        <!-- BACKGROUND GRADIENT -->
+        <LinearGradientBrush x:Key="CardBackground" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#FFFFFF" Offset="0"/>
+            <GradientStop Color="#F7F9FC" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- HEADER GRADIENT -->
+        <LinearGradientBrush x:Key="HeaderGradient" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#8E44AD" Offset="0"/>
+            <GradientStop Color="#3498DB" Offset="1"/>
+        </LinearGradientBrush>
+
+        <Style x:Key="InputBox" TargetType="TextBox">
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Margin" Value="0,4,0,14"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="BorderBrush" Value="#BDC3C7"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style x:Key="PasswordBoxStyle" TargetType="PasswordBox">
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Margin" Value="0,4,0,14"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="BorderBrush" Value="#BDC3C7"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+    </Window.Resources>
+
+    <!-- MAIN CARD -->
+    <Border Background="{StaticResource CardBackground}"
+            CornerRadius="22"
+            Padding="22"
+            Margin="14"
+            Effect="{StaticResource CardShadow}">
+
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -19,93 +67,129 @@
                 <!-- Buttons -->
             </Grid.RowDefinitions>
 
-            <!-- Header -->
-            <DockPanel Grid.Row="0" Margin="0,0,0,16">
-                <TextBlock x:Name="lblTitle"
-                           Text="Thêm tài khoản"
-                           FontSize="20" FontWeight="Bold"
-                           Foreground="#2C3E50"
-                           DockPanel.Dock="Left"/>
-                <CheckBox x:Name="chkActive"
-                          Content="Hoạt động"
-                          Margin="12,0,0,0"
-                          VerticalAlignment="Center"
-                          DockPanel.Dock="Right"/>
-            </DockPanel>
+            <!-- HEADER -->
+            <Border Grid.Row="0"
+                    Background="{StaticResource HeaderGradient}"
+                    CornerRadius="18"
+                    Padding="16"
+                    Margin="0 0 0 18">
+                <DockPanel>
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                        <TextBlock Text="👤"
+                                   FontSize="26"
+                                   Margin="0,0,10,0"/>
+                        <TextBlock x:Name="lblTitle"
+                                   Text="Thêm tài khoản"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Foreground="White"/>
+                    </StackPanel>
 
-            <!-- Form -->
-            <Grid Grid.Row="1">
+                    <CheckBox x:Name="chkActive"
+                              Content="Hoạt động"
+                              Foreground="White"
+                              FontWeight="SemiBold"
+                              Margin="12,0,0,0"
+                              VerticalAlignment="Center"
+                              DockPanel.Dock="Right"/>
+                </DockPanel>
+            </Border>
+
+            <!-- FORM -->
+            <Grid Grid.Row="1" Margin="10">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="190"/>
+                    <ColumnDefinition Width="260"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
+
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
+                    <!-- username -->
                     <RowDefinition Height="Auto"/>
+                    <!-- họ tên -->
                     <RowDefinition Height="Auto"/>
+                    <!-- email -->
                     <RowDefinition Height="Auto"/>
+                    <!-- vai trò -->
                     <RowDefinition Height="Auto"/>
+                    <!-- mk mới -->
                     <RowDefinition Height="Auto"/>
+                    <!-- nhập lại -->
                 </Grid.RowDefinitions>
 
                 <!-- Username -->
-                <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,12,10"
-                           VerticalAlignment="Center" Text="Username:"/>
+                <TextBlock Grid.Row="0" Grid.Column="0" FontSize="14"
+                           Text="Username:" FontWeight="SemiBold"/>
                 <TextBox x:Name="txtUsername"
-                         Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"
-                         Height="32" VerticalContentAlignment="Center"/>
+                         Grid.Row="0" Grid.Column="1"
+                         Style="{StaticResource InputBox}"/>
 
                 <!-- Họ tên -->
-                <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,12,10"
-                           VerticalAlignment="Center" Text="Họ tên:"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" FontSize="14"
+                           Text="Họ tên:" FontWeight="SemiBold"/>
                 <TextBox x:Name="txtHoTen"
-                         Grid.Row="1" Grid.Column="1" Margin="0,0,0,10"
-                         Height="32" VerticalContentAlignment="Center"/>
+                         Grid.Row="1" Grid.Column="1"
+                         Style="{StaticResource InputBox}"/>
 
                 <!-- Email -->
-                <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,0,12,10"
-                           VerticalAlignment="Center" Text="Email:"/>
+                <TextBlock Grid.Row="2" Grid.Column="0" FontSize="14"
+                           Text="Email:" FontWeight="SemiBold"/>
                 <TextBox x:Name="txtEmail"
-                         Grid.Row="2" Grid.Column="1" Margin="0,0,0,10"
-                         Height="32" VerticalContentAlignment="Center"/>
+                         Grid.Row="2" Grid.Column="1"
+                         Style="{StaticResource InputBox}"/>
 
                 <!-- Vai trò -->
-                <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,0,12,10"
-                           VerticalAlignment="Center" Text="Vai trò:"/>
+                <TextBlock Grid.Row="3" Grid.Column="0" FontSize="14"
+                           Text="Vai trò:" FontWeight="SemiBold"/>
                 <ComboBox x:Name="cboVaiTro"
-                          Grid.Row="3" Grid.Column="1" Margin="0,0,0,10"
-                          Height="32">
-                    <ComboBoxItem Content="User" IsSelected="True"/>
+                          Grid.Row="3" Grid.Column="1"
+                          Height="36"
+                          Margin="0,4,0,14">
+                    <ComboBoxItem Content="User"/>
                     <ComboBoxItem Content="Manager"/>
                     <ComboBoxItem Content="Admin"/>
                 </ComboBox>
 
                 <!-- Mật khẩu mới -->
-                <TextBlock Grid.Row="4" Grid.Column="0" Margin="0,0,12,10"
-                           VerticalAlignment="Center" Text="Mật khẩu mới:"/>
+                <TextBlock Grid.Row="4" Grid.Column="0" FontSize="14"
+                           Text="Mật khẩu mới (tuỳ chọn):" FontWeight="SemiBold"/>
                 <PasswordBox x:Name="pwdNew"
-                             Grid.Row="4" Grid.Column="1" Margin="0,0,0,10"
-                             Height="32"/>
+                             Grid.Row="4" Grid.Column="1"
+                             Style="{StaticResource PasswordBoxStyle}"/>
 
-                <!-- Nhập lại mật khẩu -->
-                <TextBlock Grid.Row="5" Grid.Column="0" Margin="0,0,12,0"
-                           VerticalAlignment="Center" Text="Nhập lại:"/>
+                <!-- Nhập lại mk -->
+                <TextBlock Grid.Row="5" Grid.Column="0" FontSize="14"
+                           Text="Nhập lại mật khẩu:" FontWeight="SemiBold"/>
                 <PasswordBox x:Name="pwdRe"
                              Grid.Row="5" Grid.Column="1"
-                             Height="32"/>
+                             Style="{StaticResource PasswordBoxStyle}"/>
+
             </Grid>
 
-            <!-- Buttons -->
+            <!-- BUTTONS -->
             <StackPanel Grid.Row="2" Orientation="Horizontal"
-                        HorizontalAlignment="Right" Margin="0,16,0,0">
-                <Button x:Name="btnSave" Content="Lưu"
-                        Width="110" Height="36" Margin="0,0,10,0"
-                        Background="#27AE60" Foreground="White"
-                        BorderThickness="0" Click="BtnSave_Click"/>
-                <Button Content="Đóng" Width="110" Height="36"
-                        Background="#95A5A6" Foreground="White"
-                        BorderThickness="0" Click="BtnClose_Click"/>
+                        HorizontalAlignment="Right"
+                        Margin="0,18,8,0">
+                <Button x:Name="btnSave"
+                        Content="💾 Lưu"
+                        Width="130" Height="38"
+                        Margin="0,0,12,0"
+                        Background="#27AE60"
+                        Foreground="White"
+                        FontSize="15"
+                        FontWeight="Bold"
+                        BorderThickness="0"
+                        Click="BtnSave_Click"/>
+                <Button Content="Đóng"
+                        Width="130" Height="38"
+                        Background="#7F8C8D"
+                        Foreground="White"
+                        FontSize="15"
+                        FontWeight="Bold"
+                        BorderThickness="0"
+                        Click="BtnClose_Click"/>
             </StackPanel>
+
         </Grid>
     </Border>
 </Window>

@@ -55,5 +55,7 @@ namespace WpfApp1
         public virtual DbSet<XeDap> XeDaps { get; set; }
         public virtual DbSet<XeMay> XeMays { get; set; }
         public virtual DbSet<XeOTo> XeOToes { get; set; }
+        public virtual DbSet<ActivityLog> ActivityLogs { get; set; }
+        public virtual DbSet<Ticket> Tickets { get; set; }
     }
 }

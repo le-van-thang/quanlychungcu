@@ -26,7 +26,14 @@ namespace WpfApp1
                 {
                     lblHeader.Text = "Thông tin xe ô tô (Sửa)";
                     var entity = db.XeOToes.FirstOrDefault(x => x.XeOToID == _id.Value);
-                    if (entity == null) { MessageBox.Show("Không tìm thấy."); DialogResult = false; Close(); return; }
+
+                    if (entity == null)
+                    {
+                        MessageBox.Show("Không tìm thấy.");
+                        DialogResult = false;
+                        Close();
+                        return;
+                    }
 
                     txtId.Text = entity.XeOToID.ToString();
                     txtBKS.Text = entity.BKS;
@@ -45,15 +52,20 @@ namespace WpfApp1
 
         private void BtnSave_Click(object s, RoutedEventArgs e)
         {
-            var bks = (txtBKS.Text ?? "").Trim();
-            if (string.IsNullOrWhiteSpace(bks)) { MessageBox.Show("Nhập biển số."); txtBKS.Focus(); return; }
-            if (cbCuDan.SelectedValue == null) { MessageBox.Show("Chọn cư dân."); cbCuDan.Focus(); return; }
+            var bks = txtBKS.Text.Trim();
+            if (string.IsNullOrWhiteSpace(bks)) { MessageBox.Show("Nhập biển số."); return; }
+            if (cbCuDan.SelectedValue == null) { MessageBox.Show("Chọn cư dân."); return; }
+
             var cuDanId = (int)cbCuDan.SelectedValue;
 
             using (var db = new QuanlychungcuEntities())
             {
                 bool trung = db.XeOToes.Any(x => x.BKS == bks && (!_id.HasValue || x.XeOToID != _id.Value));
-                if (trung) { MessageBox.Show("Biển số đã tồn tại."); return; }
+                if (trung)
+                {
+                    MessageBox.Show("Biển số đã tồn tại.");
+                    return;
+                }
 
                 if (_id.HasValue)
                 {
@@ -65,11 +77,13 @@ namespace WpfApp1
 
                 db.SaveChanges();
             }
+
+            MessageBox.Show("Lưu thông tin ô tô thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+
             DialogResult = true;
             Close();
         }
 
-        // THIẾU HÀM NÀY → gây CS1061
         private void BtnClose_Click(object sender, RoutedEventArgs e) => Close();
     }
 }

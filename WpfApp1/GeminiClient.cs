@@ -128,17 +128,41 @@ namespace WpfApp1.Services
                 var url = BaseUrl + "/models/" + model + ":generateContent?key=" + _apiKey;
                 var json = JsonConvert.SerializeObject(payload);
 
-                var resp = await client.PostAsync(url, new StringContent(json, Encoding.UTF8, "application/json"));
-                var body = await resp.Content.ReadAsStringAsync();
+                // Thử tối đa 2 lần (lần 1 lỗi 503 thì retry)
+                for (int attempt = 1; attempt <= 2; attempt++)
+                {
+                    var resp = await client.PostAsync(
+                        url,
+                        new StringContent(json, Encoding.UTF8, "application/json")
+                    );
 
-                if (!resp.IsSuccessStatusCode)
+                    var body = await resp.Content.ReadAsStringAsync();
+
+                    if (resp.IsSuccessStatusCode)
+                    {
+                        var obj = JObject.Parse(body);
+                        var text = obj["candidates"]?[0]?["content"]?["parts"]?[0]?["text"]?.ToString();
+                        return string.IsNullOrWhiteSpace(text)
+                            ? "Không có phản hồi từ Gemini."
+                            : text;
+                    }
+
+                    // Nếu 503 và mới là lần 1 -> nghỉ 1.5s rồi thử lại
+                    if (resp.StatusCode == HttpStatusCode.ServiceUnavailable && attempt == 1)
+                    {
+                        await Task.Delay(1500);
+                        continue;
+                    }
+
+                    // Lỗi khác, hoặc 503 sau khi đã retry => ném exception gọn
                     throw new GeminiHttpException(resp.StatusCode, body);
+                }
 
-                var obj = JObject.Parse(body);
-                var text = obj["candidates"]?[0]?["content"]?["parts"]?[0]?["text"]?.ToString();
-                return string.IsNullOrWhiteSpace(text) ? "Không có phản hồi từ Gemini." : text;
+                // Về lý thuyết không tới đây, nhưng để cho chắc
+                return "Hiện tại Gemini đang quá tải, vui lòng thử lại sau.";
             }
         }
+
 
         private async Task<string> AutoDiscoverModelAsync()
         {
@@ -198,11 +222,31 @@ namespace WpfApp1.Services
         private class GeminiHttpException : Exception
         {
             public HttpStatusCode StatusCode { get; private set; }
+
             public GeminiHttpException(HttpStatusCode code, string body)
-                : base("Gemini API error (" + (int)code + "): " + body)
+                : base(BuildMessage(code, body))
             {
                 StatusCode = code;
             }
+
+            private static string BuildMessage(HttpStatusCode code, string body)
+            {
+                // Trường hợp quá tải (503) -> thông báo thân thiện
+                if (code == HttpStatusCode.ServiceUnavailable)
+                {
+                    return "Hiện tại dịch vụ Gemini đang quá tải hoặc tạm thời không khả dụng (503). " +
+                           "Bạn thử lại sau vài phút nhé.";
+                }
+
+                // Cắt ngắn body để không show nguyên JSON
+                string shortBody = body ?? "";
+                if (shortBody.Length > 300)
+                    shortBody = shortBody.Substring(0, 300) + "...";
+
+                return $"AI hiện không trả lời được (HTTP {(int)code} - {code}). " +
+                       $"Chi tiết: {shortBody}";
+            }
         }
+
     }
 }

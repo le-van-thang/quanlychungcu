@@ -335,28 +335,36 @@ namespace WpfApp1
 
         private void btnTheme_Click(object sender, RoutedEventArgs e)
         {
+            // đảo trạng thái
             _dark = !_dark;
-            btnTheme.Content = _dark ? "☀️ Light" : "🌙 Dark";
 
             if (_dark)
             {
-                Resources["WindowBg"] = new SolidColorBrush(Color.FromRgb(15, 17, 21));
-                Resources["CardBg"] = new SolidColorBrush(Color.FromRgb(26, 29, 35));
-                Resources["TitleFg"] = Brushes.White;
-                Resources["SubFg"] = new SolidColorBrush(Color.FromRgb(176, 180, 191));
-                Resources["InputBg"] = new SolidColorBrush(Color.FromRgb(30, 33, 40));
-                Resources["InputBrd"] = new SolidColorBrush(Color.FromRgb(166, 177, 255));
+                // đang dark mode
+                btnTheme.Content = "☀️"; // icon: bấm để chuyển sang sáng
+
+                Resources["WindowBg"] = new SolidColorBrush(Color.FromRgb(5, 8, 22));   // #050816
+                Resources["CardBg"] = new SolidColorBrush(Color.FromRgb(11, 16, 32)); // #0B1020
+                Resources["TitleFg"] = new SolidColorBrush(Color.FromRgb(249, 250, 251)); // #F9FAFB
+                Resources["SubFg"] = new SolidColorBrush(Color.FromRgb(156, 163, 175)); // #9CA3AF
+                Resources["InputBg"] = new SolidColorBrush(Color.FromRgb(2, 6, 23));   // #020617
+                Resources["InputBrd"] = new SolidColorBrush(Color.FromRgb(79, 70, 229)); // #4F46E5
             }
             else
             {
+                // light mode
+                btnTheme.Content = "🌙"; // icon: bấm để chuyển lại dark
+
                 Resources["WindowBg"] = (SolidColorBrush)new BrushConverter().ConvertFromString("#F4F6F7");
                 Resources["CardBg"] = Brushes.White;
-                Resources["TitleFg"] = (SolidColorBrush)new BrushConverter().ConvertFromString("#2C3E50");
-                Resources["SubFg"] = (SolidColorBrush)new BrushConverter().ConvertFromString("#7F8C8D");
+                Resources["TitleFg"] = (SolidColorBrush)new BrushConverter().ConvertFromString("#111827");
+                Resources["SubFg"] = (SolidColorBrush)new BrushConverter().ConvertFromString("#6B7280");
                 Resources["InputBg"] = Brushes.White;
-                Resources["InputBrd"] = (SolidColorBrush)new BrushConverter().ConvertFromString("#A6B1FF");
+                // viền giữ màu xanh đậm cho rõ trên nền trắng
+                Resources["InputBrd"] = (SolidColorBrush)new BrushConverter().ConvertFromString("#4F46E5");
             }
         }
+
 
         private void BtnMic_Click(object sender, RoutedEventArgs e)
         {

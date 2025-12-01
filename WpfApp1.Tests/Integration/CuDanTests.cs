@@ -15,6 +15,7 @@ namespace WpfApp1.Tests.Integration
     /// - TC32: Validate Name required.
     /// </summary>
     [TestClass]
+    [TestCategory("Integration")]
     public class CuDanTests : DbTestBase
     {
         [TestMethod]

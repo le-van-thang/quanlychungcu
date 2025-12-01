@@ -22,6 +22,7 @@ namespace WpfApp1
 
             _currentUser = user;
 
+            // ===== Tiêu đề cửa sổ =====
             string displayName = TryGet(_currentUser, "HoTen")
                                  ?? TryGet(_currentUser, "FullName")
                                  ?? TryGet(_currentUser, "Email");
@@ -36,24 +37,37 @@ namespace WpfApp1
 
             Title = $"Trang chủ - Quản lý chung cư — {displayName}";
 
+            // ===== Phân quyền menu =====
             SetupMenuByRole();
 
+            // ===== Mặc định vào trang chủ =====
             Navigate(new HomeControl(_currentUser));
         }
 
         private void SetupMenuByRole()
         {
-            var role = TryGet(_currentUser, "VaiTro")?.ToLowerInvariant() ?? "";
-            bool isAdmin = role == "admin" || role == "administrator" || role == "quantri";
+            bool isAdmin = RoleHelper.IsAdmin(_currentUser);
+            bool isManager = RoleHelper.IsManager(_currentUser);
+            bool isUser = RoleHelper.IsUser(_currentUser);
 
-            btnTaiKhoanList.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
-            btnMenuVatTu.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
-            expTaiChinh.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
-            expPhuongTien.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
-            btnMenuKhuVucThuongMai.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
-
+            // CẢ 3 ROLE đều thấy tất cả module nghiệp vụ
             expKhuVucDanCu.Visibility = Visibility.Visible;
+            btnMenuKhuVucThuongMai.Visibility = Visibility.Visible;
+            btnMenuVatTu.Visibility = Visibility.Visible;
+            expTaiChinh.Visibility = Visibility.Visible;
+            expPhuongTien.Visibility = Visibility.Visible;
             expTaiKhoan.Visibility = Visibility.Visible;
+
+            if (isAdmin)
+            {
+                // Admin thấy luôn "Tất cả tài khoản"
+                btnTaiKhoanList.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                // User + Manager KHÔNG thấy danh sách tài khoản
+                btnTaiKhoanList.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void Navigate(UserControl control)
@@ -73,28 +87,41 @@ namespace WpfApp1
             return v?.ToString();
         }
 
+        // ========== Menu click handlers ==========
+
         private void BtnHome_Click(object sender, RoutedEventArgs e)
             => Navigate(new HomeControl(_currentUser));
 
         private void BtnKhuVucThuongMai_Click(object sender, RoutedEventArgs e)
-            => Navigate(new MatBangThuongMaiControl());
+            => Navigate(new MatBangThuongMaiControl(_currentUser));
 
         private void BtnVatTu_Click(object sender, RoutedEventArgs e)
-            => Navigate(new VatTuControl());
+            => Navigate(new VatTuControl(_currentUser));
 
         private void BtnDangXuat_Click(object sender, RoutedEventArgs e)
         {
             if (MessageBox.Show("Bạn có chắc muốn đăng xuất?",
                     "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
+                AuditLogger.Log("Logout", "Auth",
+                    _currentUser?.TaiKhoanID.ToString(),
+                    "Đăng xuất khỏi ứng dụng");
+
+                // Xoá session hiện tại
                 SessionStore.Clear();
 
+                //  xoá luôn thông tin "Ghi nhớ tài khoản và mật khẩu"
+                RememberStore.Clear();
+
+                // Quay về màn đăng nhập
                 var login = new LoginWindow();
                 login.Show();
                 Application.Current.MainWindow = login;
+
                 this.Close();
             }
         }
+
 
         private void BtnCuDan_Click(object sender, RoutedEventArgs e)
             => Navigate(new CuDanControl(_currentUser));
@@ -103,28 +130,24 @@ namespace WpfApp1
             => Navigate(new CanHoControl(_currentUser));
 
         private void BtnHoaDonCuDan_Click(object sender, RoutedEventArgs e)
-        {
-            MainContent.Content = new HoaDonCuDanControl(_currentUser);
-        }
+            => Navigate(new HoaDonCuDanControl(_currentUser));
 
         private void BtnHoaDonThuongMai_Click(object sender, RoutedEventArgs e)
-        {
-            MainContent.Content = new HoaDonThuongMaiControl();
-        }
+            => Navigate(new HoaDonThuongMaiControl(_currentUser));
 
         private void BtnXeOTo_Click(object sender, RoutedEventArgs e)
-            => Navigate(new XeOToControl());
+            => Navigate(new XeOToControl(_currentUser));
 
         private void BtnXeMay_Click(object sender, RoutedEventArgs e)
-            => Navigate(new XeMayControl());
+            => Navigate(new XeMayControl(_currentUser));
 
         private void BtnXeDap_Click(object sender, RoutedEventArgs e)
-            => Navigate(new XeDapControl());
+            => Navigate(new XeDapControl(_currentUser));
 
         private void BtnTaiKhoanInfo_Click(object sender, RoutedEventArgs e)
             => Navigate(new TaiKhoanInfoControl(_currentUser));
 
         private void BtnTaiKhoanList_Click(object sender, RoutedEventArgs e)
-            => Navigate(new TaiKhoanListControl());
+            => Navigate(new TaiKhoanListControl(_currentUser));
     }
 }

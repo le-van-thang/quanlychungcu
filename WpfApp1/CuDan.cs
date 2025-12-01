@@ -22,6 +22,7 @@ namespace WpfApp1
             this.XeDaps = new HashSet<XeDap>();
             this.XeMays = new HashSet<XeMay>();
             this.XeOToes = new HashSet<XeOTo>();
+            this.Tickets = new HashSet<Ticket>();
         }
     
         public int CuDanID { get; set; }
@@ -42,5 +43,7 @@ namespace WpfApp1
         public virtual ICollection<XeMay> XeMays { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<XeOTo> XeOToes { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Ticket> Tickets { get; set; }
     }
 }

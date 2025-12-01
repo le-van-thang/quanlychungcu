@@ -6,7 +6,7 @@ namespace WpfApp1
     public partial class XeDapDetailWindow : Window
     {
         private readonly int? _id;
-        private readonly bool _readOnly;   // thêm
+        private readonly bool _readOnly;
 
         public XeDapDetailWindow(int? id, bool readOnly = false)
         {
@@ -20,9 +20,7 @@ namespace WpfApp1
         {
             using (var db = new QuanlychungcuEntities())
             {
-                cbCuDan.ItemsSource = db.CuDans
-                                        .OrderBy(x => x.HoTen)
-                                        .ToList(); // DisplayMemberPath=HoTen, SelectedValuePath=CuDanID (đã đặt trong XAML)
+                cbCuDan.ItemsSource = db.CuDans.OrderBy(x => x.HoTen).ToList();
 
                 if (_id.HasValue)
                 {
@@ -30,7 +28,7 @@ namespace WpfApp1
                     var entity = db.XeDaps.FirstOrDefault(x => x.XeDapID == _id.Value);
                     if (entity == null)
                     {
-                        MessageBox.Show("Không tìm thấy.");
+                        MessageBox.Show("Không tìm thấy bản ghi.");
                         DialogResult = false;
                         Close();
                         return;
@@ -56,16 +54,31 @@ namespace WpfApp1
 
         private void BtnSave_Click(object s, RoutedEventArgs e)
         {
-            var bks = (txtBKS.Text ?? "").Trim();
-            if (string.IsNullOrWhiteSpace(bks)) { MessageBox.Show("Nhập biển số."); txtBKS.Focus(); return; }
-            if (cbCuDan.SelectedValue == null) { MessageBox.Show("Chọn cư dân."); cbCuDan.Focus(); return; }
+            var bks = txtBKS.Text.Trim();
+            if (string.IsNullOrWhiteSpace(bks))
+            {
+                MessageBox.Show("Nhập biển số.");
+                txtBKS.Focus();
+                return;
+            }
+
+            if (cbCuDan.SelectedValue == null)
+            {
+                MessageBox.Show("Chọn cư dân.");
+                cbCuDan.Focus();
+                return;
+            }
 
             var cuDanId = (int)cbCuDan.SelectedValue;
 
             using (var db = new QuanlychungcuEntities())
             {
                 bool trung = db.XeDaps.Any(x => x.BKS == bks && (!_id.HasValue || x.XeDapID != _id.Value));
-                if (trung) { MessageBox.Show("Biển số đã tồn tại."); return; }
+                if (trung)
+                {
+                    MessageBox.Show("Biển số đã tồn tại.");
+                    return;
+                }
 
                 if (_id.HasValue)
                 {
@@ -81,11 +94,12 @@ namespace WpfApp1
                 db.SaveChanges();
             }
 
+            MessageBox.Show("Lưu thông tin xe đạp thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+
             DialogResult = true;
             Close();
         }
 
-        // >>> BỊ THIẾU HÀM NÀY
         private void BtnClose_Click(object sender, RoutedEventArgs e) => Close();
     }
 }

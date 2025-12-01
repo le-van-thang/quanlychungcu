@@ -1,0 +1,175 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+	<!-- === BUTTON MODERN STYLE === -->
+	<Style x:Key="ModernButton" TargetType="Button">
+		<Setter Property="FontWeight" Value="SemiBold"/>
+		<Setter Property="Foreground" Value="White"/>
+		<Setter Property="Padding" Value="14,6"/>
+		<Setter Property="Margin" Value="4"/>
+		<Setter Property="Cursor" Value="Hand"/>
+		<Setter Property="BorderThickness" Value="0"/>
+		<Setter Property="Background" Value="#3498DB"/>
+		<Setter Property="SnapsToDevicePixels" Value="True"/>
+		<Setter Property="Effect">
+			<Setter.Value>
+				<DropShadowEffect BlurRadius="12"
+                                  ShadowDepth="2"
+                                  Opacity="0.24" />
+			</Setter.Value>
+		</Setter>
+
+		<!-- transform mặc định -->
+		<Setter Property="RenderTransform">
+			<Setter.Value>
+				<ScaleTransform ScaleX="1" ScaleY="1" />
+			</Setter.Value>
+		</Setter>
+
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="Button">
+					<Border Background="{TemplateBinding Background}"
+                            CornerRadius="8"
+                            Padding="{TemplateBinding Padding}">
+						<ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+					</Border>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+
+		<Style.Triggers>
+			<!-- Hover -->
+			<Trigger Property="IsMouseOver" Value="True">
+				<Setter Property="Background" Value="#5DADE2"/>
+				<Setter Property="RenderTransform">
+					<Setter.Value>
+						<ScaleTransform ScaleX="1.05" ScaleY="1.05"/>
+					</Setter.Value>
+				</Setter>
+			</Trigger>
+
+			<!-- Pressed -->
+			<Trigger Property="IsPressed" Value="True">
+				<Setter Property="Background" Value="#2980B9"/>
+				<Setter Property="RenderTransform">
+					<Setter.Value>
+						<ScaleTransform ScaleX="0.97" ScaleY="0.97"/>
+					</Setter.Value>
+				</Setter>
+			</Trigger>
+		</Style.Triggers>
+	</Style>
+
+	<!-- === TEXTBOX WATERMARK (PLACEHOLDER) CÓ KHUNG === -->
+	<Style TargetType="TextBox" x:Key="InputTextBox">
+		<Setter Property="Height" Value="36"/>
+		<Setter Property="Padding" Value="10,4"/>
+		<Setter Property="FontSize" Value="14"/>
+		<Setter Property="Background" Value="White"/>
+		<Setter Property="BorderBrush" Value="#CCCCCC"/>
+		<Setter Property="BorderThickness" Value="1"/>
+		<Setter Property="SnapsToDevicePixels" Value="True"/>
+
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="TextBox">
+					<Border x:Name="Bd"
+							Background="{TemplateBinding Background}"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							BorderThickness="{TemplateBinding BorderThickness}"
+							CornerRadius="4">
+						<Grid>
+							<!-- nội dung thật -->
+							<ScrollViewer x:Name="PART_ContentHost"/>
+
+							<!-- watermark -->
+							<TextBlock Text="{TemplateBinding Tag}"
+									   Margin="10,0,0,0"
+									   VerticalAlignment="Center"
+									   Foreground="#999"
+									   IsHitTestVisible="False">
+								<TextBlock.Style>
+									<Style TargetType="TextBlock">
+										<Setter Property="Visibility" Value="Collapsed"/>
+										<Style.Triggers>
+											<!-- khi Text rỗng -> hiện -->
+											<DataTrigger Binding="{Binding Text,
+                                                     RelativeSource={RelativeSource AncestorType=TextBox}}"
+														 Value="">
+												<Setter Property="Visibility" Value="Visible"/>
+											</DataTrigger>
+										</Style.Triggers>
+									</Style>
+								</TextBlock.Style>
+							</TextBlock>
+						</Grid>
+					</Border>
+
+					<!-- đổi màu border khi focus -->
+					<ControlTemplate.Triggers>
+						<Trigger Property="IsKeyboardFocusWithin" Value="True">
+							<Setter TargetName="Bd"
+									Property="BorderBrush"
+									Value="#7D3C98"/>
+							<Setter TargetName="Bd"
+									Property="BorderThickness"
+									Value="1.4"/>
+						</Trigger>
+						<Trigger Property="IsEnabled" Value="False">
+							<Setter TargetName="Bd"
+									Property="Opacity"
+									Value="0.6"/>
+						</Trigger>
+					</ControlTemplate.Triggers>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+
+	<!-- === DATAGRID MODERN === -->
+	<Style x:Key="ModernGrid" TargetType="DataGrid">
+		<Setter Property="RowHeight" Value="40"/>
+		<Setter Property="FontSize" Value="14"/>
+		<Setter Property="GridLinesVisibility" Value="None"/>
+		<Setter Property="BorderThickness" Value="0"/>
+		<Setter Property="HeadersVisibility" Value="Column"/>
+		<Setter Property="AlternatingRowBackground" Value="#F8F9F9"/>
+	</Style>
+
+	<!-- === GLASS CARD EFFECT (HomeControl, dashboard) === -->
+	<Style x:Key="GlassCard" TargetType="Border">
+		<Setter Property="CornerRadius" Value="14"/>
+		<Setter Property="Padding" Value="15"/>
+		<Setter Property="Margin" Value="10"/>
+		<Setter Property="Background" Value="#33FFFFFF"/>
+		<Setter Property="BorderBrush" Value="#55FFFFFF"/>
+		<Setter Property="BorderThickness" Value="1"/>
+		<Setter Property="SnapsToDevicePixels" Value="True"/>
+		<Setter Property="Effect">
+			<Setter.Value>
+				<DropShadowEffect BlurRadius="20"
+                                  ShadowDepth="3"
+                                  Opacity="0.35" />
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+	<!-- Text lớn trên card -->
+	<Style x:Key="CardNumberText" TargetType="TextBlock">
+		<Setter Property="FontSize" Value="32"/>
+		<Setter Property="FontWeight" Value="Bold"/>
+		<Setter Property="Foreground" Value="White"/>
+		<Setter Property="HorizontalAlignment" Value="Center"/>
+	</Style>
+
+	<!-- Tiêu đề card -->
+	<Style x:Key="CardTitleText" TargetType="TextBlock">
+		<Setter Property="FontSize" Value="16"/>
+		<Setter Property="Foreground" Value="White"/>
+		<Setter Property="HorizontalAlignment" Value="Center"/>
+	</Style>
+
+</ResourceDictionary>

@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Test.runsettings = Test.runsettings
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApp1.UiTests", "WpfApp1.UiTests\WpfApp1.UiTests.csproj", "{2AEE703A-6E39-4FC3-BF54-FF7D34EC32B2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,6 +38,14 @@ Global
 		{E1834A16-D64D-40AB-A812-BD2D84DCB0C8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E1834A16-D64D-40AB-A812-BD2D84DCB0C8}.Release|x64.ActiveCfg = Release|x64
 		{E1834A16-D64D-40AB-A812-BD2D84DCB0C8}.Release|x64.Build.0 = Release|x64
+		{2AEE703A-6E39-4FC3-BF54-FF7D34EC32B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AEE703A-6E39-4FC3-BF54-FF7D34EC32B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AEE703A-6E39-4FC3-BF54-FF7D34EC32B2}.Debug|x64.ActiveCfg = Debug|x64
+		{2AEE703A-6E39-4FC3-BF54-FF7D34EC32B2}.Debug|x64.Build.0 = Debug|x64
+		{2AEE703A-6E39-4FC3-BF54-FF7D34EC32B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AEE703A-6E39-4FC3-BF54-FF7D34EC32B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AEE703A-6E39-4FC3-BF54-FF7D34EC32B2}.Release|x64.ActiveCfg = Release|Any CPU
+		{2AEE703A-6E39-4FC3-BF54-FF7D34EC32B2}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

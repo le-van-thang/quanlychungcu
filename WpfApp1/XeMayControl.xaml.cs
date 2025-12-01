@@ -8,15 +8,12 @@ namespace WpfApp1
     {
         private TaiKhoan _currentUser;
 
-        // Constructor mặc định
         public XeMayControl()
         {
             InitializeComponent();
-            ApplyRolePermission();
             LoadData();
         }
 
-        // Constructor có user (khuyến nghị dùng từ HomeControl)
         public XeMayControl(TaiKhoan user) : this()
         {
             _currentUser = user;
@@ -25,18 +22,20 @@ namespace WpfApp1
 
         private void ApplyRolePermission()
         {
-            var role = _currentUser?.VaiTro?.ToLower() ?? "";
-            bool isAdmin = role == "admin" || role == "administrator" || role == "quanly";
+            if (_currentUser == null) return;
 
-            if (FindName("btnAdd") is Button add) add.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
-            if (FindName("btnEdit") is Button edit) edit.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
-            if (FindName("btnDelete") is Button del) del.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
+            bool canEdit = RoleHelper.CanEditData(_currentUser);
 
-            // nếu nút trong XAML của bạn đặt tên btnThem/btnSua/btnXoa thì cũng hỗ trợ
-            if (FindName("btnThem") is Button them) them.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
-            if (FindName("btnSua") is Button sua) sua.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
-            if (FindName("btnXoa") is Button xoa) xoa.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
+            if (FindName("btnAdd") is Button add) add.Visibility = canEdit ? Visibility.Visible : Visibility.Collapsed;
+            if (FindName("btnEdit") is Button edit) edit.Visibility = canEdit ? Visibility.Visible : Visibility.Collapsed;
+            if (FindName("btnDelete") is Button del) del.Visibility = canEdit ? Visibility.Visible : Visibility.Collapsed;
+
+            if (FindName("btnThem") is Button them) them.Visibility = canEdit ? Visibility.Visible : Visibility.Collapsed;
+            if (FindName("btnSua") is Button sua) sua.Visibility = canEdit ? Visibility.Visible : Visibility.Collapsed;
+            if (FindName("btnXoa") is Button xoa) xoa.Visibility = canEdit ? Visibility.Visible : Visibility.Collapsed;
         }
+
+        private bool CanEdit => RoleHelper.CanEditData(_currentUser);
 
         private void LoadData(string keyword = null)
         {
@@ -68,10 +67,21 @@ namespace WpfApp1
             }
         }
 
-        private XeMayRow Current() => (FindName("dgXeMay") as DataGrid)?.SelectedItem as XeMayRow;
+        private XeMayRow Current()
+            => (FindName("dgXeMay") as DataGrid)?.SelectedItem as XeMayRow;
 
         private void BtnSearch_Click(object sender, RoutedEventArgs e)
-            => LoadData((FindName("txtSearch") as TextBox)?.Text);
+        {
+            var txt = FindName("txtSearch") as TextBox;
+            var kw = txt?.Text;
+            LoadData(kw);
+
+            if (!string.IsNullOrWhiteSpace(kw))
+            {
+                AuditLogger.Log("Search", "XeMay", null,
+                    $"Tìm kiếm xe máy với từ khóa: \"{kw}\"");
+            }
+        }
 
         private void BtnLoad_Click(object sender, RoutedEventArgs e)
         {
@@ -84,27 +94,59 @@ namespace WpfApp1
             var row = Current();
             if (row == null) { MessageBox.Show("Chọn 1 xe máy."); return; }
             new XeMayDetailWindow(row.XeMayID, readOnly: true).ShowDialog();
+
+            AuditLogger.Log("View", "XeMay", row.XeMayID.ToString(),
+                $"Xem xe máy BKS={row.BKS}, Cư dân={row.TenCuDan}");
         }
 
         private void BtnAdd_Click(object sender, RoutedEventArgs e)
         {
+            if (!CanEdit)
+            {
+                MessageBox.Show("Chỉ Manager/Admin được thêm xe máy.",
+                    "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var w = new XeMayDetailWindow(null);
             if (w.ShowDialog() == true)
+            {
                 LoadData((FindName("txtSearch") as TextBox)?.Text);
+                AuditLogger.Log("Create", "XeMay", null,
+                    "Thêm xe máy mới (qua màn hình chi tiết xe máy)");
+            }
         }
 
         private void BtnEdit_Click(object sender, RoutedEventArgs e)
         {
+            if (!CanEdit)
+            {
+                MessageBox.Show("Chỉ Manager/Admin được sửa xe máy.",
+                    "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var row = Current();
             if (row == null) { MessageBox.Show("Chọn 1 xe máy cần sửa."); return; }
 
             var w = new XeMayDetailWindow(row.XeMayID);
             if (w.ShowDialog() == true)
+            {
                 LoadData((FindName("txtSearch") as TextBox)?.Text);
+                AuditLogger.Log("Update", "XeMay", row.XeMayID.ToString(),
+                    $"Sửa xe máy BKS={row.BKS}, Cư dân={row.TenCuDan}");
+            }
         }
 
         private void BtnDelete_Click(object sender, RoutedEventArgs e)
         {
+            if (!CanEdit)
+            {
+                MessageBox.Show("Chỉ Manager/Admin được xóa xe máy.",
+                    "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var row = Current();
             if (row == null) { MessageBox.Show("Chọn 1 xe máy cần xóa."); return; }
 
@@ -116,17 +158,12 @@ namespace WpfApp1
                 var entity = db.XeMays.FirstOrDefault(x => x.XeMayID == row.XeMayID);
                 if (entity == null) { MessageBox.Show("Không tìm thấy bản ghi."); return; }
 
-                try
-                {
-                    db.XeMays.Remove(entity);
-                    db.SaveChanges();
-                }
-                catch (System.Exception ex)
-                {
-                    MessageBox.Show("Không xóa được: " + ex.Message);
-                    return;
-                }
+                db.XeMays.Remove(entity);
+                db.SaveChanges();
             }
+
+            AuditLogger.Log("Delete", "XeMay", row.XeMayID.ToString(),
+                $"Xóa xe máy BKS={row.BKS}, Cư dân={row.TenCuDan}");
 
             LoadData((FindName("txtSearch") as TextBox)?.Text);
         }

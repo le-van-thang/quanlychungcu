@@ -1,8 +1,6 @@
 ﻿using Google.Apis.Auth.OAuth2.Responses;
 using System;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using WpfApp1.Services;
@@ -18,6 +16,7 @@ namespace WpfApp1
         {
             InitializeComponent();
 
+            // Load "Nhớ tài khoản"
             var rem = RememberStore.Load();
             if (rem != null)
             {
@@ -50,29 +49,48 @@ namespace WpfApp1
                     var tk = db.TaiKhoans.FirstOrDefault(t => t.Username == user);
                     if (tk == null)
                     {
+                        AuditLogger.LogLogin(user, false, "Không tìm thấy tài khoản");
                         MessageBox.Show("Không tìm thấy tài khoản này.", "Thông báo",
                             MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
 
-                    if (!VerifyPassword(pass, tk.PasswordHash))
+                    // Tài khoản MXH / không có mật khẩu nội bộ
+                    if (string.IsNullOrEmpty(tk.PasswordHash) ||
+                        string.Equals(tk.PasswordHash, "EXTERNAL_LOGIN", StringComparison.OrdinalIgnoreCase))
                     {
+                        AuditLogger.LogLogin(user, false, "Tài khoản external (Google/Facebook) không dùng mật khẩu cục bộ");
+                        MessageBox.Show("Tài khoản này đăng nhập bằng Google / Facebook, không dùng mật khẩu.",
+                            "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                        return;
+                    }
+
+                    // ✅ Dùng SecureVault để verify password đã hash (50000....)
+                    if (!SecureVault.VerifyPassword(pass, tk.PasswordHash))
+                    {
+                        AuditLogger.LogLogin(user, false, "Sai mật khẩu");
                         MessageBox.Show("Mật khẩu không đúng!", "Sai mật khẩu",
                             MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
 
+                    // Kiểm tra IsActive
                     if (TryGetBool(tk, "IsActive") == false)
                     {
+                        AuditLogger.LogLogin(user, false, "Tài khoản bị khóa");
                         MessageBox.Show("Tài khoản đã bị khóa.", "Thông báo",
                             MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
 
+                    // Nhớ tài khoản
                     if (chkRemember.IsChecked == true) RememberStore.Save(user, pass);
                     else RememberStore.Clear();
 
+                    // Lưu session
                     SessionStore.Save(tk.TaiKhoanID);
+
+                    AuditLogger.LogLogin(user, true, $"Đăng nhập thành công (ID={tk.TaiKhoanID})");
 
                     MessageBox.Show("Đăng nhập thành công!", "Thành công",
                         MessageBoxButton.OK, MessageBoxImage.Information);
@@ -84,6 +102,7 @@ namespace WpfApp1
             }
             catch (Exception ex)
             {
+                AuditLogger.Log("LoginError", "Auth", null, ex.ToString());
                 MessageBox.Show("Không đăng nhập được:\n" + ex.Message, "Lỗi",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -106,7 +125,8 @@ namespace WpfApp1
                         return;
                     }
 
-                    if (string.IsNullOrEmpty(tk.PasswordHash))
+                    if (string.IsNullOrEmpty(tk.PasswordHash) ||
+                        string.Equals(tk.PasswordHash, "EXTERNAL_LOGIN", StringComparison.OrdinalIgnoreCase))
                     {
                         MessageBox.Show("Tài khoản đăng nhập MXH nên không thể đặt lại mật khẩu.",
                             "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -134,6 +154,9 @@ Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email nà
                         return;
                     }
 
+                    AuditLogger.Log("ForgotPassword", "Auth", tk.TaiKhoanID.ToString(),
+                        "Gửi OTP đặt lại mật khẩu");
+
                     MessageBox.Show("Mã OTP đã được gửi. Vui lòng kiểm tra email.",
                         "Đã gửi OTP", MessageBoxButton.OK, MessageBoxImage.Information);
 
@@ -150,8 +173,12 @@ Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email nà
                         return;
                     }
 
-                    tk.PasswordHash = BuildPasswordHash(newPwd1);
+                    // ✅ Lưu lại bằng SecureVault giống màn Tài khoản
+                    tk.PasswordHash = SecureVault.HashPassword(newPwd1);
                     db.SaveChanges();
+
+                    AuditLogger.Log("ResetPassword", "Auth", tk.TaiKhoanID.ToString(),
+                        "Đặt lại mật khẩu qua OTP");
 
                     MessageBox.Show("Đặt lại mật khẩu thành công. Vui lòng đăng nhập lại!",
                         "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -159,6 +186,7 @@ Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email nà
             }
             catch (Exception ex)
             {
+                AuditLogger.Log("ResetPasswordError", "Auth", null, ex.ToString());
                 MessageBox.Show("Có lỗi xảy ra:\n" + ex.Message,
                     "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -200,6 +228,8 @@ Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email nà
             else if (txtPassword.Visibility == Visibility.Visible)
                 txtPasswordPlaceholder.Visibility = Visibility.Visible;
         }
+
+        // ================== helper ==================
 
         private string AskEmail()
         {
@@ -250,42 +280,6 @@ Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email nà
             return false;
         }
 
-        private static bool VerifyPassword(string input, string stored)
-        {
-            if (string.IsNullOrEmpty(stored)) return false;
-            var parts = stored.Split('$');
-            if (parts.Length == 2)
-            {
-                var salt = parts[0];
-                var hash = parts[1];
-                var calc = Sha256Hex(input + salt);
-                return string.Equals(calc, hash, StringComparison.OrdinalIgnoreCase);
-            }
-            return string.Equals(input.Trim(), stored.Trim(), StringComparison.Ordinal);
-        }
-
-        private static string BuildPasswordHash(string password)
-        {
-            var saltBytes = new byte[16];
-            using (var rng = new RNGCryptoServiceProvider()) rng.GetBytes(saltBytes);
-            var sb = new StringBuilder();
-            foreach (var b in saltBytes) sb.Append(b.ToString("x2"));
-            var salt = sb.ToString();
-            var hash = Sha256Hex(password + salt);
-            return salt + "$" + hash;
-        }
-
-        private static string Sha256Hex(string raw)
-        {
-            using (var sha = SHA256.Create())
-            {
-                var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(raw));
-                var sb = new StringBuilder();
-                foreach (var b in bytes) sb.Append(b.ToString("x2"));
-                return sb.ToString();
-            }
-        }
-
         private static bool? TryGetBool(object obj, string propName)
         {
             var pi = obj.GetType().GetProperty(propName);
@@ -296,6 +290,8 @@ Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email nà
             bool r; if (bool.TryParse(v.ToString(), out r)) return r;
             return null;
         }
+
+        // ============ Google / Facebook ============
 
         private async void BtnLoginGoogle_Click(object sender, RoutedEventArgs e)
         {
@@ -322,9 +318,10 @@ Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email nà
                         {
                             Username = username,
                             Email = u.Email,
-                            PasswordHash = null,
+                            PasswordHash = "EXTERNAL_LOGIN",
                             VaiTro = "User",
-                            IsActive = true
+                            IsActive = true,
+                            CreatedAt = DateTime.Now
                         };
                         db.TaiKhoans.Add(tk);
                         db.SaveChanges();
@@ -333,6 +330,8 @@ Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email nà
                     await svc.UpsertExternalUserAsync(u, "User");
 
                     SessionStore.Save(tk.TaiKhoanID);
+
+                    AuditLogger.LogLogin(username, true, "Đăng nhập bằng Google");
 
                     MessageBox.Show("Đăng nhập Google thành công! Chuyển vào Trang chủ.",
                                     "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -344,6 +343,9 @@ Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email nà
             }
             catch (TokenResponseException trex)
             {
+                AuditLogger.Log("LoginError", "Auth", null, "Google TokenResponseException: " +
+                    (trex.Error?.ErrorDescription ?? trex.Message));
+
                 MessageBox.Show("Đổi code lấy token thất bại: " +
                     (trex.Error?.ErrorDescription ?? trex.Message),
                     "Google OAuth", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -353,6 +355,9 @@ Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email nà
                 var msg = ex.InnerException?.InnerException?.Message
                           ?? ex.InnerException?.Message
                           ?? ex.Message;
+
+                AuditLogger.Log("LoginError", "Auth", null, "Google login error: " + msg);
+
                 MessageBox.Show("Google login error (detail): " + msg, "Error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -377,6 +382,9 @@ Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email nà
 
                 SessionStore.Save(tk.TaiKhoanID);
 
+                AuditLogger.LogLogin(tk.Username ?? ("Facebook:" + u.ProviderUserId),
+                    true, "Đăng nhập bằng Facebook");
+
                 MessageBox.Show("Đăng nhập Facebook thành công! Chuyển vào Trang chủ.",
                                 "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
 
@@ -389,6 +397,9 @@ Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email nà
                 var msg = ex.InnerException?.InnerException?.Message
                        ?? ex.InnerException?.Message
                        ?? ex.Message;
+
+                AuditLogger.Log("LoginError", "Auth", null, "Facebook DbUpdateException: " + msg);
+
                 MessageBox.Show("Facebook login error (DbUpdate): " + msg,
                                 "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -397,6 +408,9 @@ Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email nà
                 var msg = ex.InnerException?.InnerException?.Message
                        ?? ex.InnerException?.Message
                        ?? ex.Message;
+
+                AuditLogger.Log("LoginError", "Auth", null, "Facebook login error: " + msg);
+
                 MessageBox.Show("Facebook login error (detail): " + msg,
                                 "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }

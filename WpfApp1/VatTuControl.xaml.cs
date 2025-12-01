@@ -10,6 +10,9 @@ namespace WpfApp1
 {
     public partial class VatTuControl : UserControl
     {
+        private TaiKhoan _currentUser;
+        private bool _isUser;   // chỉ xem
+
         public VatTuControl()
         {
             InitializeComponent();
@@ -22,6 +25,30 @@ namespace WpfApp1
                 MessageBox.Show("Lỗi nạp dữ liệu Vật tư:\n" + ex.Message,
                     "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        // Mở từ DashboardWindow
+        public VatTuControl(TaiKhoan user) : this()
+        {
+            _currentUser = user;
+            _isUser = RoleHelper.IsUser(user);
+
+            ApplyRoleUi();
+        }
+
+        /// <summary>
+        /// Ẩn / hiện nút theo quyền
+        /// </summary>
+        private void ApplyRoleUi()
+        {
+            if (_isUser)
+            {
+                // User: chỉ xem -> ẩn Thêm/Sửa/Xóa
+                if (btnAdd != null) btnAdd.Visibility = Visibility.Collapsed;
+                if (btnEdit != null) btnEdit.Visibility = Visibility.Collapsed;
+                if (btnDelete != null) btnDelete.Visibility = Visibility.Collapsed;
+            }
+            // Manager/Admin: giữ nguyên
         }
 
         private string ConnStr => ConfigurationManager
@@ -69,10 +96,22 @@ namespace WpfApp1
         private VatTu Current() => dgVatTu.SelectedItem as VatTu;
 
         private void BtnSearch_Click(object sender, RoutedEventArgs e)
-            => LoadData(txtSearch.Text);
+        {
+            var kw = txtSearch.Text;
+            LoadData(kw);
+
+            if (!string.IsNullOrWhiteSpace(kw))
+            {
+                AuditLogger.Log("Search", "VatTu", null,
+                    $"Tìm kiếm vật tư với từ khóa: \"{kw}\"");
+            }
+        }
 
         private void BtnReload_Click(object sender, RoutedEventArgs e)
-            => LoadData();  // Tải lại tất cả
+        {
+            txtSearch.Text = "";
+            LoadData();  // Tải lại tất cả
+        }
 
         private void BtnView_Click(object sender, RoutedEventArgs e)
         {
@@ -80,24 +119,58 @@ namespace WpfApp1
             if (row == null) { MessageBox.Show("Chọn 1 vật tư."); return; }
             var w = new VatTuDetailWindow(row.VatTuID, readOnly: true);
             w.ShowDialog();
+
+            AuditLogger.Log("View", "VatTu", row.VatTuID.ToString(),
+                $"Xem vật tư: {row.TenVatTu}");
         }
 
         private void BtnAdd_Click(object sender, RoutedEventArgs e)
         {
+            if (_isUser)
+            {
+                MessageBox.Show("Nhóm User chỉ được xem danh sách vật tư, không được thêm.",
+                    "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var w = new VatTuDetailWindow(null);
-            if (w.ShowDialog() == true) LoadData(txtSearch.Text);
+            if (w.ShowDialog() == true)
+            {
+                LoadData(txtSearch.Text);
+                AuditLogger.Log("Create", "VatTu", null,
+                    "Thêm vật tư mới");
+            }
         }
 
         private void BtnEdit_Click(object sender, RoutedEventArgs e)
         {
+            if (_isUser)
+            {
+                MessageBox.Show("Nhóm User chỉ được xem danh sách vật tư, không được sửa.",
+                    "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var row = Current();
             if (row == null) { MessageBox.Show("Chọn 1 vật tư cần sửa."); return; }
             var w = new VatTuDetailWindow(row.VatTuID);
-            if (w.ShowDialog() == true) LoadData(txtSearch.Text);
+            if (w.ShowDialog() == true)
+            {
+                LoadData(txtSearch.Text);
+                AuditLogger.Log("Update", "VatTu", row.VatTuID.ToString(),
+                    $"Sửa vật tư: {row.TenVatTu}");
+            }
         }
 
         private void BtnDelete_Click(object sender, RoutedEventArgs e)
         {
+            if (_isUser)
+            {
+                MessageBox.Show("Nhóm User chỉ được xem danh sách vật tư, không được xóa.",
+                    "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var row = Current();
             if (row == null) { MessageBox.Show("Chọn 1 vật tư cần xóa."); return; }
 
@@ -128,6 +201,9 @@ namespace WpfApp1
                     return;
                 }
             }
+
+            AuditLogger.Log("Delete", "VatTu", row.VatTuID.ToString(),
+                $"Xóa vật tư: {row.TenVatTu}");
 
             LoadData(txtSearch.Text);
         }

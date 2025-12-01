@@ -17,13 +17,15 @@ namespace WpfApp1
     public class AiService
     {
         private readonly GeminiClient _llm = new GeminiClient();
-        private readonly IWebSearchClient _web; // optional (Bing)
+        private readonly IWebSearchClient _web; // optional (Bing hoặc DuckDuckGo)
         private readonly string _conn;
 
+        // Nếu sau này bạn muốn có chế độ demo, có thể đổi logic property này
         public bool IsDemo => false;
 
         public AiService()
         {
+            // Lấy connection string SQL từ EF (QuanlychungcuEntities)
             var ef = System.Configuration.ConfigurationManager.ConnectionStrings["QuanlychungcuEntities"];
             _conn = new EntityConnectionStringBuilder(ef.ConnectionString).ProviderConnectionString;
 
@@ -31,11 +33,13 @@ namespace WpfApp1
 
             if (!string.IsNullOrWhiteSpace(bingKey))
             {
-                _web = new BingWebSearchClient(bingKey);          // Có key Azure Bing -> dùng Bing API (dữ liệu ngoài “xịn”)
+                // Có key Azure Bing -> dùng Bing API (dữ liệu web “xịn”)
+                _web = new BingWebSearchClient(bingKey);
             }
             else
             {
-                _web = new DuckDuckGoLiteClient();                // Không có key -> dùng DuckDuckGo HTML (không cần key, vẫn là dữ liệu thật)
+                // Không có key -> dùng DuckDuckGo HTML (không cần key, vẫn là dữ liệu thật)
+                _web = new DuckDuckGoLiteClient();
             }
         }
 
@@ -55,13 +59,18 @@ namespace WpfApp1
             return await _llm.AskAsync(prompt);
         }
 
-        // ===== Dùng chung: build prompt (giữ toàn bộ logic search nội bộ + web) =====
+        // ================== BUILD PROMPT: trộn data nội bộ + web ==================
         private async Task<string> BuildPromptAsync(string q)
         {
             var topN = int.Parse(System.Configuration.ConfigurationManager.AppSettings["AI_SearchTopN"] ?? "5");
             var noAccent = RemoveDiacritics(q).ToLowerInvariant();
+            var intent = NormalizeForIntent(q);
 
-            // --- các pattern đặc biệt ---
+            var prompt = new StringBuilder();
+
+            // --- các pattern đặc biệt (ưu tiên) ---
+
+            // 1) Tìm cư dân theo SĐT bắt đầu
             var mPhone = Regex.Match(noAccent, @"(dien thoai|sdt)\s+(bat dau|batdau)\s+(\d{2,6})");
             if (mPhone.Success)
             {
@@ -71,6 +80,7 @@ namespace WpfApp1
                 return RenderList("Cư dân có SĐT bắt đầu \"" + prefix + "\"", tbPhone);
             }
 
+            // 2) Tìm xe theo biển số bắt đầu
             var mPlate = Regex.Match(noAccent, @"(bien so|bks)\s+(bat dau|batdau)\s+([a-z0-9\-]{2,8})");
             if (mPlate.Success)
             {
@@ -80,6 +90,7 @@ namespace WpfApp1
                 return RenderList("Phương tiện có biển số bắt đầu \"" + prefix + "\"", tbPlate);
             }
 
+            // 3) Tìm cư dân theo domain email
             var mMail = Regex.Match(noAccent, @"email\s+(ket thuc|ketthuc)\s+@?([a-z0-9\.\-]+)");
             if (mMail.Success)
             {
@@ -89,82 +100,88 @@ namespace WpfApp1
                 return RenderList("Cư dân có email @" + domain, tbMail);
             }
 
-            if (ContainsNoAccent(q, "hoa don", "hoa don cu dan") && ContainsNoAccent(q, "chua thanh toan"))
+            // 4) Hóa đơn cư dân chưa thanh toán
+            // (Chú ý TrangThai trong DB phải đúng = 'ChuaThanhToan')
+            if (intent.Contains("hoa don") && intent.Contains("chua thanh toan"))
             {
                 var tbDebt = await SearchHoaDonCuDanByTrangThaiAsync("ChuaThanhToan", topN);
-                if (tbDebt.Rows.Count == 0) return "Không có hóa đơn cư dân trạng thái ChưaThanhToan.";
+                if (tbDebt.Rows.Count == 0) return "Không có hóa đơn cư dân trạng thái ChuaThanhToan.";
                 return RenderList("Hóa đơn cư dân chưa thanh toán", tbDebt);
             }
 
             // --- intent search + build context nội bộ ---
             bool isSearch =
-                ContainsNoAccent(q, "tim", "tra cuu", "tim kiem", "liet ke", "danh sach", "ke hoach") ||
-                ContainsNoAccent(q, "can ho", "canho") ||
-                ContainsNoAccent(q, "cu dan", "dan cu") ||
-                ContainsNoAccent(q, "o to", "oto", "xe may", "xe dap", "phuong tien") ||
-                ContainsNoAccent(q, "hoa don", "chua thanh toan") ||
-                ContainsNoAccent(q, "vat tu", "mat bang", "nhan vien", "tai khoan", "vai tro");
+                intent.Contains("tim ") || intent.Contains("tra cuu") ||
+                intent.Contains("tim kiem") || intent.Contains("liet ke") ||
+                intent.Contains("danh sach") || intent.Contains("ke hoach") ||
+                intent.Contains("can ho") || intent.Contains("cu dan") ||
+                intent.Contains("hoa don") || intent.Contains("vat tu") ||
+                intent.Contains("xe may") || intent.Contains("xe o to") ||
+                intent.Contains("xe dap") || intent.Contains("mat bang") ||
+                intent.Contains("nhan vien") || intent.Contains("tai khoan");
 
-            var prompt = new StringBuilder();
+            DataTable tb = null;
+
             if (isSearch)
             {
                 var keyword = BuildSqlKeyword(q);
                 var entityType = ResolveEntityType(q);
 
-                var tb = await SearchByProcAsync(keyword, topN, entityType);
+                // Gọi sp_Search với keyword + entityType đoán
+                tb = await SearchByProcAsync(keyword, topN, entityType);
+
+                // Nếu không có kết quả mà đã fix entityType -> thử bỏ entityType
                 if (tb.Rows.Count == 0 && entityType != null)
                     tb = await SearchByProcAsync(keyword, topN, null);
+
+                // Nếu vẫn trống -> thử lấy default top theo entityType (hoặc all)
                 if (tb.Rows.Count == 0)
                     tb = await SearchByProcAsync(string.Empty, topN, entityType);
+            }
 
-                if (tb.Rows.Count == 0)
-                {
-                    // không có dữ liệu nội bộ — vẫn để LLM trả lời chung + web
-                    prompt.AppendLine("Bạn là trợ lý cho ứng dụng QUẢN LÝ CHUNG CƯ. Trả lời ngắn gọn, rõ ràng.");
-                    prompt.AppendLine($"### CÂU HỎI NGƯỜI DÙNG: {q}");
-                }
-                else
-                {
-                    var ctx = new StringBuilder();
-                    ctx.AppendLine("### DỮ LIỆU NỘI BỘ (Top " + tb.Rows.Count + "):");
-                    foreach (DataRow r in tb.Rows)
-                        ctx.AppendLine($"- [{r["EntityType"]}] {r["Title"]} — {r["Detail"]} (Id={r["EntityId"]})");
+            // ====== BUILD PROMPT CHO LLM ======
+            if (isSearch && tb != null && tb.Rows.Count > 0)
+            {
+                var ctx = new StringBuilder();
+                ctx.AppendLine("### DỮ LIỆU NỘI BỘ (Top " + tb.Rows.Count + " bản ghi phù hợp):");
+                foreach (DataRow r in tb.Rows)
+                    ctx.AppendLine($"- [{r["EntityType"]}] {r["Title"]} — {r["Detail"]} (Id={r["EntityId"]})");
 
-                    // thay bằng:
-                    prompt.AppendLine("Bạn là trợ lý cho ứng dụng QUẢN LÝ CHUNG CƯ.");
-                    prompt.AppendLine("- Nếu câu hỏi liên quan chung cư: trả lời ngắn gọn, chính xác theo dữ liệu nội bộ.");
-                    prompt.AppendLine("- Nếu KHÔNG liên quan: vẫn trả lời như trợ lý tổng quát, súc tích, hữu ích.");
-                    prompt.AppendLine("- Có trích dẫn web ở dưới thì tham khảo để bổ sung.");
-                    prompt.AppendLine();
-                    prompt.AppendLine($"### CÂU HỎI NGƯỜI DÙNG: {q}");
-                    prompt.AppendLine();
-                    prompt.AppendLine(ctx.ToString());
-                    prompt.AppendLine();
-                    prompt.AppendLine("### YÊU CẦU");
-                    prompt.AppendLine("- Tóm tắt kết quả phù hợp với câu hỏi.");
-                    prompt.AppendLine("- Nếu có thể, gợi ý thao tác: mở CanHoList/CuDanList/… (chỉ nêu filter).");
-                    prompt.AppendLine("- Không bịa.");
-                }
+                prompt.AppendLine("Bạn là trợ lý cho ứng dụng QUẢN LÝ CHUNG CƯ.");
+                prompt.AppendLine("- ƯU TIÊN dùng dữ liệu nội bộ để trả lời nếu câu hỏi liên quan đến cư dân, căn hộ, hóa đơn, xe, vật tư, mặt bằng, nhân viên, tài khoản, v.v.");
+                prompt.AppendLine("- Nếu câu hỏi chung chung (kiến thức đời sống, thế giới, lập trình, v.v.), hãy trả lời như trợ lý tổng quát.");
+                prompt.AppendLine("- Nếu có trích dẫn web ở dưới, dùng để bổ sung, nhưng không bịa URL hay số liệu.");
+                prompt.AppendLine();
+                prompt.AppendLine($"### CÂU HỎI NGƯỜI DÙNG: {q}");
+                prompt.AppendLine();
+                prompt.AppendLine(ctx.ToString());
+                prompt.AppendLine();
+                prompt.AppendLine("### YÊU CẦU");
+                prompt.AppendLine("- Tóm tắt câu trả lời dựa trên dữ liệu nội bộ (nếu liên quan).");
+                prompt.AppendLine("- Nếu phù hợp, gợi ý thao tác trong app, ví dụ: 'Mở màn hình CanHoList, lọc theo SoCanHo chứa 101'.");
+                prompt.AppendLine("- Không bịa thông tin về dữ liệu nội bộ.");
             }
             else
             {
+                // Không có data nội bộ, hoặc không phải câu dạng search => trả lời kiểu trợ lý chung
                 prompt.AppendLine("Bạn là trợ lý cho ứng dụng QUẢN LÝ CHUNG CƯ. Trả lời ngắn gọn, rõ ràng.");
                 prompt.AppendLine($"### CÂU HỎI NGƯỜI DÙNG: {q}");
             }
 
-            // --- web snippets (nếu có Bing key) ---
+            // --- web snippets (nếu có web search) ---
             var webCtx = await BuildWebContextAsync(q, 3);
             if (!string.IsNullOrEmpty(webCtx))
             {
                 prompt.AppendLine();
                 prompt.AppendLine(webCtx);
-                prompt.AppendLine("Dựa trên trích dẫn web ở trên, bổ sung kiến thức bên ngoài nếu cần.");
+                prompt.AppendLine("Dựa trên trích dẫn web ở trên, bổ sung kiến thức bên ngoài nếu câu hỏi không chỉ liên quan đến dữ liệu nội bộ.");
             }
 
             return prompt.ToString();
         }
 
-        // ================== Helpers ==================
+        // ================== Helpers: chuẩn hóa / intent / viết tắt ==================
+
         private static string RemoveDiacritics(string s)
         {
             if (string.IsNullOrEmpty(s)) return s;
@@ -189,28 +206,116 @@ namespace WpfApp1
         private static string NormalizeQuotesAndPunct(string s)
         {
             if (string.IsNullOrEmpty(s)) return s;
-            return s.Replace('“', '"').Replace('”', '"')
-                    .Replace('‘', '\'').Replace('’', '\'')
-                    .Replace("?", " ").Replace("!", " ").Replace(",", " ").Replace(".", " ")
-                    .Trim();
+
+            // Chuẩn hóa ngoặc cong về ngoặc thẳng
+            s = s.Replace('“', '"')
+                 .Replace('”', '"')
+                 .Replace('‘', '\'')
+                 .Replace('’', '\'');
+
+            // XÓA luôn ngoặc kép, ? ! , . (đưa về khoảng trắng)
+            s = s.Replace('"', ' ')
+                 .Replace('?', ' ')
+                 .Replace('!', ' ')
+                 .Replace(',', ' ')
+                 .Replace('.', ' ');
+
+            // Gom nhiều khoảng trắng thành 1
+            s = Regex.Replace(s, @"\s+", " ").Trim();
+
+            return s;
+        }
+
+
+        // Chuẩn hóa câu hỏi để hiểu intent: bỏ dấu + thường + expand viết tắt
+        private static string NormalizeForIntent(string q)
+        {
+            if (string.IsNullOrWhiteSpace(q)) return string.Empty;
+
+            var s = RemoveDiacritics(q).ToLowerInvariant();
+            s = Regex.Replace(s, @"\s+", " ").Trim();
+
+            // ==== Expand viết tắt / alias ====
+
+            // Hóa đơn
+            s = s.Replace(" hdtm", " hoa don thuong mai")
+                 .Replace(" hd tm", " hoa don thuong mai")
+                 .Replace(" hoa don tm", " hoa don thuong mai")
+                 .Replace(" hdc ", " hoa don cu dan ")
+                 .Replace(" hd cd", " hoa don cu dan");
+
+            // Cư dân, căn hộ
+            s = s.Replace(" cd ", " cu dan ")
+                 .Replace(" cu dan ", " cu dan ")
+                 .Replace(" ch ", " can ho ");
+
+            // Xe
+            s = s.Replace(" oto", " o to")
+                 .Replace(" xe oto", " xe o to")
+                 .Replace(" xomay", " xe may")
+                 .Replace(" xedap", " xe dap");
+
+            // Nhân viên, vai trò
+            s = s.Replace(" nv ", " nhan vien ")
+                 .Replace(" vtro", " vai tro");
+
+            return s;
         }
 
         private static string BuildSqlKeyword(string q)
         {
             var raw = NormalizeQuotesAndPunct(q);
-            var noAccent = RemoveDiacritics(raw).ToLowerInvariant();
+            var intent = NormalizeForIntent(raw);   // đã bỏ dấu + expand viết tắt
+            var intentNoAcc = RemoveDiacritics(intent).ToLowerInvariant();
 
-            if (noAccent.Contains("dan cu") || noAccent.Contains("cu dan")) return "cư dân";
-            if (noAccent.Contains("can ho") || noAccent.Contains("canho")) return "căn hộ";
-            if (noAccent.Contains("o to") || noAccent.Contains("oto")) return "ô tô";
-            if (noAccent.Contains("xe may")) return "xe máy";
-            if (noAccent.Contains("xe dap")) return "xe đạp";
-            if (noAccent.Contains("vat tu") || noAccent.Contains("vattu")) return "vật tư";
-            if (noAccent.Contains("mat bang")) return "mặt bằng";
-            if (noAccent.Contains("hoa don")) return "hóa đơn";   // <-- dòng lỗi, dùng Contains (hoa)
-            if (noAccent.Contains("chua thanh toan")) return "chưa thanh toán";
-
+            // 1) Ưu tiên bắt "tên X" / "có tên X"
             var tokens = raw.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (tokens.Length > 0)
+            {
+                var rawNoAccTokens = tokens
+                    .Select(t => RemoveDiacritics(t).ToLowerInvariant())
+                    .ToArray();
+
+                // "tên Huy" hoặc "có tên Huy"
+                for (int i = 0; i < rawNoAccTokens.Length; i++)
+                {
+                    if (rawNoAccTokens[i] == "ten" ||
+                       (rawNoAccTokens[i] == "co" && i + 1 < rawNoAccTokens.Length && rawNoAccTokens[i + 1] == "ten"))
+                    {
+                        int idx = (rawNoAccTokens[i] == "ten") ? i + 1 : i + 2;
+                        if (idx < tokens.Length)
+                            return tokens[idx];      // ví dụ "Huy"
+                    }
+                }
+
+                // "số căn A101" / "số căn hộ A101"
+                for (int i = 0; i < rawNoAccTokens.Length - 1; i++)
+                {
+                    if (rawNoAccTokens[i] == "so" &&
+                        (rawNoAccTokens[i + 1] == "can" || rawNoAccTokens[i + 1] == "canho"))
+                    {
+                        int idx = i + 2;
+                        if (idx < tokens.Length)
+                            return tokens[idx];      // ví dụ "A101"
+                    }
+                }
+            }
+
+            // 2) Không bắt được tên cụ thể -> dùng keyword theo loại entity
+            if (intentNoAcc.Contains("cu dan")) return "cư dân";
+            if (intentNoAcc.Contains("can ho")) return "căn hộ";
+            if (intentNoAcc.Contains("o to")) return "ô tô";
+            if (intentNoAcc.Contains("xe may")) return "xe máy";
+            if (intentNoAcc.Contains("xe dap")) return "xe đạp";
+            if (intentNoAcc.Contains("vat tu")) return "vật tư";
+            if (intentNoAcc.Contains("mat bang thuong mai")) return "mặt bằng thương mại";
+            if (intentNoAcc.Contains("mat bang")) return "mặt bằng";
+            if (intentNoAcc.Contains("hoa don thuong mai")) return "hóa đơn thương mại";
+            if (intentNoAcc.Contains("hoa don cu dan")) return "hóa đơn cư dân";
+            if (intentNoAcc.Contains("hoa don")) return "hóa đơn";
+            if (intentNoAcc.Contains("chua thanh toan")) return "chưa thanh toán";
+
+            // 3) Fallback: lấy 3 token >= 3 ký tự
             var sb = new StringBuilder();
             int picked = 0;
             foreach (var t in tokens)
@@ -229,29 +334,48 @@ namespace WpfApp1
 
         private static string ResolveEntityType(string q)
         {
-            var s = RemoveDiacritics(q).ToLowerInvariant();
+            var s = NormalizeForIntent(q);   // đã bỏ dấu + expand viết tắt
 
+            // Xe
             if (s.Contains("xe may")) return "XeMay";
             if (s.Contains("xe dap")) return "XeDap";
-            if (s.Contains("o to") || s.Contains("oto")) return "XeOTo";
-            if (s.Contains("phuong tien")) return "XeMay";
+            if (s.Contains("xe o to") || s.Contains(" o to")) return "XeOTo";
+            if (s.Contains("phuong tien")) return "XeMay"; // default
 
-            if (s.Contains("hoa don thuong mai") || s.Contains("hd tm")) return "HoaDonTM";
+            // Hóa đơn
+            if (s.Contains("hoa don thuong mai")) return "HoaDonTM";
             if (s.Contains("hoa don cu dan") || (s.Contains("hoa don") && s.Contains("cu dan"))) return "HoaDonCuDan";
-            if (s.Contains("hoa don")) return null;
+            if (s.Contains("hoa don tm") || s.Contains("hdtm")) return "HoaDonTM";
+            if (s.Contains("hoa don cd") || s.Contains("hd cd")) return "HoaDonCuDan";
+            if (s.Contains("hoa don")) return null; // để sp_Search tự đoán
 
+            // Căn hộ / cư dân
             if (s.Contains("can ho")) return "CanHo";
             if (s.Contains("cu dan") || s.Contains("dan cu")) return "CuDan";
+
+            // Vật tư / mặt bằng
             if (s.Contains("vat tu") || s.Contains("vattu")) return "VatTu";
-            if (s.Contains("mat bang")) return "MatBang";
-            if (s.Contains("nhan vien")) return "NhanVien";
+            if (s.Contains("mat bang thuong mai") || s.Contains("mbtm")) return "MatBangThuongMai";
+            if (s.Contains("mat bang")) return "MatBangThuongMai";
+
+            // Nhân viên / tài khoản / vai trò / user
+            if (s.Contains("nhan vien") || s.Contains("nv ")) return "NhanVien";
             if (s.Contains("tai khoan")) return "TaiKhoan";
             if (s.Contains("user ")) return "User";
-            if (s.Contains("vai tro")) return "VaiTro";
-            return null;
+            if (s.Contains("vai tro") || s.Contains("vtro")) return "VaiTro";
+            if (s.Contains("admin")) return "Admin";
+
+            // Inventory / model / AI liên quan
+            if (s.Contains("vattu ton kho") || s.Contains("ton kho") || s.Contains("inventory")) return "VatTu";
+            if (s.Contains("du bao") || s.Contains("forecast")) return "InventoryForecast";
+            if (s.Contains("model ai") || s.Contains("modelregistry")) return "ModelRegistry";
+            if (s.Contains("jobrun") || s.Contains("job run") || s.Contains("lich su job")) return "JobRun";
+
+            return null; // không đoán được -> sp_Search dùng all
         }
 
         // ============ Render helper ============
+
         private static string RenderList(string title, DataTable tb)
         {
             var sb = new StringBuilder();
@@ -261,7 +385,8 @@ namespace WpfApp1
             return sb.ToString();
         }
 
-        // ============ Gọi sp_Search ============
+        // ============ Gọi sp_Search chung ============
+
         private async Task<DataTable> SearchByProcAsync(string keyword, int top, string entityType)
         {
             var dt = new DataTable();
@@ -280,7 +405,8 @@ namespace WpfApp1
             return dt;
         }
 
-        // ============ Patterned queries ============
+        // ============ Patterned queries riêng ============
+
         private async Task<DataTable> SearchCuDanByPhonePrefixAsync(string prefix, int top)
         {
             var dt = new DataTable();
@@ -394,6 +520,7 @@ namespace WpfApp1
         }
 
         // ============ Web snippets (optional) ============
+
         private async Task<string> BuildWebContextAsync(string q, int max)
         {
             if (_web == null) return null;
@@ -413,7 +540,8 @@ namespace WpfApp1
             }
             catch
             {
-                return null; // im lặng nếu web search lỗi
+                // nếu web search lỗi thì im lặng, không ảnh hưởng AI
+                return null;
             }
         }
     }

@@ -2,9 +2,9 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Trang chủ - Quản lý chung cư"
+        AutomationProperties.AutomationId="Main_DashboardWindow"
         Height="600" Width="1000"
-        WindowStartupLocation="CenterScreen"
-        Background="#F4F6F7">
+        WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
         <!-- Style cho nút con -->
@@ -80,80 +80,125 @@
     </Window.Resources>
 
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
 
-        <!-- Sidebar -->
-        <StackPanel Background="#2C3E50" Grid.Column="0">
-            <TextBlock Text="🏢 QUẢN LÝ CHUNG CƯ"
-                       Foreground="White" FontSize="15" FontWeight="Bold"
-                       Margin="20" Width="210"/>
+        <!-- Nền + overlay + blur -->
+        <Grid>
+            <Image Source="/img/anhchungcu.png"
+                   Stretch="UniformToFill"
+                   Opacity="0.45"/>
 
-            <Button Content="🏠 Trang chủ" Foreground="White"
-                    Background="Transparent" BorderThickness="0"
-                    Padding="10" HorizontalContentAlignment="Left"
-                    Click="BtnHome_Click"/>
+            <!-- overlay nhẹ hơn để đỡ xám -->
+            <Rectangle Fill="#40000000"/>
 
-            <!-- 👥 Khu vực dân cư -->
-            <Expander x:Name="expKhuVucDanCu" Header="👥 Khu vực dân cư" Style="{StaticResource SideExpander}">
-                <StackPanel>
-                    <Button Content="👤 Cư dân" Style="{StaticResource SideSubMenuButton}" Click="BtnCuDan_Click"/>
-                    <Button Content="🏠 Căn hộ" Style="{StaticResource SideSubMenuButton}" Click="BtnCanHo_Click"/>
-                </StackPanel>
-            </Expander>
+            <Grid.Effect>
+                <BlurEffect Radius="12"/>
+            </Grid.Effect>
+        </Grid>
 
-            <!-- 🏬 Khu vực thương mại -->
-            <Button x:Name="btnMenuKhuVucThuongMai" Content="🏬 Khu vực thương mại" Foreground="White"
-                    Background="Transparent" BorderThickness="0"
-                    Padding="10" HorizontalContentAlignment="Left"
-                    Click="BtnKhuVucThuongMai_Click"/>
+        <!-- UI phía trước -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-            <!-- 🛠 Vật tư -->
-            <Button x:Name="btnMenuVatTu" Content="🛠 Vật tư" Foreground="White"
-                    Background="Transparent" BorderThickness="0"
-                    Padding="10" HorizontalContentAlignment="Left"
-                    Click="BtnVatTu_Click"/>
+            <!-- Sidebar -->
+            <StackPanel Background="#2C3E50" Grid.Column="0">
+                <TextBlock Text="🏢 QUẢN LÝ CHUNG CƯ"
+                           Foreground="White" FontSize="15" FontWeight="Bold"
+                           Margin="20" Width="210"/>
 
-            <!-- 💰 Tài chính -->
-            <Expander x:Name="expTaiChinh" Header="💰 Tài chính" Style="{StaticResource SideExpander}">
-                <StackPanel>
-                    <Button Content="📑 Hóa đơn cư dân" Style="{StaticResource SideSubMenuButton}" Click="BtnHoaDonCuDan_Click"/>
-                    <Button Content="🏢 Hóa đơn thương mại" Style="{StaticResource SideSubMenuButton}" Click="BtnHoaDonThuongMai_Click"/>
-                </StackPanel>
-            </Expander>
+                <Button Content="🏠 Trang chủ" Foreground="White"
+                        Background="Transparent" BorderThickness="0"
+                        Padding="10" HorizontalContentAlignment="Left"
+                        Click="BtnHome_Click"/>
 
-            <!-- 🚗 Phương tiện -->
-            <Expander x:Name="expPhuongTien" Header="🚗 Phương tiện" Style="{StaticResource SideExpander}">
-                <StackPanel>
-                    <Button Content="🚘 Xe ô tô" Style="{StaticResource SideSubMenuButton}" Click="BtnXeOTo_Click"/>
-                    <Button Content="🛵 Xe máy"  Style="{StaticResource SideSubMenuButton}" Click="BtnXeMay_Click"/>
-                    <Button Content="🚴 Xe đạp"  Style="{StaticResource SideSubMenuButton}" Click="BtnXeDap_Click"/>
-                </StackPanel>
-            </Expander>
+                <!-- 👥 Khu vực dân cư -->
+                <Expander x:Name="expKhuVucDanCu" Header="👥 Khu vực dân cư"
+                          Style="{StaticResource SideExpander}">
+                    <StackPanel>
+                        <Button Content="👤 Cư dân"
+                                AutomationProperties.AutomationId="Menu_CuDan"
 
-            <!-- ⚙ Tài khoản -->
-            <Expander x:Name="expTaiKhoan" Header="⚙ Tài khoản" Style="{StaticResource SideExpander}">
-                <StackPanel>
-                    <Button Content="👤 Thông tin tài khoản"
-                            Style="{StaticResource SideSubMenuButton}"
-                            Click="BtnTaiKhoanInfo_Click"/>
-                    <Button x:Name="btnTaiKhoanList" Content="👥 Tất cả tài khoản"
-                            Style="{StaticResource SideSubMenuButton}"
-                            Click="BtnTaiKhoanList_Click"/>
-                </StackPanel>
-            </Expander>
+                                Style="{StaticResource SideSubMenuButton}"
+                                Click="BtnCuDan_Click"/>
+                        <Button Content="🏠 Căn hộ"
+                                      AutomationProperties.AutomationId="Menu_CanHo"
+                                Style="{StaticResource SideSubMenuButton}"
+                                Click="BtnCanHo_Click"/>
+                    </StackPanel>
+                </Expander>
 
-            <Button Content="🚪 Đăng xuất" Foreground="White"
-                    Background="Transparent" BorderThickness="0"
-                    Padding="10" HorizontalContentAlignment="Left"
-                    Click="BtnDangXuat_Click"/>
-        </StackPanel>
+                <!-- 🏬 Khu vực thương mại -->
+                <Button x:Name="btnMenuKhuVucThuongMai" Content="🏬 Khu vực thương mại" Foreground="White"
+                        Background="Transparent" BorderThickness="0"
+                        Padding="10" HorizontalContentAlignment="Left"
+                        Click="BtnKhuVucThuongMai_Click"/>
 
-        <!-- Nội dung chính -->
-        <Grid Grid.Column="1" Margin="20">
-            <ContentControl x:Name="MainContent"/>
+                <!-- 🛠 Vật tư -->
+                <Button x:Name="btnMenuVatTu" Content="🛠 Vật tư" Foreground="White"
+                        Background="Transparent" BorderThickness="0"
+                        Padding="10" HorizontalContentAlignment="Left"
+                        Click="BtnVatTu_Click"/>
+
+                <!-- 💰 Tài chính -->
+                <Expander x:Name="expTaiChinh" Header="💰 Tài chính"
+                          Style="{StaticResource SideExpander}">
+                    <StackPanel>
+                        <Button Content="📑 Hóa đơn cư dân"
+                                Style="{StaticResource SideSubMenuButton}"
+                                Click="BtnHoaDonCuDan_Click"/>
+                        <Button Content="🏢 Hóa đơn thương mại"
+                                Style="{StaticResource SideSubMenuButton}"
+                                Click="BtnHoaDonThuongMai_Click"/>
+                    </StackPanel>
+                </Expander>
+
+                <!-- 🚗 Phương tiện -->
+                <Expander x:Name="expPhuongTien" Header="🚗 Phương tiện"
+                          Style="{StaticResource SideExpander}">
+                    <StackPanel>
+                        <Button Content="🚘 Xe ô tô"
+                                Style="{StaticResource SideSubMenuButton}"
+                                Click="BtnXeOTo_Click"/>
+                        <Button Content="🛵 Xe máy"
+                                Style="{StaticResource SideSubMenuButton}"
+                                Click="BtnXeMay_Click"/>
+                        <Button Content="🚴 Xe đạp"
+                                Style="{StaticResource SideSubMenuButton}"
+                                Click="BtnXeDap_Click"/>
+                    </StackPanel>
+                </Expander>
+
+                <!-- ⚙ Tài khoản -->
+                <Expander x:Name="expTaiKhoan"
+          AutomationProperties.AutomationId="Menu_TaiKhoan"
+          Header="⚙ Tài khoản"
+          Style="{StaticResource SideExpander}">
+                    <StackPanel>
+                        <Button Content="👤 Thông tin tài khoản"
+                                Style="{StaticResource SideSubMenuButton}"
+                                Click="BtnTaiKhoanInfo_Click"/>
+                        <Button x:Name="btnTaiKhoanList"
+        AutomationProperties.AutomationId="btnTaiKhoanList"
+        Content="👥 Tất cả tài khoản"
+        Style="{StaticResource SideSubMenuButton}"
+        Click="BtnTaiKhoanList_Click"/>
+                    </StackPanel>
+                </Expander>
+
+                <Button x:Name="btnLogout"
+        AutomationProperties.AutomationId="Dashboard_Logout"
+        Content="🚪 Đăng xuất" Foreground="White"
+        Background="Transparent" BorderThickness="0"
+        Padding="10" HorizontalContentAlignment="Left"
+        Click="BtnDangXuat_Click"/>
+            </StackPanel>
+
+            <!-- Nội dung chính -->
+            <Grid Grid.Column="1" Margin="20">
+                <ContentControl x:Name="MainContent"/>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

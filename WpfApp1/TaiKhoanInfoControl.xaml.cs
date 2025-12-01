@@ -1,5 +1,4 @@
-﻿// TaiKhoanInfoControl.xaml.cs (rút gọn phần liên quan)
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System;
 using System.IO;
 using System.Linq;
@@ -13,14 +12,15 @@ namespace WpfApp1
     public partial class TaiKhoanInfoControl : UserControl
     {
         private readonly QuanlychungcuEntities _db = new QuanlychungcuEntities();
-
         private TaiKhoan _user;
 
-        // map linh hoạt
+        // Các tên cột có thể có trong DB (để map linh hoạt)
         private static readonly string[] Col_FullName = { "HoTen", "HoVaTen", "FullName" };
         private static readonly string[] Col_BirthDate = { "NgaySinh", "BirthDate", "NgaySinhDate" };
         private static readonly string[] Col_Avatar = { "Avatar", "AnhDaiDien", "Photo" };
         private static readonly string[] Col_UserName = { "Username", "UserName", "TenDangNhap" };
+        private static readonly string[] Col_Email = { "Email", "Mail" };
+        private static readonly string[] Col_Role = { "VaiTro", "Role", "Quyen" };
         private static readonly string[] Col_PwHash = { "MatKhauHash", "PasswordHash" };
 
         public TaiKhoanInfoControl(TaiKhoan currentUser)
@@ -34,6 +34,8 @@ namespace WpfApp1
             SetEditMode(false);
         }
 
+        // ================== UI MODE ==================
+
         private void SetEditMode(bool isEdit)
         {
             txtHoTen.IsReadOnly = !isEdit;
@@ -46,20 +48,40 @@ namespace WpfApp1
 
             btnChangeAvatar.IsEnabled = isEdit;
             btnRemoveAvatar.IsEnabled = isEdit;
+
+            if (!isEdit)
+            {
+                ckChangePw.IsChecked = false;
+                pwPanel.Visibility = Visibility.Collapsed;
+                pbOldPw.Password = pbNewPw.Password = pbConfirmPw.Password = "";
+            }
         }
+
+        // ================== LOAD DATA ==================
 
         private void LoadUserInfo()
         {
-            // 1) Họ tên: ưu tiên cột họ tên, nếu không có dùng Username
+            // Họ tên
             var fullName = GetProp<string>(_user, Col_FullName);
             var username = GetProp<string>(_user, Col_UserName) ?? "";
             if (string.IsNullOrWhiteSpace(fullName)) fullName = username;
             txtHoTen.Text = fullName;
 
-            // 2) Ngày sinh (nếu có cột)
+            // Email & role & username hiển thị
+            var email = GetProp<string>(_user, Col_Email) ?? "(chưa có email)";
+            txtEmail.Text = email;
+
+            var role = GetProp<string>(_user, Col_Role) ?? "User";
+            txtRole.Text = $"Vai trò: {role}";
+
+            txtUserName.Text = string.IsNullOrWhiteSpace(username)
+                ? ""
+                : $"Tên đăng nhập: {username}";
+
+            // Ngày sinh
             dpNgaySinh.SelectedDate = GetProp<DateTime?>(_user, Col_BirthDate);
 
-            // 3) Ảnh đại diện: DB trước, không có thì lấy ở AvatarStorage
+            // Avatar: ưu tiên DB, không có thì lấy từ AvatarStorage
             byte[] avatarBytes = GetProp<byte[]>(_user, Col_Avatar);
             if (avatarBytes == null || avatarBytes.Length == 0)
                 avatarBytes = AvatarStorage.Load(username);
@@ -76,11 +98,15 @@ namespace WpfApp1
                 txtInitials.Visibility = Visibility.Visible;
             }
 
-            // reset panel đổi mật khẩu
-            ckChangePw.IsChecked = false;
-            pwPanel.Visibility = Visibility.Collapsed;
-            pbOldPw.Password = pbNewPw.Password = pbConfirmPw.Password = "";
+            // cảnh báo nếu DB không có cột tên/ngày sinh
+            bool hasNameCol = FindProp(_user, Col_FullName) != null;
+            bool hasDobCol = FindProp(_user, Col_BirthDate) != null;
+            txtWarningReadonly.Visibility = (!hasNameCol || !hasDobCol)
+                ? Visibility.Visible
+                : Visibility.Collapsed;
         }
+
+        // ================== AVATAR ==================
 
         private void BtnChangeAvatar_Click(object sender, RoutedEventArgs e)
         {
@@ -88,12 +114,12 @@ namespace WpfApp1
             {
                 Filter = "Ảnh (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg"
             };
-            if (dlg.ShowDialog() == true)
+            if (dlg.ShowDialog() != true) return;
+
+            try
             {
-                // Đọc bytes ảnh đã chọn
                 var bytes = File.ReadAllBytes(dlg.FileName);
 
-                // Thử lưu vào DB nếu có cột Avatar
                 if (FindProp(_user, Col_Avatar) != null)
                 {
                     SetProp(_user, Col_Avatar, bytes);
@@ -101,7 +127,6 @@ namespace WpfApp1
                 }
                 else
                 {
-                    // fallback lưu ra ổ đĩa theo Username
                     var username = GetProp<string>(_user, Col_UserName) ?? "unknown";
                     AvatarStorage.Save(username, bytes);
                 }
@@ -109,31 +134,49 @@ namespace WpfApp1
                 imgAvatar.Source = ToBitmap(bytes);
                 txtInitials.Visibility = Visibility.Collapsed;
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Không thể lưu ảnh đại diện:\n" + ex.Message,
+                    "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void BtnRemoveAvatar_Click(object sender, RoutedEventArgs e)
         {
-            // DB có cột thì xóa DB; nếu không thì xóa file local
-            if (FindProp(_user, Col_Avatar) != null)
+            try
             {
-                SetProp(_user, Col_Avatar, null);
-                _db.SaveChanges();
-            }
-            else
-            {
-                var username = GetProp<string>(_user, Col_UserName) ?? "unknown";
-                AvatarStorage.Delete(username);
-            }
+                if (FindProp(_user, Col_Avatar) != null)
+                {
+                    SetProp(_user, Col_Avatar, null);
+                    _db.SaveChanges();
+                }
+                else
+                {
+                    var username = GetProp<string>(_user, Col_UserName) ?? "unknown";
+                    AvatarStorage.Delete(username);
+                }
 
-            imgAvatar.Source = null;
-            txtInitials.Text = Initials(txtHoTen.Text);
-            txtInitials.Visibility = Visibility.Visible;
+                imgAvatar.Source = null;
+                txtInitials.Text = Initials(txtHoTen.Text);
+                txtInitials.Visibility = Visibility.Visible;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Không thể xóa ảnh đại diện:\n" + ex.Message,
+                    "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
-        private void BtnEdit_Click(object sender, RoutedEventArgs e) => SetEditMode(true);
+        // ================== BUTTONS ==================
+
+        private void BtnEdit_Click(object sender, RoutedEventArgs e)
+        {
+            SetEditMode(true);
+        }
 
         private void BtnCancel_Click(object sender, RoutedEventArgs e)
         {
+            // reload entity từ DB để hủy mọi chỉnh sửa
             _db.Entry(_user).Reload();
             LoadUserInfo();
             SetEditMode(false);
@@ -143,33 +186,48 @@ namespace WpfApp1
         {
             try
             {
-                // họ tên/ngày sinh chỉ lưu nếu DB có cột tương ứng
+                // Họ tên
                 if (FindProp(_user, Col_FullName) != null)
                     SetProp(_user, Col_FullName, (txtHoTen.Text ?? "").Trim());
 
+                // Ngày sinh
                 if (FindProp(_user, Col_BirthDate) != null)
                     SetProp(_user, Col_BirthDate, dpNgaySinh.SelectedDate);
 
+                // Đổi mật khẩu (nếu bật)
                 if (ckChangePw.IsChecked == true)
                 {
+                    if (FindProp(_user, Col_PwHash) == null)
+                    {
+                        MessageBox.Show(
+                            "Tài khoản này đăng nhập qua Google/Facebook hoặc không lưu mật khẩu cục bộ, nên không thể đổi mật khẩu ở đây.",
+                            "Không hỗ trợ",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+                        return;
+                    }
+
                     if (string.IsNullOrWhiteSpace(pbOldPw.Password) ||
                         string.IsNullOrWhiteSpace(pbNewPw.Password) ||
                         string.IsNullOrWhiteSpace(pbConfirmPw.Password))
                     {
-                        MessageBox.Show("Vui lòng nhập đủ ba ô mật khẩu.");
+                        MessageBox.Show("Vui lòng nhập đầy đủ mật khẩu hiện tại và mật khẩu mới.",
+                            "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
+
                     if (pbNewPw.Password != pbConfirmPw.Password)
                     {
-                        MessageBox.Show("Xác nhận mật khẩu không khớp.");
+                        MessageBox.Show("Xác nhận mật khẩu mới không khớp.",
+                            "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
 
                     var hash = GetProp<string>(_user, Col_PwHash) ?? "";
                     if (!SecureVault.VerifyPassword(pbOldPw.Password, hash))
                     {
-                        MessageBox.Show("Mật khẩu hiện tại không đúng.", "Lỗi",
-                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Mật khẩu hiện tại không đúng.",
+                            "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
 
@@ -178,18 +236,34 @@ namespace WpfApp1
                 }
 
                 _db.SaveChanges();
-                MessageBox.Show("Đã cập nhật tài khoản.", "Thành công",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Đã cập nhật thông tin tài khoản.",
+                    "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 SetEditMode(false);
+                LoadUserInfo();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lưu không thành công:\n" + ex.Message);
+                MessageBox.Show("Lưu không thành công:\n" + ex.Message,
+                    "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        // ---------- helpers ----------
+        // ================== PASSWORD PANEL ==================
+
+        private void ckChangePw_Checked(object sender, RoutedEventArgs e)
+        {
+            pwPanel.Visibility = Visibility.Visible;
+        }
+
+        private void ckChangePw_Unchecked(object sender, RoutedEventArgs e)
+        {
+            pwPanel.Visibility = Visibility.Collapsed;
+            pbOldPw.Password = pbNewPw.Password = pbConfirmPw.Password = "";
+        }
+
+        // ================== HELPERS ==================
+
         private static T GetProp<T>(object obj, string[] candidates)
         {
             var pi = FindProp(obj, candidates);
@@ -203,6 +277,7 @@ namespace WpfApp1
         {
             var pi = FindProp(obj, candidates);
             if (pi == null) return;
+
             var target = value == null ? null : ConvertTo(pi.PropertyType, value);
             pi.SetValue(obj, target);
         }
@@ -212,7 +287,8 @@ namespace WpfApp1
             var t = obj.GetType();
             foreach (var name in candidates)
             {
-                var pi = t.GetProperty(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                var pi = t.GetProperty(name,
+                    BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
                 if (pi != null) return pi;
             }
             return null;
@@ -244,20 +320,11 @@ namespace WpfApp1
         private static string Initials(string name)
         {
             if (string.IsNullOrWhiteSpace(name)) return "NA";
-            var parts = name.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length == 1) return parts[0][0].ToString().ToUpper();
+            var parts = name.Trim()
+                            .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 1)
+                return parts[0][0].ToString().ToUpper();
             return (parts[0][0].ToString() + parts[parts.Length - 1][0].ToString()).ToUpper();
-        }
-
-        private void ckChangePw_Checked(object sender, RoutedEventArgs e)
-        {
-            pwPanel.Visibility = Visibility.Visible;
-        }
-
-        private void ckChangePw_Unchecked(object sender, RoutedEventArgs e)
-        {
-            pwPanel.Visibility = Visibility.Collapsed;
-            pbOldPw.Password = pbNewPw.Password = pbConfirmPw.Password = "";
         }
     }
 }

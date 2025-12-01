@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace WpfApp1.Tests
+namespace WpfApp1.UiTests
 {
     [TestClass]
     public class UnitTest1

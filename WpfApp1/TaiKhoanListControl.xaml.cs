@@ -10,10 +10,29 @@ namespace WpfApp1
 {
     public partial class TaiKhoanListControl : UserControl
     {
+        private TaiKhoan _currentUser;
+        private bool _isAdmin;
+
         public TaiKhoanListControl()
         {
             InitializeComponent();
             LoadGrid();
+        }
+
+        // Constructor dùng khi mở từ DashboardWindow
+        public TaiKhoanListControl(TaiKhoan user) : this()
+        {
+            _currentUser = user;
+            _isAdmin = RoleHelper.IsAdmin(user);
+
+            if (!_isAdmin)
+            {
+                MessageBox.Show("Chỉ Admin mới được xem và quản lý danh sách tài khoản.",
+                    "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+
+                // Khoá hết control cho chắc
+                this.IsEnabled = false;
+            }
         }
 
         // Dòng hiển thị trên lưới
@@ -71,17 +90,21 @@ namespace WpfApp1
 
         private void BtnSearch_Click(object sender, RoutedEventArgs e)
         {
+            if (!_isAdmin) return;
             LoadGrid(txtSearch.Text);
         }
 
         private void BtnReload_Click(object sender, RoutedEventArgs e)
         {
+            if (!_isAdmin) return;
             txtSearch.Text = "";
             LoadGrid();
         }
 
         private void BtnView_Click(object sender, RoutedEventArgs e)
         {
+            if (!_isAdmin) return;
+
             var row = GetSelectedRow();
             if (row == null)
             {
@@ -98,6 +121,13 @@ namespace WpfApp1
 
         private void BtnAdd_Click(object sender, RoutedEventArgs e)
         {
+            if (!_isAdmin)
+            {
+                MessageBox.Show("Chỉ Admin mới được thêm tài khoản.",
+                    "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var win = new TaiKhoanEditWindow(null);
             win.Owner = Application.Current?.MainWindow;
             if (win.ShowDialog() == true)
@@ -108,6 +138,13 @@ namespace WpfApp1
 
         private void BtnEdit_Click(object sender, RoutedEventArgs e)
         {
+            if (!_isAdmin)
+            {
+                MessageBox.Show("Chỉ Admin mới được sửa tài khoản.",
+                    "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var row = GetSelectedRow();
             if (row == null)
             {
@@ -126,6 +163,13 @@ namespace WpfApp1
 
         private void BtnDelete_Click(object sender, RoutedEventArgs e)
         {
+            if (!_isAdmin)
+            {
+                MessageBox.Show("Chỉ Admin mới được xóa tài khoản.",
+                    "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var row = GetSelectedRow();
             if (row == null)
             {

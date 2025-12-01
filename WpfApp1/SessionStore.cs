@@ -18,9 +18,7 @@ namespace WpfApp1
                 Directory.CreateDirectory(Folder);
                 File.WriteAllText(FilePath, userId.ToString());
             }
-            catch
-            {
-            }
+            catch { }
         }
 
         public static int? Load()
@@ -44,9 +42,10 @@ namespace WpfApp1
             {
                 if (File.Exists(FilePath)) File.Delete(FilePath);
             }
-            catch
-            {
-            }
+            catch { }
         }
+
+        // Thêm hàm tiện dụng
+        public static int? GetUserId() => Load();
     }
 }

@@ -257,6 +257,9 @@
     <Reference Include="System.Data.SqlClient, Version=4.6.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Data.SqlClient.4.9.0\lib\net462\System.Data.SqlClient.dll</HintPath>
     </Reference>
+    <Reference Include="System.Drawing.Common, Version=10.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Drawing.Common.10.0.0\lib\net462\System.Drawing.Common.dll</HintPath>
+    </Reference>
     <Reference Include="System.Management" />
     <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
@@ -294,6 +297,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ActivityLog.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ActivityLogControl.xaml.cs">
+      <DependentUpon>ActivityLogControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Admin.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -301,6 +310,7 @@
     <Compile Include="AIWindow.xaml.cs">
       <DependentUpon>AIWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="AuditLogger.cs" />
     <Compile Include="AvatarStorage.cs" />
     <Compile Include="BingWebSearchClient.cs" />
     <Compile Include="CanHo.cs">
@@ -434,6 +444,7 @@
       <DependentUpon>RegisterWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="RememberStore.cs" />
+    <Compile Include="RoleHelper.cs" />
     <Compile Include="SearchIndex.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -454,6 +465,15 @@
     </Compile>
     <Compile Include="Tang.cs">
       <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Ticket.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TicketControl.xaml.cs">
+      <DependentUpon>TicketControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="TicketDetailWindow.xaml.cs">
+      <DependentUpon>TicketDetailWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="User.cs">
       <DependentUpon>Model1.tt</DependentUpon>
@@ -500,6 +520,10 @@
     <Compile Include="XeOToDetailWindow.xaml.cs">
       <DependentUpon>XeOToDetailWindow.xaml</DependentUpon>
     </Compile>
+    <Page Include="ActivityLogControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="AIWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -530,6 +554,9 @@
     </Page>
     <Page Include="FacebookLoginWindow.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GlobalStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="HoaDonCuDanControl.xaml">
@@ -587,6 +614,14 @@
     <Page Include="TaiKhoanListControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="TicketControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TicketDetailWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="VatTuControl.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -653,7 +688,9 @@
       <Generator>EntityModelCodeGenerator</Generator>
       <LastGenOutput>Model1.Designer.cs</LastGenOutput>
     </EntityDeploy>
-    <None Include="App.Secrets.config" />
+    <Content Include="App.Secrets.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="Model1.edmx.diagram">
       <DependentUpon>Model1.edmx</DependentUpon>
     </None>
@@ -667,6 +704,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="img\anhchungcu.png" />
     <Content Include="Model1.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>Model1.edmx</DependentUpon>

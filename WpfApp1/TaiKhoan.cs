@@ -22,6 +22,7 @@ namespace WpfApp1
             this.PasswordHistories = new HashSet<PasswordHistory>();
             this.Users = new HashSet<User>();
             this.VaiTroes = new HashSet<VaiTro>();
+            this.Tickets = new HashSet<Ticket>();
         }
     
         public int TaiKhoanID { get; set; }
@@ -44,5 +45,7 @@ namespace WpfApp1
         public virtual ICollection<User> Users { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<VaiTro> VaiTroes { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Ticket> Tickets { get; set; }
     }
 }

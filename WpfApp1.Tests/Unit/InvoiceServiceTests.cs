@@ -13,6 +13,7 @@ namespace WpfApp1.Tests.Unit
     /// - TC38: Duplicate invoice same day.
     /// </summary>
     [TestClass]
+    [TestCategory("Unit")]
     public class InvoiceServiceTests : DbTestBase
     {
         private QuanlychungcuEntities _db;

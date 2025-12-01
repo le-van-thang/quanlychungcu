@@ -8,35 +8,34 @@ namespace WpfApp1
     {
         private TaiKhoan _currentUser;
 
-        // Ctor mặc định (designer hoặc không cần phân quyền)
         public XeDapControl()
         {
             InitializeComponent();
-            ApplyRolePermission();  // nếu chưa có _currentUser thì coi như không phải admin
             LoadData();
         }
 
-        // Ctor có user (gọi từ HomeControl)
         public XeDapControl(TaiKhoan user) : this()
         {
             _currentUser = user;
             ApplyRolePermission();
         }
 
-        // Ẩn/hiện các nút theo vai trò
         private void ApplyRolePermission()
         {
-            var role = _currentUser?.VaiTro?.ToLower() ?? "";
-            bool isAdmin = role == "admin" || role == "administrator" || role == "quanly";
+            if (_currentUser == null) return;
 
-            if (FindName("btnAdd") is Button add) add.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
-            if (FindName("btnEdit") is Button edit) edit.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
-            if (FindName("btnDelete") is Button del) del.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
+            bool canEdit = RoleHelper.CanEditData(_currentUser);
 
-            if (FindName("btnThem") is Button them) them.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
-            if (FindName("btnSua") is Button sua) sua.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
-            if (FindName("btnXoa") is Button xoa) xoa.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
+            if (FindName("btnAdd") is Button add) add.Visibility = canEdit ? Visibility.Visible : Visibility.Collapsed;
+            if (FindName("btnEdit") is Button edit) edit.Visibility = canEdit ? Visibility.Visible : Visibility.Collapsed;
+            if (FindName("btnDelete") is Button del) del.Visibility = canEdit ? Visibility.Visible : Visibility.Collapsed;
+
+            if (FindName("btnThem") is Button them) them.Visibility = canEdit ? Visibility.Visible : Visibility.Collapsed;
+            if (FindName("btnSua") is Button sua) sua.Visibility = canEdit ? Visibility.Visible : Visibility.Collapsed;
+            if (FindName("btnXoa") is Button xoa) xoa.Visibility = canEdit ? Visibility.Visible : Visibility.Collapsed;
         }
+
+        private bool CanEdit => RoleHelper.CanEditData(_currentUser);
 
         private void LoadData(string keyword = null)
         {
@@ -72,7 +71,17 @@ namespace WpfApp1
             => (FindName("dgXeDap") as DataGrid)?.SelectedItem as XeDapRow;
 
         private void BtnSearch_Click(object sender, RoutedEventArgs e)
-            => LoadData((FindName("txtSearch") as TextBox)?.Text);
+        {
+            var txt = FindName("txtSearch") as TextBox;
+            var kw = txt?.Text;
+            LoadData(kw);
+
+            if (!string.IsNullOrWhiteSpace(kw))
+            {
+                AuditLogger.Log("Search", "XeDap", null,
+                    $"Tìm kiếm xe đạp với từ khóa: \"{kw}\"");
+            }
+        }
 
         private void BtnReload_Click(object sender, RoutedEventArgs e)
         {
@@ -85,27 +94,59 @@ namespace WpfApp1
             var row = Current();
             if (row == null) { MessageBox.Show("Chọn 1 xe đạp."); return; }
             new XeDapDetailWindow(row.XeDapID, readOnly: true).ShowDialog();
+
+            AuditLogger.Log("View", "XeDap", row.XeDapID.ToString(),
+                $"Xem xe đạp BKS={row.BKS}, Cư dân={row.TenCuDan}");
         }
 
         private void BtnAdd_Click(object sender, RoutedEventArgs e)
         {
+            if (!CanEdit)
+            {
+                MessageBox.Show("Chỉ Manager/Admin được thêm xe đạp.",
+                    "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var w = new XeDapDetailWindow(null);
             if (w.ShowDialog() == true)
+            {
                 LoadData((FindName("txtSearch") as TextBox)?.Text);
+                AuditLogger.Log("Create", "XeDap", null,
+                    "Thêm xe đạp mới (qua màn hình chi tiết xe đạp)");
+            }
         }
 
         private void BtnEdit_Click(object sender, RoutedEventArgs e)
         {
+            if (!CanEdit)
+            {
+                MessageBox.Show("Chỉ Manager/Admin được sửa xe đạp.",
+                    "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var row = Current();
             if (row == null) { MessageBox.Show("Chọn 1 xe cần sửa."); return; }
 
             var w = new XeDapDetailWindow(row.XeDapID);
             if (w.ShowDialog() == true)
+            {
                 LoadData((FindName("txtSearch") as TextBox)?.Text);
+                AuditLogger.Log("Update", "XeDap", row.XeDapID.ToString(),
+                    $"Sửa xe đạp BKS={row.BKS}, Cư dân={row.TenCuDan}");
+            }
         }
 
         private void BtnDelete_Click(object sender, RoutedEventArgs e)
         {
+            if (!CanEdit)
+            {
+                MessageBox.Show("Chỉ Manager/Admin được xóa xe đạp.",
+                    "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var row = Current();
             if (row == null) { MessageBox.Show("Chọn 1 xe cần xóa."); return; }
 
@@ -117,17 +158,12 @@ namespace WpfApp1
                 var entity = db.XeDaps.FirstOrDefault(x => x.XeDapID == row.XeDapID);
                 if (entity == null) { MessageBox.Show("Không tìm thấy bản ghi."); return; }
 
-                try
-                {
-                    db.XeDaps.Remove(entity);
-                    db.SaveChanges();
-                }
-                catch (System.Exception ex)
-                {
-                    MessageBox.Show("Không xóa được: " + ex.Message);
-                    return;
-                }
+                db.XeDaps.Remove(entity);
+                db.SaveChanges();
             }
+
+            AuditLogger.Log("Delete", "XeDap", row.XeDapID.ToString(),
+                $"Xóa xe đạp BKS={row.BKS}, Cư dân={row.TenCuDan}");
 
             LoadData((FindName("txtSearch") as TextBox)?.Text);
         }

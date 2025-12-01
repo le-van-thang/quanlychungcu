@@ -13,6 +13,7 @@ namespace WpfApp1.Tests.SystemTests
     /// - Lập hóa đơn qua InvoiceService rồi thử xóa Căn hộ.
     /// </summary>
     [TestClass]
+    [TestCategory("System")]
     public class ResidentInvoiceFlowTests
     {
         /// <summary>

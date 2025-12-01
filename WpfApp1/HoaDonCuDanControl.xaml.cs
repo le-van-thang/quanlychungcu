@@ -26,13 +26,16 @@ namespace WpfApp1
 
         private void ApplyRolePermission()
         {
-            var role = _currentUser?.VaiTro?.ToLower() ?? "";
-            bool isAdmin = role == "admin" || role == "administrator" || role == "quanly";
+            if (_currentUser == null) return;
 
-            if (FindName("btnAdd") is Button add) add.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
-            if (FindName("btnEdit") is Button edit) edit.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
-            if (FindName("btnDelete") is Button del) del.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
+            bool canEdit = RoleHelper.CanEditData(_currentUser);
+
+            btnAdd.Visibility = canEdit ? Visibility.Visible : Visibility.Collapsed;
+            btnEdit.Visibility = canEdit ? Visibility.Visible : Visibility.Collapsed;
+            btnDelete.Visibility = canEdit ? Visibility.Visible : Visibility.Collapsed;
         }
+
+        private bool CanEdit => RoleHelper.CanEditData(_currentUser);
 
         private void LoadData(string keyword = null)
         {
@@ -44,7 +47,7 @@ namespace WpfApp1
                         h.HoaDonID,
                         SoCanHo = h.CanHo.SoCanHo,
                         CuDan = h.CuDan.HoTen,
-                        h.LoaiDichVu,
+                        LoaiDichVu = h.LoaiDichVu,
                         h.SoTien,
                         h.NgayLap,
                         h.TrangThai
@@ -58,8 +61,7 @@ namespace WpfApp1
                         (x.CuDan ?? "").ToLower().Contains(keyword) ||
                         (x.LoaiDichVu ?? "").ToLower().Contains(keyword) ||
                         x.SoTien.ToString().Contains(keyword) ||
-                        (x.TrangThai ?? "").ToLower().Contains(keyword)
-                    );
+                        (x.TrangThai ?? "").ToLower().Contains(keyword));
                 }
 
                 dgHoaDon.ItemsSource = q
@@ -69,45 +71,97 @@ namespace WpfApp1
             }
         }
 
-        // Lấy ID từ dòng hiện tại
         private int? CurrentId()
         {
             if (dgHoaDon.SelectedItem == null) return null;
-
-            // Ép sang object ẩn danh rồi lấy ID
             var row = dgHoaDon.SelectedItem;
             var prop = row.GetType().GetProperty("HoaDonID");
             return (int?)prop?.GetValue(row, null);
         }
 
-        private void BtnSearch_Click(object sender, RoutedEventArgs e) => LoadData(txtSearch.Text);
+        private void BtnSearch_Click(object sender, RoutedEventArgs e)
+        {
+            var kw = txtSearch.Text;
+            LoadData(kw);
+
+            if (!string.IsNullOrWhiteSpace(kw))
+            {
+                AuditLogger.Log("Search", "HoaDonCuDan", null,
+                    $"Tìm kiếm hóa đơn cư dân với từ khóa: \"{kw}\"");
+            }
+        }
 
         private void BtnView_Click(object sender, RoutedEventArgs e)
         {
             var id = CurrentId();
             if (id == null) { MessageBox.Show("Chọn 1 hóa đơn để xem."); return; }
 
-            var win = new HoaDonCuDanDetailWindow(id.Value, readOnly: true);
-            win.ShowDialog();
+            new HoaDonCuDanDetailWindow(id.Value, readOnly: true).ShowDialog();
+
+            using (var db = new QuanlychungcuEntities())
+            {
+                var h = db.HoaDonCuDans.FirstOrDefault(x => x.HoaDonID == id.Value);
+                if (h != null)
+                {
+                    AuditLogger.Log("View", "HoaDonCuDan", id.Value.ToString(),
+                        $"Xem hóa đơn cư dân: CanHo={h.CanHo?.SoCanHo}, CuDan={h.CuDan?.HoTen}, LoaiDV={h.LoaiDichVu}");
+                }
+                else
+                {
+                    AuditLogger.Log("View", "HoaDonCuDan", id.Value.ToString(),
+                        "Xem hóa đơn cư dân (không tìm thấy chi tiết trong DB)");
+                }
+            }
         }
 
         private void BtnAdd_Click(object sender, RoutedEventArgs e)
         {
+            if (!CanEdit)
+            {
+                MessageBox.Show("Chỉ Manager/Admin được thêm hóa đơn.",
+                    "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var win = new HoaDonCuDanDetailWindow(null);
-            if (win.ShowDialog() == true) LoadData(txtSearch.Text);
+            if (win.ShowDialog() == true)
+            {
+                LoadData(txtSearch.Text);
+                AuditLogger.Log("Create", "HoaDonCuDan", null,
+                    "Thêm hóa đơn cư dân mới");
+            }
         }
 
         private void BtnEdit_Click(object sender, RoutedEventArgs e)
         {
+            if (!CanEdit)
+            {
+                MessageBox.Show("Chỉ Manager/Admin được sửa hóa đơn.",
+                    "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var id = CurrentId();
             if (id == null) { MessageBox.Show("Chọn 1 hóa đơn cần sửa."); return; }
 
             var win = new HoaDonCuDanDetailWindow(id.Value);
-            if (win.ShowDialog() == true) LoadData(txtSearch.Text);
+            if (win.ShowDialog() == true)
+            {
+                LoadData(txtSearch.Text);
+                AuditLogger.Log("Update", "HoaDonCuDan", id.Value.ToString(),
+                    "Sửa hóa đơn cư dân (ID=" + id.Value + ")");
+            }
         }
 
         private void BtnDelete_Click(object sender, RoutedEventArgs e)
         {
+            if (!CanEdit)
+            {
+                MessageBox.Show("Chỉ Manager/Admin được xóa hóa đơn.",
+                    "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var id = CurrentId();
             if (id == null) { MessageBox.Show("Chọn 1 hóa đơn cần xóa."); return; }
 
@@ -119,18 +173,12 @@ namespace WpfApp1
                 var entity = db.HoaDonCuDans.FirstOrDefault(x => x.HoaDonID == id);
                 if (entity == null) { MessageBox.Show("Không tìm thấy bản ghi."); return; }
 
-                try
-                {
-                    db.HoaDonCuDans.Remove(entity);
-                    db.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Không thể xóa: " + ex.Message, "Lỗi",
-                                    MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
+                db.HoaDonCuDans.Remove(entity);
+                db.SaveChanges();
             }
+
+            AuditLogger.Log("Delete", "HoaDonCuDan", id.Value.ToString(),
+                "Xóa hóa đơn cư dân (ID=" + id.Value + ")");
 
             LoadData(txtSearch.Text);
         }

@@ -7,10 +7,35 @@ namespace WpfApp1
 {
     public partial class MatBangThuongMaiControl : UserControl
     {
+        private TaiKhoan _currentUser;
+        private bool _isUser;
+
         public MatBangThuongMaiControl()
         {
             InitializeComponent();
             LoadData();
+        }
+
+        // Mở từ DashboardWindow
+        public MatBangThuongMaiControl(TaiKhoan user) : this()
+        {
+            _currentUser = user;
+            _isUser = RoleHelper.IsUser(user);
+
+            ApplyRoleUi();
+        }
+
+        /// <summary>
+        /// Ẩn nút theo quyền
+        /// </summary>
+        private void ApplyRoleUi()
+        {
+            if (_isUser)
+            {
+                if (btnAdd != null) btnAdd.Visibility = Visibility.Collapsed;
+                if (btnEdit != null) btnEdit.Visibility = Visibility.Collapsed;
+                if (btnDelete != null) btnDelete.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void LoadData(string keyword = null)
@@ -23,14 +48,16 @@ namespace WpfApp1
                               MatBangID = m.MatBangID,
                               TenMatBang = m.TenMatBang,
                               DienTich = m.DienTich,
-                              GiaThue = m.GiaThue
+                              GiaThue = m.GiaThue,
+                              GhiChu = m.GhiChu
                           });
 
-                // Nếu có từ khóa tìm kiếm thì lọc theo tên mặt bằng
                 if (!string.IsNullOrWhiteSpace(keyword))
                 {
                     keyword = keyword.Trim().ToLower();
-                    q = q.Where(x => (x.TenMatBang ?? "").ToLower().Contains(keyword));
+                    q = q.Where(x =>
+                        (x.TenMatBang ?? "").ToLower().Contains(keyword) ||
+                        (x.GhiChu ?? "").ToLower().Contains(keyword));
                 }
 
                 dgMBTM.ItemsSource = q
@@ -43,48 +70,109 @@ namespace WpfApp1
 
         private void BtnSearch_Click(object sender, RoutedEventArgs e)
         {
-            LoadData(txtSearch.Text);
+            var kw = txtSearch.Text;
+            LoadData(kw);
+
+            if (!string.IsNullOrWhiteSpace(kw))
+            {
+                AuditLogger.Log("Search", "MatBangThuongMai", null,
+                    $"Tìm kiếm mặt bằng với từ khóa: \"{kw}\"");
+            }
         }
 
         private void BtnReload_Click(object sender, RoutedEventArgs e)
         {
-            txtSearch.Clear();     // Xóa ô tìm kiếm
-            LoadData();            // Nạp lại toàn bộ dữ liệu
+            txtSearch.Clear();
+            LoadData();
         }
 
         private void BtnView_Click(object sender, RoutedEventArgs e)
         {
             var row = Current();
-            if (row == null) { MessageBox.Show("Chọn 1 mặt bằng."); return; }
+            if (row == null)
+            {
+                MessageBox.Show("Chọn 1 mặt bằng.");
+                return;
+            }
+
             var w = new MatBangThuongMaiDetailWindow(row.MatBangID, readOnly: true);
             w.ShowDialog();
+
+            AuditLogger.Log("View", "MatBangThuongMai", row.MatBangID.ToString(),
+                $"Xem mặt bằng: {row.TenMatBang}");
         }
 
         private void BtnAdd_Click(object sender, RoutedEventArgs e)
         {
+            if (_isUser)
+            {
+                MessageBox.Show("Nhóm User chỉ được xem danh sách mặt bằng, không được thêm.",
+                    "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var w = new MatBangThuongMaiDetailWindow(null);
-            if (w.ShowDialog() == true) LoadData(txtSearch.Text);
+            if (w.ShowDialog() == true)
+            {
+                LoadData(txtSearch.Text);
+                AuditLogger.Log("Create", "MatBangThuongMai", null,
+                    "Thêm mặt bằng thương mại mới");
+            }
         }
 
         private void BtnEdit_Click(object sender, RoutedEventArgs e)
         {
+            if (_isUser)
+            {
+                MessageBox.Show("Nhóm User chỉ được xem danh sách mặt bằng, không được sửa.",
+                    "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var row = Current();
-            if (row == null) { MessageBox.Show("Chọn 1 mặt bằng cần sửa."); return; }
+            if (row == null)
+            {
+                MessageBox.Show("Chọn 1 mặt bằng cần sửa.");
+                return;
+            }
+
             var w = new MatBangThuongMaiDetailWindow(row.MatBangID);
-            if (w.ShowDialog() == true) LoadData(txtSearch.Text);
+            if (w.ShowDialog() == true)
+            {
+                LoadData(txtSearch.Text);
+                AuditLogger.Log("Update", "MatBangThuongMai", row.MatBangID.ToString(),
+                    $"Sửa mặt bằng: {row.TenMatBang}");
+            }
         }
 
         private void BtnDelete_Click(object sender, RoutedEventArgs e)
         {
+            if (_isUser)
+            {
+                MessageBox.Show("Nhóm User chỉ được xem danh sách mặt bằng, không được xóa.",
+                    "Không có quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var row = Current();
-            if (row == null) { MessageBox.Show("Chọn 1 mặt bằng cần xóa."); return; }
+            if (row == null)
+            {
+                MessageBox.Show("Chọn 1 mặt bằng cần xóa.");
+                return;
+            }
+
             if (MessageBox.Show($"Xóa mặt bằng [{row.TenMatBang}]?",
-                    "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+                    "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question)
+                != MessageBoxResult.Yes) return;
 
             using (var db = new QuanlychungcuEntities())
             {
                 var entity = db.MatBangThuongMais.FirstOrDefault(x => x.MatBangID == row.MatBangID);
-                if (entity == null) { MessageBox.Show("Không tìm thấy bản ghi."); return; }
+                if (entity == null)
+                {
+                    MessageBox.Show("Không tìm thấy bản ghi.");
+                    return;
+                }
 
                 try
                 {
@@ -98,6 +186,9 @@ namespace WpfApp1
                 }
             }
 
+            AuditLogger.Log("Delete", "MatBangThuongMai", row.MatBangID.ToString(),
+                $"Xóa mặt bằng: {row.TenMatBang}");
+
             LoadData(txtSearch.Text);
         }
     }
@@ -108,5 +199,6 @@ namespace WpfApp1
         public string TenMatBang { get; set; }
         public decimal? DienTich { get; set; }
         public decimal? GiaThue { get; set; }
+        public string GhiChu { get; set; }
     }
 }

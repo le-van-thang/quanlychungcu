@@ -20,19 +20,24 @@ namespace WpfApp1
         {
             using (var db = new QuanlychungcuEntities())
             {
-                cbCuDan.ItemsSource = db.CuDans
-                                        .OrderBy(x => x.HoTen)
-                                        .ToList();                         // <-- dùng entity CuDan
+                cbCuDan.ItemsSource = db.CuDans.OrderBy(x => x.HoTen).ToList();
 
                 if (_id.HasValue)
                 {
                     lblHeader.Text = "Thông tin xe máy (Sửa)";
                     var entity = db.XeMays.FirstOrDefault(x => x.XeMayID == _id.Value);
-                    if (entity == null) { MessageBox.Show("Không tìm thấy bản ghi."); DialogResult = false; Close(); return; }
+
+                    if (entity == null)
+                    {
+                        MessageBox.Show("Không tìm thấy.");
+                        DialogResult = false;
+                        Close();
+                        return;
+                    }
 
                     txtId.Text = entity.XeMayID.ToString();
                     txtBKS.Text = entity.BKS;
-                    cbCuDan.SelectedValue = entity.CuDanID;                 // <-- map CuDanID
+                    cbCuDan.SelectedValue = entity.CuDanID;
                 }
                 else lblHeader.Text = "Thông tin xe máy (Thêm mới)";
             }
@@ -47,22 +52,20 @@ namespace WpfApp1
 
         private void BtnSave_Click(object sender, RoutedEventArgs e)
         {
-            var bks = (txtBKS.Text ?? "").Trim();
-            if (string.IsNullOrWhiteSpace(bks)) { MessageBox.Show("Nhập biển số."); txtBKS.Focus(); return; }
-            if (cbCuDan.SelectedValue == null) { MessageBox.Show("Chọn cư dân."); cbCuDan.Focus(); return; }
+            var bks = txtBKS.Text.Trim();
+            if (string.IsNullOrWhiteSpace(bks)) { MessageBox.Show("Nhập biển số."); return; }
+            if (cbCuDan.SelectedValue == null) { MessageBox.Show("Chọn cư dân."); return; }
 
             var cuDanId = (int)cbCuDan.SelectedValue;
 
             using (var db = new QuanlychungcuEntities())
             {
-                // tuỳ chọn: chống trùng BKS trong bảng XeMays
-                bool trùng = db.XeMays.Any(x => x.BKS == bks && (!_id.HasValue || x.XeMayID != _id.Value));
-                if (trùng) { MessageBox.Show("Biển số đã tồn tại."); return; }
+                bool trung = db.XeMays.Any(x => x.BKS == bks && (!_id.HasValue || x.XeMayID != _id.Value));
+                if (trung) { MessageBox.Show("Biển số đã tồn tại."); return; }
 
                 if (_id.HasValue)
                 {
-                    var entity = db.XeMays.FirstOrDefault(x => x.XeMayID == _id.Value);
-                    if (entity == null) { MessageBox.Show("Không tìm thấy bản ghi."); return; }
+                    var entity = db.XeMays.First(x => x.XeMayID == _id.Value);
                     entity.BKS = bks;
                     entity.CuDanID = cuDanId;
                 }
@@ -71,9 +74,10 @@ namespace WpfApp1
                     db.XeMays.Add(new XeMay { BKS = bks, CuDanID = cuDanId });
                 }
 
-                try { db.SaveChanges(); }
-                catch (System.Exception ex) { MessageBox.Show("Lưu không thành công: " + ex.Message); return; }
+                db.SaveChanges();
             }
+
+            MessageBox.Show("Lưu thông tin xe máy thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
 
             DialogResult = true;
             Close();

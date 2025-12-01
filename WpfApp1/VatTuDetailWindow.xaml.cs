@@ -75,9 +75,12 @@ namespace WpfApp1
 
         private void BtnSave_Click(object sender, RoutedEventArgs e)
         {
+            // validate đơn giản
             if (string.IsNullOrWhiteSpace(txtTenVatTu.Text))
             {
-                MessageBox.Show("Tên vật tư là bắt buộc."); return;
+                MessageBox.Show("Tên vật tư là bắt buộc.", "Thông báo",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
 
             int? soLuong = null;
@@ -88,9 +91,11 @@ namespace WpfApp1
             if (!string.IsNullOrWhiteSpace(txtGia.Text) &&
                 decimal.TryParse(txtGia.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out var g)) gia = g;
 
+            var isNew = _id == null;
+
             try
             {
-                if (_id == null)
+                if (isNew)
                 {
                     Insert(new VatTu
                     {
@@ -113,16 +118,27 @@ namespace WpfApp1
                         GhiChu = txtGhiChu.Text.Trim()
                     });
                 }
+
+                // ===== THÔNG BÁO THÀNH CÔNG =====
+                MessageBox.Show(
+                    isNew ? "Đã thêm vật tư mới thành công." : "Đã cập nhật thông tin vật tư.",
+                    "Thành công",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Không lưu được: " + ex.Message);
+                MessageBox.Show("Không lưu được: " + ex.Message,
+                    "Lỗi",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
                 return;
             }
 
             DialogResult = true;
             Close();
         }
+
 
         private void Insert(VatTu v)
         {

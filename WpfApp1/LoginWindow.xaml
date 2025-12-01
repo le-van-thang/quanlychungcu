@@ -58,8 +58,11 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="👤" FontSize="16" VerticalAlignment="Center" Foreground="White"/>
-                    <TextBox x:Name="txtUsername" Grid.Column="1" Height="30" Padding="5"
-                             Foreground="White" BorderBrush="#555">
+                    <TextBox x:Name="txtUsername"
+         AutomationProperties.AutomationId="Login_Username"
+         Grid.Column="1" Height="30" Padding="5"
+         Foreground="White" BorderBrush="#555">
+
                         <TextBox.Style>
                             <Style TargetType="TextBox">
                                 <Setter Property="Background" Value="#22000000"/>
@@ -95,9 +98,11 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="🔒" FontSize="16" VerticalAlignment="Center" Foreground="White"/>
                     <Grid Grid.Column="1">
-                        <PasswordBox x:Name="txtPassword" Height="30" Padding="5,5,35,5"
-                                     Foreground="White" BorderBrush="#555"
-                                     PasswordChanged="txtPassword_PasswordChanged">
+                        <PasswordBox x:Name="txtPassword"
+             AutomationProperties.AutomationId="Login_Password"
+             Height="30" Padding="5,5,35,5"
+             Foreground="White" BorderBrush="#555"
+             PasswordChanged="txtPassword_PasswordChanged">
                             <PasswordBox.Style>
                                 <Style TargetType="PasswordBox">
                                     <Setter Property="Background" Value="#22000000"/>
@@ -127,8 +132,11 @@
                 <CheckBox x:Name="chkRemember" Content="Ghi nhớ tài khoản và mật khẩu"
                           Foreground="LightGray" Margin="0,0,0,10"/>
 
-                <Button Content="Đăng nhập" Margin="0,0,0,10" Click="BtnLogin_Click"/>
-
+                <Button x:Name="btnLogin"
+        AutomationProperties.AutomationId="Login_Button"
+        Content="Đăng nhập"
+        Margin="0,0,0,10"
+        Click="BtnLogin_Click"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
                     <TextBlock Foreground="LightGray" Margin="0,0,20,0">
                         <Hyperlink Click="ForgotPassword_Click">Quên mật khẩu</Hyperlink>
