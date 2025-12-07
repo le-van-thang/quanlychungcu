@@ -26,6 +26,18 @@ jobs:
       - name: Build (Release)
         run: msbuild WpfApp1/WpfApp1.sln /t:Build /p:Configuration=Release /m
 
+      #  Chạy tự động toàn bộ test (Unit + Integration + UI) bằng script 
+      - name: Run automated tests
+        run: pwsh -File WpfApp1/GenerateTestReport.ps1
+
+      #  Upload báo cáo test (TRX + HTML) làm evidence cho bài
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestReports
+          path: |
+            WpfApp1/Reports/TestResults/
+
       - name: Upload artifact (app binaries)
         uses: actions/upload-artifact@v4
         with:
