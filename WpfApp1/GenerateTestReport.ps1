@@ -2,19 +2,27 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 # ==== Paths ====
+# $root = thư mục WpfApp1 (nơi chứa script này)
 $root       = Split-Path -Parent $PSCommandPath
 $resultsDir = Join-Path $root 'Reports\TestResults'
 New-Item -ItemType Directory -Force -Path $resultsDir | Out-Null
 
-# Lấy .trx mới nhất
-$trx = Get-ChildItem $resultsDir -Filter *.trx -File -ErrorAction SilentlyContinue |
-       Sort-Object LastWriteTime -Descending | Select-Object -First 1
+# 🔎 Tìm file .trx mới nhất trong TOÀN BỘ solution (đệ quy)
+$trx = Get-ChildItem $root -Filter *.trx -Recurse -File -ErrorAction SilentlyContinue |
+       Sort-Object LastWriteTime -Descending |
+       Select-Object -First 1
 
-# ❗ Nếu không có .trx thì bỏ qua, KHÔNG báo lỗi để CI không fail
+# ❗ Nếu không có .trx thì chỉ cảnh báo rồi thoát, KHÔNG làm fail CI
 if (-not $trx) {
-    Write-Host "⚠ Không tìm thấy file .trx trong $resultsDir. Bỏ qua bước generate HTML."
-    exit 0        # <- QUAN TRỌNG: kết thúc step với exit code 0
+    Write-Host "⚠ Không tìm thấy file .trx trong solution dưới $root. Bỏ qua bước generate HTML."
+    exit 0
 }
+
+Write-Host "▶ Dùng file TRX: $($trx.FullName)"
+
+# Copy .trx về thư mục Reports\TestResults để dễ tải artifact
+$copiedTrxPath = Join-Path $resultsDir $trx.Name
+Copy-Item $trx.FullName $copiedTrxPath -Force
 
 $ts      = Get-Date -Format 'yyyyMMdd_HHmmss'
 $outHtml = Join-Path $resultsDir ("Result_{0}.html" -f $ts)
@@ -118,7 +126,7 @@ $xslt      = New-Object System.Xml.Xsl.XslCompiledTransform
 $xmlReader = [System.Xml.XmlReader]::Create([System.IO.StringReader]$xsl)
 $xslt.Load($xmlReader)
 
-$input  = [System.Xml.XmlReader]::Create($trx.FullName)
+$input  = [System.Xml.XmlReader]::Create($copiedTrxPath)
 $output = New-Object System.IO.FileStream($outHtml, [System.IO.FileMode]::Create, [System.IO.FileAccess]::Write)
 $xslt.Transform($input, $null, $output)
 $output.Close()
