@@ -22,10 +22,11 @@ packages/
 *.sql
 
 # App.config: ignore tất cả, chỉ giữ 3 file
-**/App.config
-!WpfApp1/App.config
-!WpfApp1.Tests/App.config
-!WpfApp1/WpfApp1.UiTests/App.config
+**/app.config
+!WpfApp1/app.config
+!WpfApp1.Tests/app.config
+!WpfApp1/WpfApp1.UiTests/app.config
+
 
 # Secrets: ignore file thật, allow example
 WpfApp1/App.Secrets.config
