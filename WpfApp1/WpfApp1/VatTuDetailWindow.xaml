@@ -1,0 +1,151 @@
+﻿<Window x:Class="WpfApp1.VatTuDetailWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Thông tin vật tư"
+        Height="420" Width="720"
+        MinHeight="380" MinWidth="680"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        Background="Transparent"
+        WindowStyle="SingleBorderWindow">
+
+    <Border CornerRadius="12"
+            Background="White"
+            BorderBrush="#D5DBDB"
+            BorderThickness="1"
+            Padding="0"
+            Margin="8">
+        <Grid>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- header -->
+                <RowDefinition Height="*"/>
+                <!-- form -->
+                <RowDefinition Height="Auto"/>
+                <!-- buttons -->
+            </Grid.RowDefinitions>
+
+            <!-- HEADER -->
+            <Border Grid.Row="0"
+                    Background="#2980B9"
+                    Padding="14"
+                    CornerRadius="12,12,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="🛠"
+                               FontSize="22"
+                               Margin="0,0,10,0"/>
+                    <StackPanel>
+                        <TextBlock x:Name="lblHeader"
+                                   Text="Thông tin vật tư"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="White"/>
+                        <TextBlock Text="Nhập thông tin chi tiết cho vật tư"
+                                   FontSize="12"
+                                   Foreground="#ECF0F1"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- FORM -->
+            <Grid Grid.Row="1" Margin="20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- ID (readonly) -->
+                <StackPanel Grid.Row="0" Grid.Column="0" Margin="5">
+                    <TextBlock Text="Mã vật tư (tự tăng)"
+                               FontWeight="Bold"
+                               Foreground="#2C3E50"/>
+                    <TextBox x:Name="txtId"
+                             Margin="0,5,0,0"
+                             IsReadOnly="True"
+                             Style="{StaticResource InputTextBox}"
+                             Background="#ECF0F1"/>
+                </StackPanel>
+
+                <!-- Tên vật tư -->
+                <StackPanel Grid.Row="0" Grid.Column="1" Margin="5">
+                    <TextBlock Text="Tên vật tư (bắt buộc)"
+                               FontWeight="Bold"
+                               Foreground="#2C3E50"/>
+                    <TextBox x:Name="txtTenVatTu"
+                             Margin="0,5,0,0"
+                             Style="{StaticResource InputTextBox}"/>
+                </StackPanel>
+
+                <!-- Đơn vị -->
+                <StackPanel Grid.Row="1" Grid.Column="0" Margin="5">
+                    <TextBlock Text="Đơn vị"
+                               FontWeight="Bold"
+                               Foreground="#2C3E50"/>
+                    <TextBox x:Name="txtDonVi"
+                             Margin="0,5,0,0"
+                             Style="{StaticResource InputTextBox}"/>
+                </StackPanel>
+
+                <!-- Số lượng -->
+                <StackPanel Grid.Row="1" Grid.Column="1" Margin="5">
+                    <TextBlock Text="Số lượng"
+                               FontWeight="Bold"
+                               Foreground="#2C3E50"/>
+                    <TextBox x:Name="txtSoLuong"
+                             Margin="0,5,0,0"
+                             Style="{StaticResource InputTextBox}"/>
+                </StackPanel>
+
+                <!-- Giá -->
+                <StackPanel Grid.Row="2" Grid.Column="0" Margin="5">
+                    <TextBlock Text="Giá"
+                               FontWeight="Bold"
+                               Foreground="#2C3E50"/>
+                    <TextBox x:Name="txtGia"
+                             Margin="0,5,0,0"
+                             Style="{StaticResource InputTextBox}"/>
+                </StackPanel>
+
+                <!-- Ghi chú -->
+                <StackPanel Grid.Row="2" Grid.Column="1" Margin="5">
+                    <TextBlock Text="Ghi chú (tuỳ chọn)"
+                               FontWeight="Bold"
+                               Foreground="#2C3E50"/>
+                    <TextBox x:Name="txtGhiChu"
+                             Margin="0,5,0,0"
+                             Height="80"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             Style="{StaticResource InputTextBox}"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- BUTTONS -->
+            <StackPanel Grid.Row="2"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Margin="0,0,20,20">
+                <Button x:Name="btnSave"
+                        Content="💾 Lưu"
+                        Width="120" Height="35"
+                        Margin="5,0,0,0"
+                        Style="{StaticResource ModernButton}"
+                        Background="#27AE60"
+                        Click="BtnSave_Click"/>
+                <Button Content="Đóng"
+                        Width="120" Height="35"
+                        Margin="5,0,0,0"
+                        Style="{StaticResource ModernButton}"
+                        Background="#7F8C8D"
+                        Click="BtnClose_Click"/>
+            </StackPanel>
+
+        </Grid>
+    </Border>
+</Window>

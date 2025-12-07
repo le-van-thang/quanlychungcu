@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+	<RunConfiguration>
+		<ResultsDirectory>Reports\TestResults</ResultsDirectory>
+	</RunConfiguration>
+	<MSTest>
+		<DeploymentEnabled>false</DeploymentEnabled>
+	</MSTest>
+	<LoggerRunSettings>
+		<Loggers>
+			<!-- Bật logger trx -->
+			<Logger friendlyName="trx" enabled="true" />
+		</Loggers>
+	</LoggerRunSettings>
+</RunSettings>

@@ -1,0 +1,204 @@
+﻿<Window x:Class="WpfApp1.DashboardWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Trang chủ - Quản lý chung cư"
+        AutomationProperties.AutomationId="Main_DashboardWindow"
+        Height="600" Width="1000"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <!-- Style cho nút con -->
+        <Style x:Key="SideSubMenuButton" TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="18,6"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="ContentTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding}"/>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#34495E"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#1ABC9C"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Style cho Expander -->
+        <Style x:Key="SideExpander" TargetType="Expander">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="ExpandDirection" Value="Down"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Expander">
+                        <DockPanel>
+                            <ToggleButton x:Name="HeaderSite"
+                                          Content="{TemplateBinding Header}"
+                                          DockPanel.Dock="Top"
+                                          Background="Transparent"
+                                          Foreground="White"
+                                          BorderThickness="0"
+                                          FontWeight="Bold"
+                                          HorizontalContentAlignment="Left"
+                                          Padding="8"
+                                          IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                          Cursor="Hand"/>
+                            <ContentPresenter x:Name="ExpandSite"
+                                              Visibility="Collapsed"
+                                              DockPanel.Dock="Bottom"
+                                              Margin="0,0,0,4"
+                                              ContentSource="Content"/>
+                        </DockPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="True">
+                                <Setter TargetName="ExpandSite" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger SourceName="HeaderSite" Property="IsMouseOver" Value="True">
+                                <Setter TargetName="HeaderSite" Property="Background" Value="#34495E"/>
+                            </Trigger>
+                            <Trigger SourceName="HeaderSite" Property="IsPressed" Value="True">
+                                <Setter TargetName="HeaderSite" Property="Background" Value="#1ABC9C"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+
+        <!-- Nền + overlay + blur -->
+        <Grid>
+            <Image Source="/img/anhchungcu.png"
+                   Stretch="UniformToFill"
+                   Opacity="0.45"/>
+
+            <!-- overlay nhẹ hơn để đỡ xám -->
+            <Rectangle Fill="#40000000"/>
+
+            <Grid.Effect>
+                <BlurEffect Radius="12"/>
+            </Grid.Effect>
+        </Grid>
+
+        <!-- UI phía trước -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Sidebar -->
+            <StackPanel Background="#2C3E50" Grid.Column="0">
+                <TextBlock Text="🏢 QUẢN LÝ CHUNG CƯ"
+                           Foreground="White" FontSize="15" FontWeight="Bold"
+                           Margin="20" Width="210"/>
+
+                <Button Content="🏠 Trang chủ" Foreground="White"
+                        Background="Transparent" BorderThickness="0"
+                        Padding="10" HorizontalContentAlignment="Left"
+                        Click="BtnHome_Click"/>
+
+                <!-- 👥 Khu vực dân cư -->
+                <Expander x:Name="expKhuVucDanCu" Header="👥 Khu vực dân cư"
+                          Style="{StaticResource SideExpander}">
+                    <StackPanel>
+                        <Button Content="👤 Cư dân"
+                                AutomationProperties.AutomationId="Menu_CuDan"
+
+                                Style="{StaticResource SideSubMenuButton}"
+                                Click="BtnCuDan_Click"/>
+                        <Button Content="🏠 Căn hộ"
+                                      AutomationProperties.AutomationId="Menu_CanHo"
+                                Style="{StaticResource SideSubMenuButton}"
+                                Click="BtnCanHo_Click"/>
+                    </StackPanel>
+                </Expander>
+
+                <!-- 🏬 Khu vực thương mại -->
+                <Button x:Name="btnMenuKhuVucThuongMai" Content="🏬 Khu vực thương mại" Foreground="White"
+                        Background="Transparent" BorderThickness="0"
+                        Padding="10" HorizontalContentAlignment="Left"
+                        Click="BtnKhuVucThuongMai_Click"/>
+
+                <!-- 🛠 Vật tư -->
+                <Button x:Name="btnMenuVatTu" Content="🛠 Vật tư" Foreground="White"
+                        Background="Transparent" BorderThickness="0"
+                        Padding="10" HorizontalContentAlignment="Left"
+                        Click="BtnVatTu_Click"/>
+
+                <!-- 💰 Tài chính -->
+                <Expander x:Name="expTaiChinh" Header="💰 Tài chính"
+                          Style="{StaticResource SideExpander}">
+                    <StackPanel>
+                        <Button Content="📑 Hóa đơn cư dân"
+                                Style="{StaticResource SideSubMenuButton}"
+                                Click="BtnHoaDonCuDan_Click"/>
+                        <Button Content="🏢 Hóa đơn thương mại"
+                                Style="{StaticResource SideSubMenuButton}"
+                                Click="BtnHoaDonThuongMai_Click"/>
+                    </StackPanel>
+                </Expander>
+
+                <!-- 🚗 Phương tiện -->
+                <Expander x:Name="expPhuongTien" Header="🚗 Phương tiện"
+                          Style="{StaticResource SideExpander}">
+                    <StackPanel>
+                        <Button Content="🚘 Xe ô tô"
+                                Style="{StaticResource SideSubMenuButton}"
+                                Click="BtnXeOTo_Click"/>
+                        <Button Content="🛵 Xe máy"
+                                Style="{StaticResource SideSubMenuButton}"
+                                Click="BtnXeMay_Click"/>
+                        <Button Content="🚴 Xe đạp"
+                                Style="{StaticResource SideSubMenuButton}"
+                                Click="BtnXeDap_Click"/>
+                    </StackPanel>
+                </Expander>
+
+                <!-- ⚙ Tài khoản -->
+                <Expander x:Name="expTaiKhoan"
+          AutomationProperties.AutomationId="Menu_TaiKhoan"
+          Header="⚙ Tài khoản"
+          Style="{StaticResource SideExpander}">
+                    <StackPanel>
+                        <Button Content="👤 Thông tin tài khoản"
+                                Style="{StaticResource SideSubMenuButton}"
+                                Click="BtnTaiKhoanInfo_Click"/>
+                        <Button x:Name="btnTaiKhoanList"
+        AutomationProperties.AutomationId="btnTaiKhoanList"
+        Content="👥 Tất cả tài khoản"
+        Style="{StaticResource SideSubMenuButton}"
+        Click="BtnTaiKhoanList_Click"/>
+                    </StackPanel>
+                </Expander>
+
+                <Button x:Name="btnLogout"
+        AutomationProperties.AutomationId="Dashboard_Logout"
+        Content="🚪 Đăng xuất" Foreground="White"
+        Background="Transparent" BorderThickness="0"
+        Padding="10" HorizontalContentAlignment="Left"
+        Click="BtnDangXuat_Click"/>
+            </StackPanel>
+
+            <!-- Nội dung chính -->
+            <Grid Grid.Column="1" Margin="20">
+                <ContentControl x:Name="MainContent"/>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

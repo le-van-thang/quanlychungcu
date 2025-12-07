@@ -1,0 +1,2219 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="CondoDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="CostSeries">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="OccurDate" Type="date" Nullable="false" />
+          <Property Name="Item" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="Quantity" Type="decimal" Precision="18" Scale="4" />
+          <Property Name="UnitCost" Type="decimal" Precision="18" Scale="6" />
+          <Property Name="Tags" Type="nvarchar" MaxLength="200" />
+        </EntityType>
+        <EntityType Name="InventoryAudit">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="VatTuID" Type="int" Nullable="false" />
+          <Property Name="SnapshotAt" Type="datetime" Nullable="false" />
+          <Property Name="SoLuong" Type="int" />
+          <Property Name="Note" Type="nvarchar" MaxLength="200" />
+        </EntityType>
+        <EntityType Name="InventoryForecast">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="VatTuID" Type="int" Nullable="false" />
+          <Property Name="ForecastDate" Type="date" Nullable="false" />
+          <Property Name="ForecastQty" Type="decimal" Precision="18" Scale="4" Nullable="false" />
+          <Property Name="Lower95" Type="decimal" Precision="18" Scale="4" />
+          <Property Name="Upper95" Type="decimal" Precision="18" Scale="4" />
+          <Property Name="ModelID" Type="int" />
+        </EntityType>
+        <EntityType Name="JobRun">
+          <Key>
+            <PropertyRef Name="JobID" />
+          </Key>
+          <Property Name="JobID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="JobType" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="ModelID" Type="int" />
+          <Property Name="ParamsJson" Type="nvarchar(max)" />
+          <Property Name="StartedAt" Type="datetime" Nullable="false" />
+          <Property Name="EndedAt" Type="datetime" />
+          <Property Name="Status" Type="nvarchar" MaxLength="20" />
+          <Property Name="Error" Type="nvarchar" MaxLength="1000" />
+        </EntityType>
+        <EntityType Name="ModelRegistry">
+          <Key>
+            <PropertyRef Name="ModelID" />
+          </Key>
+          <Property Name="ModelID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="Version" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Task" Type="nvarchar" MaxLength="50" />
+          <Property Name="Framework" Type="nvarchar" MaxLength="50" />
+          <Property Name="Uri" Type="nvarchar" MaxLength="400" />
+          <Property Name="Status" Type="nvarchar" MaxLength="20" />
+          <Property Name="CreatedAt" Type="datetime" Nullable="false" />
+          <Property Name="Notes" Type="nvarchar" MaxLength="400" />
+        </EntityType>
+        <EntityType Name="SearchIndex">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="EntityType" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="EntityId" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="Content" Type="nvarchar(max)" />
+          <Property Name="Embedding" Type="varbinary(max)" />
+          <Property Name="UpdatedAt" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ActivityLog">
+          <Key>
+            <PropertyRef Name="LogID" />
+          </Key>
+          <Property Name="LogID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserId" Type="int" />
+          <Property Name="Action" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="EntityName" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="EntityId" Type="nvarchar" MaxLength="50" />
+          <Property Name="Detail" Type="nvarchar(max)" />
+          <Property Name="CreatedAt" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Admin">
+          <Key>
+            <PropertyRef Name="AdminID" />
+          </Key>
+          <Property Name="AdminID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FullName" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="TaiKhoanID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="CanHo">
+          <Key>
+            <PropertyRef Name="CanHoID" />
+          </Key>
+          <Property Name="CanHoID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SoCanHo" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="DienTich" Type="decimal" Precision="10" Scale="2" />
+          <Property Name="GiaTri" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="TangID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="CanHo_CuDan">
+          <Key>
+            <PropertyRef Name="CuDanID" />
+            <PropertyRef Name="CanHoID" />
+          </Key>
+          <Property Name="CuDanID" Type="int" Nullable="false" />
+          <Property Name="CanHoID" Type="int" Nullable="false" />
+          <Property Name="ChuHo" Type="bit" />
+        </EntityType>
+        <EntityType Name="CanHo_VatTu">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CanHoID" Type="int" Nullable="false" />
+          <Property Name="VatTuID" Type="int" Nullable="false" />
+          <Property Name="SoLuong" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="CuDan">
+          <Key>
+            <PropertyRef Name="CuDanID" />
+          </Key>
+          <Property Name="CuDanID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="HoTen" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="NgaySinh" Type="date" />
+          <Property Name="DienThoai" Type="nvarchar" MaxLength="20" />
+          <Property Name="Email" Type="nvarchar" MaxLength="100" />
+          <Property Name="CanHoID" Type="int" />
+        </EntityType>
+        <EntityType Name="HoaDonCuDan">
+          <Key>
+            <PropertyRef Name="HoaDonID" />
+          </Key>
+          <Property Name="HoaDonID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CuDanID" Type="int" Nullable="false" />
+          <Property Name="CanHoID" Type="int" Nullable="false" />
+          <Property Name="LoaiDichVu" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="SoTien" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="TrangThai" Type="nvarchar" MaxLength="20" />
+          <Property Name="NgayLap" Type="datetime" />
+        </EntityType>
+        <EntityType Name="HoaDonTM">
+          <Key>
+            <PropertyRef Name="HoaDonTMID" />
+          </Key>
+          <Property Name="HoaDonTMID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="MatBangID" Type="int" Nullable="false" />
+          <Property Name="NoiDung" Type="nvarchar" MaxLength="200" />
+          <Property Name="SoTien" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="TrangThai" Type="nvarchar" MaxLength="20" />
+          <Property Name="NgayLap" Type="datetime" />
+        </EntityType>
+        <EntityType Name="HoaDonTM_ChiTiet">
+          <Key>
+            <PropertyRef Name="HoaDonTMID" />
+            <PropertyRef Name="VatTuID" />
+          </Key>
+          <Property Name="HoaDonTMID" Type="int" Nullable="false" />
+          <Property Name="VatTuID" Type="int" Nullable="false" />
+          <Property Name="SoLuong" Type="int" Nullable="false" />
+          <Property Name="DonGia" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="ThanhTien" Type="decimal" Precision="29" Scale="2" StoreGeneratedPattern="Computed" />
+        </EntityType>
+        <EntityType Name="LoginAudit">
+          <Key>
+            <PropertyRef Name="AuditID" />
+          </Key>
+          <Property Name="AuditID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TaiKhoanID" Type="int" />
+          <Property Name="Username" Type="nvarchar" MaxLength="100" />
+          <Property Name="ProviderName" Type="nvarchar" MaxLength="50" />
+          <Property Name="Success" Type="bit" Nullable="false" />
+          <Property Name="ClientIP" Type="nvarchar" MaxLength="64" />
+          <Property Name="UserAgent" Type="nvarchar" MaxLength="400" />
+          <Property Name="LoggedAt" Type="datetime" Nullable="false" />
+          <Property Name="Message" Type="nvarchar" MaxLength="500" />
+        </EntityType>
+        <EntityType Name="MatBang_VatTu">
+          <Key>
+            <PropertyRef Name="MatBangID" />
+            <PropertyRef Name="VatTuID" />
+          </Key>
+          <Property Name="MatBangID" Type="int" Nullable="false" />
+          <Property Name="VatTuID" Type="int" Nullable="false" />
+          <Property Name="SoLuong" Type="int" />
+        </EntityType>
+        <EntityType Name="MatBangThuongMai">
+          <Key>
+            <PropertyRef Name="MatBangID" />
+          </Key>
+          <Property Name="MatBangID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TenMatBang" Type="nvarchar" MaxLength="100" />
+          <Property Name="DienTich" Type="decimal" Precision="10" Scale="2" />
+          <Property Name="GiaThue" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="GhiChu" Type="nvarchar" MaxLength="500" />
+        </EntityType>
+        <EntityType Name="NhanVien">
+          <Key>
+            <PropertyRef Name="NhanVienID" />
+          </Key>
+          <Property Name="NhanVienID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="HoTen" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="DienThoai" Type="nvarchar" MaxLength="20" />
+          <Property Name="Email" Type="nvarchar" MaxLength="100" />
+        </EntityType>
+        <EntityType Name="NhanVien_VaiTro">
+          <Key>
+            <PropertyRef Name="NhanVienID" />
+            <PropertyRef Name="VaiTroID" />
+          </Key>
+          <Property Name="NhanVienID" Type="int" Nullable="false" />
+          <Property Name="VaiTroID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OAuthAccount">
+          <Key>
+            <PropertyRef Name="OAuthAccountID" />
+          </Key>
+          <Property Name="OAuthAccountID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TaiKhoanID" Type="int" Nullable="false" />
+          <Property Name="ProviderID" Type="int" Nullable="false" />
+          <Property Name="ProviderUserId" Type="nvarchar" MaxLength="256" Nullable="false" />
+          <Property Name="Email" Type="nvarchar" MaxLength="255" />
+          <Property Name="FullName" Type="nvarchar" MaxLength="255" />
+          <Property Name="LinkedAt" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OAuthProvider">
+          <Key>
+            <PropertyRef Name="ProviderID" />
+          </Key>
+          <Property Name="ProviderID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="DisplayName" Type="nvarchar" MaxLength="100" />
+          <Property Name="IsActive" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OAuthToken">
+          <Key>
+            <PropertyRef Name="TokenID" />
+          </Key>
+          <Property Name="TokenID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="OAuthAccountID" Type="int" Nullable="false" />
+          <Property Name="AccessToken" Type="nvarchar(max)" />
+          <Property Name="RefreshToken" Type="nvarchar(max)" />
+          <Property Name="ExpiresAt" Type="datetime2" Precision="7" />
+          <Property Name="Scope" Type="nvarchar" MaxLength="400" />
+          <Property Name="CreatedAt" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PasswordHistory">
+          <Key>
+            <PropertyRef Name="HistoryID" />
+          </Key>
+          <Property Name="HistoryID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TaiKhoanID" Type="int" Nullable="false" />
+          <Property Name="OldHash" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="NewHash" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="ChangedAt" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="TaiKhoan">
+          <Key>
+            <PropertyRef Name="TaiKhoanID" />
+          </Key>
+          <Property Name="TaiKhoanID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Username" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="PasswordHash" Type="nvarchar" MaxLength="512" />
+          <Property Name="VaiTro" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Email" Type="nvarchar" MaxLength="255" />
+          <Property Name="IsActive" Type="bit" Nullable="false" />
+          <Property Name="CreatedAt" Type="datetime" />
+          <Property Name="SecurityStamp" Type="nvarchar" MaxLength="60" />
+          <Property Name="LastLoginAt" Type="datetime" />
+        </EntityType>
+        <EntityType Name="TaiKhoan_VaiTro">
+          <Key>
+            <PropertyRef Name="TaiKhoanID" />
+            <PropertyRef Name="VaiTroID" />
+          </Key>
+          <Property Name="TaiKhoanID" Type="int" Nullable="false" />
+          <Property Name="VaiTroID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Tang">
+          <Key>
+            <PropertyRef Name="TangID" />
+          </Key>
+          <Property Name="TangID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TenTang" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Ticket">
+          <Key>
+            <PropertyRef Name="TicketID" />
+          </Key>
+          <Property Name="TicketID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CuDanID" Type="int" Nullable="false" />
+          <Property Name="Title" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="Content" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Status" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="CreatedAt" Type="datetime" Nullable="false" />
+          <Property Name="UpdatedAt" Type="datetime" />
+          <Property Name="AssignedTo" Type="int" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="UserID" />
+          </Key>
+          <Property Name="UserID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TaiKhoanID" Type="int" Nullable="false" />
+          <Property Name="FullName" Type="nvarchar" MaxLength="100" />
+          <Property Name="Phone" Type="nvarchar" MaxLength="20" />
+          <Property Name="Email" Type="nvarchar" MaxLength="100" />
+          <Property Name="UserType" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="RefId" Type="int" />
+        </EntityType>
+        <EntityType Name="VaiTro">
+          <Key>
+            <PropertyRef Name="VaiTroID" />
+          </Key>
+          <Property Name="VaiTroID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TenVaiTro" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="VatTu">
+          <Key>
+            <PropertyRef Name="VatTuID" />
+          </Key>
+          <Property Name="VatTuID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TenVatTu" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="DonVi" Type="nvarchar" MaxLength="50" />
+          <Property Name="SoLuong" Type="int" />
+          <Property Name="Gia" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="GhiChu" Type="nvarchar" MaxLength="200" />
+        </EntityType>
+        <EntityType Name="XeDap">
+          <Key>
+            <PropertyRef Name="XeDapID" />
+          </Key>
+          <Property Name="XeDapID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CuDanID" Type="int" Nullable="false" />
+          <Property Name="BKS" Type="nvarchar" MaxLength="20" />
+        </EntityType>
+        <EntityType Name="XeMay">
+          <Key>
+            <PropertyRef Name="XeMayID" />
+          </Key>
+          <Property Name="XeMayID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CuDanID" Type="int" Nullable="false" />
+          <Property Name="BKS" Type="nvarchar" MaxLength="20" />
+        </EntityType>
+        <EntityType Name="XeOTo">
+          <Key>
+            <PropertyRef Name="XeOToID" />
+          </Key>
+          <Property Name="XeOToID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CuDanID" Type="int" Nullable="false" />
+          <Property Name="BKS" Type="nvarchar" MaxLength="20" />
+        </EntityType>
+        <Association Name="FK_Admin_TaiKhoan">
+          <End Role="TaiKhoan" Type="Self.TaiKhoan" Multiplicity="1" />
+          <End Role="Admin" Type="Self.Admin" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TaiKhoan">
+              <PropertyRef Name="TaiKhoanID" />
+            </Principal>
+            <Dependent Role="Admin">
+              <PropertyRef Name="TaiKhoanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ai_InvAudit_VatTu">
+          <End Role="VatTu" Type="Self.VatTu" Multiplicity="1" />
+          <End Role="InventoryAudit" Type="Self.InventoryAudit" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="VatTu">
+              <PropertyRef Name="VatTuID" />
+            </Principal>
+            <Dependent Role="InventoryAudit">
+              <PropertyRef Name="VatTuID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ai_InvFc_Model">
+          <End Role="ModelRegistry" Type="Self.ModelRegistry" Multiplicity="0..1" />
+          <End Role="InventoryForecast" Type="Self.InventoryForecast" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ModelRegistry">
+              <PropertyRef Name="ModelID" />
+            </Principal>
+            <Dependent Role="InventoryForecast">
+              <PropertyRef Name="ModelID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ai_InvFc_VatTu">
+          <End Role="VatTu" Type="Self.VatTu" Multiplicity="1" />
+          <End Role="InventoryForecast" Type="Self.InventoryForecast" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="VatTu">
+              <PropertyRef Name="VatTuID" />
+            </Principal>
+            <Dependent Role="InventoryForecast">
+              <PropertyRef Name="VatTuID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ai_JobRun_Model">
+          <End Role="ModelRegistry" Type="Self.ModelRegistry" Multiplicity="0..1" />
+          <End Role="JobRun" Type="Self.JobRun" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ModelRegistry">
+              <PropertyRef Name="ModelID" />
+            </Principal>
+            <Dependent Role="JobRun">
+              <PropertyRef Name="ModelID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CanHo_CuDan_CanHo">
+          <End Role="CanHo" Type="Self.CanHo" Multiplicity="1" />
+          <End Role="CanHo_CuDan" Type="Self.CanHo_CuDan" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CanHo">
+              <PropertyRef Name="CanHoID" />
+            </Principal>
+            <Dependent Role="CanHo_CuDan">
+              <PropertyRef Name="CanHoID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CanHo_CuDan_CuDan">
+          <End Role="CuDan" Type="Self.CuDan" Multiplicity="1" />
+          <End Role="CanHo_CuDan" Type="Self.CanHo_CuDan" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CuDan">
+              <PropertyRef Name="CuDanID" />
+            </Principal>
+            <Dependent Role="CanHo_CuDan">
+              <PropertyRef Name="CuDanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CanHo_Tang">
+          <End Role="Tang" Type="Self.Tang" Multiplicity="1" />
+          <End Role="CanHo" Type="Self.CanHo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tang">
+              <PropertyRef Name="TangID" />
+            </Principal>
+            <Dependent Role="CanHo">
+              <PropertyRef Name="TangID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CanHo_VatTu_CanHo">
+          <End Role="CanHo" Type="Self.CanHo" Multiplicity="1" />
+          <End Role="CanHo_VatTu" Type="Self.CanHo_VatTu" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CanHo">
+              <PropertyRef Name="CanHoID" />
+            </Principal>
+            <Dependent Role="CanHo_VatTu">
+              <PropertyRef Name="CanHoID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CanHo_VatTu_VatTu">
+          <End Role="VatTu" Type="Self.VatTu" Multiplicity="1" />
+          <End Role="CanHo_VatTu" Type="Self.CanHo_VatTu" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="VatTu">
+              <PropertyRef Name="VatTuID" />
+            </Principal>
+            <Dependent Role="CanHo_VatTu">
+              <PropertyRef Name="VatTuID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CuDan_CanHo">
+          <End Role="CanHo" Type="Self.CanHo" Multiplicity="0..1" />
+          <End Role="CuDan" Type="Self.CuDan" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CanHo">
+              <PropertyRef Name="CanHoID" />
+            </Principal>
+            <Dependent Role="CuDan">
+              <PropertyRef Name="CanHoID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_HDTMCT_HoaDon">
+          <End Role="HoaDonTM" Type="Self.HoaDonTM" Multiplicity="1" />
+          <End Role="HoaDonTM_ChiTiet" Type="Self.HoaDonTM_ChiTiet" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="HoaDonTM">
+              <PropertyRef Name="HoaDonTMID" />
+            </Principal>
+            <Dependent Role="HoaDonTM_ChiTiet">
+              <PropertyRef Name="HoaDonTMID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_HDTMCT_VatTu">
+          <End Role="VatTu" Type="Self.VatTu" Multiplicity="1" />
+          <End Role="HoaDonTM_ChiTiet" Type="Self.HoaDonTM_ChiTiet" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="VatTu">
+              <PropertyRef Name="VatTuID" />
+            </Principal>
+            <Dependent Role="HoaDonTM_ChiTiet">
+              <PropertyRef Name="VatTuID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_HoaDonCuDan_CanHo">
+          <End Role="CanHo" Type="Self.CanHo" Multiplicity="1" />
+          <End Role="HoaDonCuDan" Type="Self.HoaDonCuDan" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CanHo">
+              <PropertyRef Name="CanHoID" />
+            </Principal>
+            <Dependent Role="HoaDonCuDan">
+              <PropertyRef Name="CanHoID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_HoaDonCuDan_CuDan">
+          <End Role="CuDan" Type="Self.CuDan" Multiplicity="1" />
+          <End Role="HoaDonCuDan" Type="Self.HoaDonCuDan" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CuDan">
+              <PropertyRef Name="CuDanID" />
+            </Principal>
+            <Dependent Role="HoaDonCuDan">
+              <PropertyRef Name="CuDanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_HoaDonTM_MatBang">
+          <End Role="MatBangThuongMai" Type="Self.MatBangThuongMai" Multiplicity="1" />
+          <End Role="HoaDonTM" Type="Self.HoaDonTM" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="MatBangThuongMai">
+              <PropertyRef Name="MatBangID" />
+            </Principal>
+            <Dependent Role="HoaDonTM">
+              <PropertyRef Name="MatBangID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MBV_MatBang">
+          <End Role="MatBangThuongMai" Type="Self.MatBangThuongMai" Multiplicity="1" />
+          <End Role="MatBang_VatTu" Type="Self.MatBang_VatTu" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="MatBangThuongMai">
+              <PropertyRef Name="MatBangID" />
+            </Principal>
+            <Dependent Role="MatBang_VatTu">
+              <PropertyRef Name="MatBangID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MBV_VatTu">
+          <End Role="VatTu" Type="Self.VatTu" Multiplicity="1" />
+          <End Role="MatBang_VatTu" Type="Self.MatBang_VatTu" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="VatTu">
+              <PropertyRef Name="VatTuID" />
+            </Principal>
+            <Dependent Role="MatBang_VatTu">
+              <PropertyRef Name="VatTuID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_NVVT_NV">
+          <End Role="NhanVien" Type="Self.NhanVien" Multiplicity="1" />
+          <End Role="NhanVien_VaiTro" Type="Self.NhanVien_VaiTro" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="NhanVien">
+              <PropertyRef Name="NhanVienID" />
+            </Principal>
+            <Dependent Role="NhanVien_VaiTro">
+              <PropertyRef Name="NhanVienID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_NVVT_VT">
+          <End Role="VaiTro" Type="Self.VaiTro" Multiplicity="1" />
+          <End Role="NhanVien_VaiTro" Type="Self.NhanVien_VaiTro" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="VaiTro">
+              <PropertyRef Name="VaiTroID" />
+            </Principal>
+            <Dependent Role="NhanVien_VaiTro">
+              <PropertyRef Name="VaiTroID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OAuthAcc_Provider">
+          <End Role="OAuthProvider" Type="Self.OAuthProvider" Multiplicity="1" />
+          <End Role="OAuthAccount" Type="Self.OAuthAccount" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OAuthProvider">
+              <PropertyRef Name="ProviderID" />
+            </Principal>
+            <Dependent Role="OAuthAccount">
+              <PropertyRef Name="ProviderID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OAuthAcc_TaiKhoan">
+          <End Role="TaiKhoan" Type="Self.TaiKhoan" Multiplicity="1" />
+          <End Role="OAuthAccount" Type="Self.OAuthAccount" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TaiKhoan">
+              <PropertyRef Name="TaiKhoanID" />
+            </Principal>
+            <Dependent Role="OAuthAccount">
+              <PropertyRef Name="TaiKhoanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OAuthToken_Account">
+          <End Role="OAuthAccount" Type="Self.OAuthAccount" Multiplicity="1" />
+          <End Role="OAuthToken" Type="Self.OAuthToken" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OAuthAccount">
+              <PropertyRef Name="OAuthAccountID" />
+            </Principal>
+            <Dependent Role="OAuthToken">
+              <PropertyRef Name="OAuthAccountID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PwdHist_TaiKhoan">
+          <End Role="TaiKhoan" Type="Self.TaiKhoan" Multiplicity="1" />
+          <End Role="PasswordHistory" Type="Self.PasswordHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TaiKhoan">
+              <PropertyRef Name="TaiKhoanID" />
+            </Principal>
+            <Dependent Role="PasswordHistory">
+              <PropertyRef Name="TaiKhoanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Ticket_CuDan">
+          <End Role="CuDan" Type="Self.CuDan" Multiplicity="1" />
+          <End Role="Ticket" Type="Self.Ticket" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CuDan">
+              <PropertyRef Name="CuDanID" />
+            </Principal>
+            <Dependent Role="Ticket">
+              <PropertyRef Name="CuDanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Ticket_TaiKhoan_Assigned">
+          <End Role="TaiKhoan" Type="Self.TaiKhoan" Multiplicity="0..1" />
+          <End Role="Ticket" Type="Self.Ticket" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TaiKhoan">
+              <PropertyRef Name="TaiKhoanID" />
+            </Principal>
+            <Dependent Role="Ticket">
+              <PropertyRef Name="AssignedTo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TKVT_TK">
+          <End Role="TaiKhoan" Type="Self.TaiKhoan" Multiplicity="1" />
+          <End Role="TaiKhoan_VaiTro" Type="Self.TaiKhoan_VaiTro" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TaiKhoan">
+              <PropertyRef Name="TaiKhoanID" />
+            </Principal>
+            <Dependent Role="TaiKhoan_VaiTro">
+              <PropertyRef Name="TaiKhoanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TKVT_VT">
+          <End Role="VaiTro" Type="Self.VaiTro" Multiplicity="1" />
+          <End Role="TaiKhoan_VaiTro" Type="Self.TaiKhoan_VaiTro" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="VaiTro">
+              <PropertyRef Name="VaiTroID" />
+            </Principal>
+            <Dependent Role="TaiKhoan_VaiTro">
+              <PropertyRef Name="VaiTroID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_User_TaiKhoan">
+          <End Role="TaiKhoan" Type="Self.TaiKhoan" Multiplicity="1" />
+          <End Role="User" Type="Self.User" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TaiKhoan">
+              <PropertyRef Name="TaiKhoanID" />
+            </Principal>
+            <Dependent Role="User">
+              <PropertyRef Name="TaiKhoanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_XeDap_CuDan">
+          <End Role="CuDan" Type="Self.CuDan" Multiplicity="1" />
+          <End Role="XeDap" Type="Self.XeDap" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CuDan">
+              <PropertyRef Name="CuDanID" />
+            </Principal>
+            <Dependent Role="XeDap">
+              <PropertyRef Name="CuDanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_XeMay_CuDan">
+          <End Role="CuDan" Type="Self.CuDan" Multiplicity="1" />
+          <End Role="XeMay" Type="Self.XeMay" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CuDan">
+              <PropertyRef Name="CuDanID" />
+            </Principal>
+            <Dependent Role="XeMay">
+              <PropertyRef Name="CuDanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_XeOTo_CuDan">
+          <End Role="CuDan" Type="Self.CuDan" Multiplicity="1" />
+          <End Role="XeOTo" Type="Self.XeOTo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CuDan">
+              <PropertyRef Name="CuDanID" />
+            </Principal>
+            <Dependent Role="XeOTo">
+              <PropertyRef Name="CuDanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="CondoDBModelStoreContainer">
+          <EntitySet Name="CostSeries" EntityType="Self.CostSeries" Schema="ai" store:Type="Tables" />
+          <EntitySet Name="InventoryAudit" EntityType="Self.InventoryAudit" Schema="ai" store:Type="Tables" />
+          <EntitySet Name="InventoryForecast" EntityType="Self.InventoryForecast" Schema="ai" store:Type="Tables" />
+          <EntitySet Name="JobRun" EntityType="Self.JobRun" Schema="ai" store:Type="Tables" />
+          <EntitySet Name="ModelRegistry" EntityType="Self.ModelRegistry" Schema="ai" store:Type="Tables" />
+          <EntitySet Name="SearchIndex" EntityType="Self.SearchIndex" Schema="ai" store:Type="Tables" />
+          <EntitySet Name="ActivityLog" EntityType="Self.ActivityLog" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Admin" EntityType="Self.Admin" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CanHo" EntityType="Self.CanHo" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CanHo_CuDan" EntityType="Self.CanHo_CuDan" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CanHo_VatTu" EntityType="Self.CanHo_VatTu" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CuDan" EntityType="Self.CuDan" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="HoaDonCuDan" EntityType="Self.HoaDonCuDan" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="HoaDonTM" EntityType="Self.HoaDonTM" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="HoaDonTM_ChiTiet" EntityType="Self.HoaDonTM_ChiTiet" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LoginAudit" EntityType="Self.LoginAudit" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="MatBang_VatTu" EntityType="Self.MatBang_VatTu" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="MatBangThuongMai" EntityType="Self.MatBangThuongMai" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="NhanVien" EntityType="Self.NhanVien" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="NhanVien_VaiTro" EntityType="Self.NhanVien_VaiTro" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OAuthAccount" EntityType="Self.OAuthAccount" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OAuthProvider" EntityType="Self.OAuthProvider" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OAuthToken" EntityType="Self.OAuthToken" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PasswordHistory" EntityType="Self.PasswordHistory" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TaiKhoan" EntityType="Self.TaiKhoan" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TaiKhoan_VaiTro" EntityType="Self.TaiKhoan_VaiTro" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Tang" EntityType="Self.Tang" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Ticket" EntityType="Self.Ticket" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="VaiTro" EntityType="Self.VaiTro" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="VatTu" EntityType="Self.VatTu" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="XeDap" EntityType="Self.XeDap" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="XeMay" EntityType="Self.XeMay" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="XeOTo" EntityType="Self.XeOTo" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Admin_TaiKhoan" Association="Self.FK_Admin_TaiKhoan">
+            <End Role="TaiKhoan" EntitySet="TaiKhoan" />
+            <End Role="Admin" EntitySet="Admin" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ai_InvAudit_VatTu" Association="Self.FK_ai_InvAudit_VatTu">
+            <End Role="VatTu" EntitySet="VatTu" />
+            <End Role="InventoryAudit" EntitySet="InventoryAudit" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ai_InvFc_Model" Association="Self.FK_ai_InvFc_Model">
+            <End Role="ModelRegistry" EntitySet="ModelRegistry" />
+            <End Role="InventoryForecast" EntitySet="InventoryForecast" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ai_InvFc_VatTu" Association="Self.FK_ai_InvFc_VatTu">
+            <End Role="VatTu" EntitySet="VatTu" />
+            <End Role="InventoryForecast" EntitySet="InventoryForecast" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ai_JobRun_Model" Association="Self.FK_ai_JobRun_Model">
+            <End Role="ModelRegistry" EntitySet="ModelRegistry" />
+            <End Role="JobRun" EntitySet="JobRun" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CanHo_CuDan_CanHo" Association="Self.FK_CanHo_CuDan_CanHo">
+            <End Role="CanHo" EntitySet="CanHo" />
+            <End Role="CanHo_CuDan" EntitySet="CanHo_CuDan" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CanHo_CuDan_CuDan" Association="Self.FK_CanHo_CuDan_CuDan">
+            <End Role="CuDan" EntitySet="CuDan" />
+            <End Role="CanHo_CuDan" EntitySet="CanHo_CuDan" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CanHo_Tang" Association="Self.FK_CanHo_Tang">
+            <End Role="Tang" EntitySet="Tang" />
+            <End Role="CanHo" EntitySet="CanHo" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CanHo_VatTu_CanHo" Association="Self.FK_CanHo_VatTu_CanHo">
+            <End Role="CanHo" EntitySet="CanHo" />
+            <End Role="CanHo_VatTu" EntitySet="CanHo_VatTu" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CanHo_VatTu_VatTu" Association="Self.FK_CanHo_VatTu_VatTu">
+            <End Role="VatTu" EntitySet="VatTu" />
+            <End Role="CanHo_VatTu" EntitySet="CanHo_VatTu" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CuDan_CanHo" Association="Self.FK_CuDan_CanHo">
+            <End Role="CanHo" EntitySet="CanHo" />
+            <End Role="CuDan" EntitySet="CuDan" />
+          </AssociationSet>
+          <AssociationSet Name="FK_HDTMCT_HoaDon" Association="Self.FK_HDTMCT_HoaDon">
+            <End Role="HoaDonTM" EntitySet="HoaDonTM" />
+            <End Role="HoaDonTM_ChiTiet" EntitySet="HoaDonTM_ChiTiet" />
+          </AssociationSet>
+          <AssociationSet Name="FK_HDTMCT_VatTu" Association="Self.FK_HDTMCT_VatTu">
+            <End Role="VatTu" EntitySet="VatTu" />
+            <End Role="HoaDonTM_ChiTiet" EntitySet="HoaDonTM_ChiTiet" />
+          </AssociationSet>
+          <AssociationSet Name="FK_HoaDonCuDan_CanHo" Association="Self.FK_HoaDonCuDan_CanHo">
+            <End Role="CanHo" EntitySet="CanHo" />
+            <End Role="HoaDonCuDan" EntitySet="HoaDonCuDan" />
+          </AssociationSet>
+          <AssociationSet Name="FK_HoaDonCuDan_CuDan" Association="Self.FK_HoaDonCuDan_CuDan">
+            <End Role="CuDan" EntitySet="CuDan" />
+            <End Role="HoaDonCuDan" EntitySet="HoaDonCuDan" />
+          </AssociationSet>
+          <AssociationSet Name="FK_HoaDonTM_MatBang" Association="Self.FK_HoaDonTM_MatBang">
+            <End Role="MatBangThuongMai" EntitySet="MatBangThuongMai" />
+            <End Role="HoaDonTM" EntitySet="HoaDonTM" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MBV_MatBang" Association="Self.FK_MBV_MatBang">
+            <End Role="MatBangThuongMai" EntitySet="MatBangThuongMai" />
+            <End Role="MatBang_VatTu" EntitySet="MatBang_VatTu" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MBV_VatTu" Association="Self.FK_MBV_VatTu">
+            <End Role="VatTu" EntitySet="VatTu" />
+            <End Role="MatBang_VatTu" EntitySet="MatBang_VatTu" />
+          </AssociationSet>
+          <AssociationSet Name="FK_NVVT_NV" Association="Self.FK_NVVT_NV">
+            <End Role="NhanVien" EntitySet="NhanVien" />
+            <End Role="NhanVien_VaiTro" EntitySet="NhanVien_VaiTro" />
+          </AssociationSet>
+          <AssociationSet Name="FK_NVVT_VT" Association="Self.FK_NVVT_VT">
+            <End Role="VaiTro" EntitySet="VaiTro" />
+            <End Role="NhanVien_VaiTro" EntitySet="NhanVien_VaiTro" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OAuthAcc_Provider" Association="Self.FK_OAuthAcc_Provider">
+            <End Role="OAuthProvider" EntitySet="OAuthProvider" />
+            <End Role="OAuthAccount" EntitySet="OAuthAccount" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OAuthAcc_TaiKhoan" Association="Self.FK_OAuthAcc_TaiKhoan">
+            <End Role="TaiKhoan" EntitySet="TaiKhoan" />
+            <End Role="OAuthAccount" EntitySet="OAuthAccount" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OAuthToken_Account" Association="Self.FK_OAuthToken_Account">
+            <End Role="OAuthAccount" EntitySet="OAuthAccount" />
+            <End Role="OAuthToken" EntitySet="OAuthToken" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PwdHist_TaiKhoan" Association="Self.FK_PwdHist_TaiKhoan">
+            <End Role="TaiKhoan" EntitySet="TaiKhoan" />
+            <End Role="PasswordHistory" EntitySet="PasswordHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Ticket_CuDan" Association="Self.FK_Ticket_CuDan">
+            <End Role="CuDan" EntitySet="CuDan" />
+            <End Role="Ticket" EntitySet="Ticket" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Ticket_TaiKhoan_Assigned" Association="Self.FK_Ticket_TaiKhoan_Assigned">
+            <End Role="TaiKhoan" EntitySet="TaiKhoan" />
+            <End Role="Ticket" EntitySet="Ticket" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TKVT_TK" Association="Self.FK_TKVT_TK">
+            <End Role="TaiKhoan" EntitySet="TaiKhoan" />
+            <End Role="TaiKhoan_VaiTro" EntitySet="TaiKhoan_VaiTro" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TKVT_VT" Association="Self.FK_TKVT_VT">
+            <End Role="VaiTro" EntitySet="VaiTro" />
+            <End Role="TaiKhoan_VaiTro" EntitySet="TaiKhoan_VaiTro" />
+          </AssociationSet>
+          <AssociationSet Name="FK_User_TaiKhoan" Association="Self.FK_User_TaiKhoan">
+            <End Role="TaiKhoan" EntitySet="TaiKhoan" />
+            <End Role="User" EntitySet="User" />
+          </AssociationSet>
+          <AssociationSet Name="FK_XeDap_CuDan" Association="Self.FK_XeDap_CuDan">
+            <End Role="CuDan" EntitySet="CuDan" />
+            <End Role="XeDap" EntitySet="XeDap" />
+          </AssociationSet>
+          <AssociationSet Name="FK_XeMay_CuDan" Association="Self.FK_XeMay_CuDan">
+            <End Role="CuDan" EntitySet="CuDan" />
+            <End Role="XeMay" EntitySet="XeMay" />
+          </AssociationSet>
+          <AssociationSet Name="FK_XeOTo_CuDan" Association="Self.FK_XeOTo_CuDan">
+            <End Role="CuDan" EntitySet="CuDan" />
+            <End Role="XeOTo" EntitySet="XeOTo" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="CondoDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="CostSery">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="OccurDate" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="Item" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Quantity" Type="Decimal" Precision="18" Scale="4" />
+          <Property Name="UnitCost" Type="Decimal" Precision="18" Scale="6" />
+          <Property Name="Tags" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="InventoryAudit">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="VatTuID" Type="Int32" Nullable="false" />
+          <Property Name="SnapshotAt" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="SoLuong" Type="Int32" />
+          <Property Name="Note" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="VatTu" Relationship="Self.FK_ai_InvAudit_VatTu" FromRole="InventoryAudit" ToRole="VatTu" />
+        </EntityType>
+        <EntityType Name="InventoryForecast">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="VatTuID" Type="Int32" Nullable="false" />
+          <Property Name="ForecastDate" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="ForecastQty" Type="Decimal" Precision="18" Scale="4" Nullable="false" />
+          <Property Name="Lower95" Type="Decimal" Precision="18" Scale="4" />
+          <Property Name="Upper95" Type="Decimal" Precision="18" Scale="4" />
+          <Property Name="ModelID" Type="Int32" />
+          <NavigationProperty Name="ModelRegistry" Relationship="Self.FK_ai_InvFc_Model" FromRole="InventoryForecast" ToRole="ModelRegistry" />
+          <NavigationProperty Name="VatTu" Relationship="Self.FK_ai_InvFc_VatTu" FromRole="InventoryForecast" ToRole="VatTu" />
+        </EntityType>
+        <EntityType Name="JobRun">
+          <Key>
+            <PropertyRef Name="JobID" />
+          </Key>
+          <Property Name="JobID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="JobType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="ModelID" Type="Int32" />
+          <Property Name="ParamsJson" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="StartedAt" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="EndedAt" Type="DateTime" Precision="3" />
+          <Property Name="Status" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="Error" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="ModelRegistry" Relationship="Self.FK_ai_JobRun_Model" FromRole="JobRun" ToRole="ModelRegistry" />
+        </EntityType>
+        <EntityType Name="ModelRegistry">
+          <Key>
+            <PropertyRef Name="ModelID" />
+          </Key>
+          <Property Name="ModelID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Version" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Task" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Framework" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Uri" Type="String" MaxLength="400" FixedLength="false" Unicode="true" />
+          <Property Name="Status" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedAt" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Notes" Type="String" MaxLength="400" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="InventoryForecasts" Relationship="Self.FK_ai_InvFc_Model" FromRole="ModelRegistry" ToRole="InventoryForecast" />
+          <NavigationProperty Name="JobRuns" Relationship="Self.FK_ai_JobRun_Model" FromRole="ModelRegistry" ToRole="JobRun" />
+        </EntityType>
+        <EntityType Name="SearchIndex">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="EntityType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="EntityId" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Content" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Embedding" Type="Binary" MaxLength="Max" FixedLength="false" />
+          <Property Name="UpdatedAt" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+        <EntityType Name="Admin">
+          <Key>
+            <PropertyRef Name="AdminID" />
+          </Key>
+          <Property Name="AdminID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FullName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="TaiKhoanID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="TaiKhoan" Relationship="Self.FK_Admin_TaiKhoan" FromRole="Admin" ToRole="TaiKhoan" />
+        </EntityType>
+        <EntityType Name="CanHo">
+          <Key>
+            <PropertyRef Name="CanHoID" />
+          </Key>
+          <Property Name="CanHoID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="SoCanHo" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="DienTich" Type="Decimal" Precision="10" Scale="2" />
+          <Property Name="GiaTri" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="TangID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="CanHo_CuDan" Relationship="Self.FK_CanHo_CuDan_CanHo" FromRole="CanHo" ToRole="CanHo_CuDan" />
+          <NavigationProperty Name="Tang" Relationship="Self.FK_CanHo_Tang" FromRole="CanHo" ToRole="Tang" />
+          <NavigationProperty Name="CanHo_VatTu" Relationship="Self.FK_CanHo_VatTu_CanHo" FromRole="CanHo" ToRole="CanHo_VatTu" />
+          <NavigationProperty Name="CuDans" Relationship="Self.FK_CuDan_CanHo" FromRole="CanHo" ToRole="CuDan" />
+          <NavigationProperty Name="HoaDonCuDans" Relationship="Self.FK_HoaDonCuDan_CanHo" FromRole="CanHo" ToRole="HoaDonCuDan" />
+        </EntityType>
+        <EntityType Name="CanHo_CuDan">
+          <Key>
+            <PropertyRef Name="CuDanID" />
+            <PropertyRef Name="CanHoID" />
+          </Key>
+          <Property Name="CuDanID" Type="Int32" Nullable="false" />
+          <Property Name="CanHoID" Type="Int32" Nullable="false" />
+          <Property Name="ChuHo" Type="Boolean" />
+          <NavigationProperty Name="CanHo" Relationship="Self.FK_CanHo_CuDan_CanHo" FromRole="CanHo_CuDan" ToRole="CanHo" />
+          <NavigationProperty Name="CuDan" Relationship="Self.FK_CanHo_CuDan_CuDan" FromRole="CanHo_CuDan" ToRole="CuDan" />
+        </EntityType>
+        <EntityType Name="CanHo_VatTu">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CanHoID" Type="Int32" Nullable="false" />
+          <Property Name="VatTuID" Type="Int32" Nullable="false" />
+          <Property Name="SoLuong" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="CanHo" Relationship="Self.FK_CanHo_VatTu_CanHo" FromRole="CanHo_VatTu" ToRole="CanHo" />
+          <NavigationProperty Name="VatTu" Relationship="Self.FK_CanHo_VatTu_VatTu" FromRole="CanHo_VatTu" ToRole="VatTu" />
+        </EntityType>
+        <EntityType Name="CuDan">
+          <Key>
+            <PropertyRef Name="CuDanID" />
+          </Key>
+          <Property Name="CuDanID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="HoTen" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="NgaySinh" Type="DateTime" Precision="0" />
+          <Property Name="DienThoai" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="CanHoID" Type="Int32" />
+          <NavigationProperty Name="CanHo" Relationship="Self.FK_CuDan_CanHo" FromRole="CuDan" ToRole="CanHo" />
+          <NavigationProperty Name="CanHo_CuDan" Relationship="Self.FK_CanHo_CuDan_CuDan" FromRole="CuDan" ToRole="CanHo_CuDan" />
+          <NavigationProperty Name="HoaDonCuDans" Relationship="Self.FK_HoaDonCuDan_CuDan" FromRole="CuDan" ToRole="HoaDonCuDan" />
+          <NavigationProperty Name="XeDaps" Relationship="Self.FK_XeDap_CuDan" FromRole="CuDan" ToRole="XeDap" />
+          <NavigationProperty Name="XeMays" Relationship="Self.FK_XeMay_CuDan" FromRole="CuDan" ToRole="XeMay" />
+          <NavigationProperty Name="XeOToes" Relationship="Self.FK_XeOTo_CuDan" FromRole="CuDan" ToRole="XeOTo" />
+          <NavigationProperty Name="Tickets" Relationship="CondoDBModel.FK_Ticket_CuDan" FromRole="CuDan" ToRole="Ticket" />
+        </EntityType>
+        <EntityType Name="HoaDonCuDan">
+          <Key>
+            <PropertyRef Name="HoaDonID" />
+          </Key>
+          <Property Name="HoaDonID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CuDanID" Type="Int32" Nullable="false" />
+          <Property Name="CanHoID" Type="Int32" Nullable="false" />
+          <Property Name="LoaiDichVu" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="SoTien" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="TrangThai" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="NgayLap" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="CanHo" Relationship="Self.FK_HoaDonCuDan_CanHo" FromRole="HoaDonCuDan" ToRole="CanHo" />
+          <NavigationProperty Name="CuDan" Relationship="Self.FK_HoaDonCuDan_CuDan" FromRole="HoaDonCuDan" ToRole="CuDan" />
+        </EntityType>
+        <EntityType Name="HoaDonTM">
+          <Key>
+            <PropertyRef Name="HoaDonTMID" />
+          </Key>
+          <Property Name="HoaDonTMID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MatBangID" Type="Int32" Nullable="false" />
+          <Property Name="NoiDung" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="SoTien" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="TrangThai" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="NgayLap" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="HoaDonTM_ChiTiet" Relationship="Self.FK_HDTMCT_HoaDon" FromRole="HoaDonTM" ToRole="HoaDonTM_ChiTiet" />
+          <NavigationProperty Name="MatBangThuongMai" Relationship="Self.FK_HoaDonTM_MatBang" FromRole="HoaDonTM" ToRole="MatBangThuongMai" />
+        </EntityType>
+        <EntityType Name="HoaDonTM_ChiTiet">
+          <Key>
+            <PropertyRef Name="HoaDonTMID" />
+            <PropertyRef Name="VatTuID" />
+          </Key>
+          <Property Name="HoaDonTMID" Type="Int32" Nullable="false" />
+          <Property Name="VatTuID" Type="Int32" Nullable="false" />
+          <Property Name="SoLuong" Type="Int32" Nullable="false" />
+          <Property Name="DonGia" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="ThanhTien" Type="Decimal" Precision="29" Scale="2" annotation:StoreGeneratedPattern="Computed" />
+          <NavigationProperty Name="HoaDonTM" Relationship="Self.FK_HDTMCT_HoaDon" FromRole="HoaDonTM_ChiTiet" ToRole="HoaDonTM" />
+          <NavigationProperty Name="VatTu" Relationship="Self.FK_HDTMCT_VatTu" FromRole="HoaDonTM_ChiTiet" ToRole="VatTu" />
+        </EntityType>
+        <EntityType Name="LoginAudit">
+          <Key>
+            <PropertyRef Name="AuditID" />
+          </Key>
+          <Property Name="AuditID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TaiKhoanID" Type="Int32" />
+          <Property Name="Username" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="ProviderName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Success" Type="Boolean" Nullable="false" />
+          <Property Name="ClientIP" Type="String" MaxLength="64" FixedLength="false" Unicode="true" />
+          <Property Name="UserAgent" Type="String" MaxLength="400" FixedLength="false" Unicode="true" />
+          <Property Name="LoggedAt" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Message" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="MatBang_VatTu">
+          <Key>
+            <PropertyRef Name="MatBangID" />
+            <PropertyRef Name="VatTuID" />
+          </Key>
+          <Property Name="MatBangID" Type="Int32" Nullable="false" />
+          <Property Name="VatTuID" Type="Int32" Nullable="false" />
+          <Property Name="SoLuong" Type="Int32" />
+          <NavigationProperty Name="MatBangThuongMai" Relationship="Self.FK_MBV_MatBang" FromRole="MatBang_VatTu" ToRole="MatBangThuongMai" />
+          <NavigationProperty Name="VatTu" Relationship="Self.FK_MBV_VatTu" FromRole="MatBang_VatTu" ToRole="VatTu" />
+        </EntityType>
+        <EntityType Name="MatBangThuongMai">
+          <Key>
+            <PropertyRef Name="MatBangID" />
+          </Key>
+          <Property Name="MatBangID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TenMatBang" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="DienTich" Type="Decimal" Precision="10" Scale="2" />
+          <Property Name="GiaThue" Type="Decimal" Precision="18" Scale="2" />
+          <NavigationProperty Name="HoaDonTMs" Relationship="Self.FK_HoaDonTM_MatBang" FromRole="MatBangThuongMai" ToRole="HoaDonTM" />
+          <NavigationProperty Name="MatBang_VatTu" Relationship="Self.FK_MBV_MatBang" FromRole="MatBangThuongMai" ToRole="MatBang_VatTu" />
+          <Property Name="GhiChu" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="NhanVien">
+          <Key>
+            <PropertyRef Name="NhanVienID" />
+          </Key>
+          <Property Name="NhanVienID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="HoTen" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="DienThoai" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="VaiTroes" Relationship="Self.NhanVien_VaiTro" FromRole="NhanVien" ToRole="VaiTro" />
+        </EntityType>
+        <EntityType Name="OAuthAccount">
+          <Key>
+            <PropertyRef Name="OAuthAccountID" />
+          </Key>
+          <Property Name="OAuthAccountID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TaiKhoanID" Type="Int32" Nullable="false" />
+          <Property Name="ProviderID" Type="Int32" Nullable="false" />
+          <Property Name="ProviderUserId" Type="String" MaxLength="256" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Email" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="FullName" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="LinkedAt" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="OAuthProvider" Relationship="Self.FK_OAuthAcc_Provider" FromRole="OAuthAccount" ToRole="OAuthProvider" />
+          <NavigationProperty Name="TaiKhoan" Relationship="Self.FK_OAuthAcc_TaiKhoan" FromRole="OAuthAccount" ToRole="TaiKhoan" />
+          <NavigationProperty Name="OAuthTokens" Relationship="Self.FK_OAuthToken_Account" FromRole="OAuthAccount" ToRole="OAuthToken" />
+        </EntityType>
+        <EntityType Name="OAuthProvider">
+          <Key>
+            <PropertyRef Name="ProviderID" />
+          </Key>
+          <Property Name="ProviderID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="DisplayName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="OAuthAccounts" Relationship="Self.FK_OAuthAcc_Provider" FromRole="OAuthProvider" ToRole="OAuthAccount" />
+        </EntityType>
+        <EntityType Name="OAuthToken">
+          <Key>
+            <PropertyRef Name="TokenID" />
+          </Key>
+          <Property Name="TokenID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="OAuthAccountID" Type="Int32" Nullable="false" />
+          <Property Name="AccessToken" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="RefreshToken" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ExpiresAt" Type="DateTime" Precision="7" />
+          <Property Name="Scope" Type="String" MaxLength="400" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedAt" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="OAuthAccount" Relationship="Self.FK_OAuthToken_Account" FromRole="OAuthToken" ToRole="OAuthAccount" />
+        </EntityType>
+        <EntityType Name="PasswordHistory">
+          <Key>
+            <PropertyRef Name="HistoryID" />
+          </Key>
+          <Property Name="HistoryID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TaiKhoanID" Type="Int32" Nullable="false" />
+          <Property Name="OldHash" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="NewHash" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="ChangedAt" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="TaiKhoan" Relationship="Self.FK_PwdHist_TaiKhoan" FromRole="PasswordHistory" ToRole="TaiKhoan" />
+        </EntityType>
+        <EntityType Name="TaiKhoan">
+          <Key>
+            <PropertyRef Name="TaiKhoanID" />
+          </Key>
+          <Property Name="TaiKhoanID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Username" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="PasswordHash" Type="String" MaxLength="512" FixedLength="false" Unicode="true" Nullable="true" />
+          <Property Name="VaiTro" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Email" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <Property Name="CreatedAt" Type="DateTime" Precision="3" />
+          <Property Name="SecurityStamp" Type="String" MaxLength="60" FixedLength="false" Unicode="true" />
+          <Property Name="LastLoginAt" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="Admins" Relationship="Self.FK_Admin_TaiKhoan" FromRole="TaiKhoan" ToRole="Admin" />
+          <NavigationProperty Name="OAuthAccounts" Relationship="Self.FK_OAuthAcc_TaiKhoan" FromRole="TaiKhoan" ToRole="OAuthAccount" />
+          <NavigationProperty Name="PasswordHistories" Relationship="Self.FK_PwdHist_TaiKhoan" FromRole="TaiKhoan" ToRole="PasswordHistory" />
+          <NavigationProperty Name="Users" Relationship="Self.FK_User_TaiKhoan" FromRole="TaiKhoan" ToRole="User" />
+          <NavigationProperty Name="VaiTroes" Relationship="Self.TaiKhoan_VaiTro" FromRole="TaiKhoan" ToRole="VaiTro" />
+          <NavigationProperty Name="Tickets" Relationship="CondoDBModel.FK_Ticket_TaiKhoan_Assigned" FromRole="TaiKhoan" ToRole="Ticket" />
+        </EntityType>
+        <EntityType Name="Tang">
+          <Key>
+            <PropertyRef Name="TangID" />
+          </Key>
+          <Property Name="TangID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TenTang" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="CanHoes" Relationship="Self.FK_CanHo_Tang" FromRole="Tang" ToRole="CanHo" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="UserID" />
+          </Key>
+          <Property Name="UserID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TaiKhoanID" Type="Int32" Nullable="false" />
+          <Property Name="FullName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Phone" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="UserType" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="RefId" Type="Int32" />
+          <NavigationProperty Name="TaiKhoan" Relationship="Self.FK_User_TaiKhoan" FromRole="User" ToRole="TaiKhoan" />
+        </EntityType>
+        <EntityType Name="VaiTro">
+          <Key>
+            <PropertyRef Name="VaiTroID" />
+          </Key>
+          <Property Name="VaiTroID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TenVaiTro" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="NhanViens" Relationship="Self.NhanVien_VaiTro" FromRole="VaiTro" ToRole="NhanVien" />
+          <NavigationProperty Name="TaiKhoans" Relationship="Self.TaiKhoan_VaiTro" FromRole="VaiTro" ToRole="TaiKhoan" />
+        </EntityType>
+        <EntityType Name="VatTu">
+          <Key>
+            <PropertyRef Name="VatTuID" />
+          </Key>
+          <Property Name="VatTuID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TenVatTu" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="DonVi" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="SoLuong" Type="Int32" />
+          <Property Name="Gia" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="GhiChu" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="InventoryAudits" Relationship="Self.FK_ai_InvAudit_VatTu" FromRole="VatTu" ToRole="InventoryAudit" />
+          <NavigationProperty Name="InventoryForecasts" Relationship="Self.FK_ai_InvFc_VatTu" FromRole="VatTu" ToRole="InventoryForecast" />
+          <NavigationProperty Name="CanHo_VatTu" Relationship="Self.FK_CanHo_VatTu_VatTu" FromRole="VatTu" ToRole="CanHo_VatTu" />
+          <NavigationProperty Name="HoaDonTM_ChiTiet" Relationship="Self.FK_HDTMCT_VatTu" FromRole="VatTu" ToRole="HoaDonTM_ChiTiet" />
+          <NavigationProperty Name="MatBang_VatTu" Relationship="Self.FK_MBV_VatTu" FromRole="VatTu" ToRole="MatBang_VatTu" />
+        </EntityType>
+        <EntityType Name="XeDap">
+          <Key>
+            <PropertyRef Name="XeDapID" />
+          </Key>
+          <Property Name="XeDapID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CuDanID" Type="Int32" Nullable="false" />
+          <Property Name="BKS" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="CuDan" Relationship="Self.FK_XeDap_CuDan" FromRole="XeDap" ToRole="CuDan" />
+        </EntityType>
+        <EntityType Name="XeMay">
+          <Key>
+            <PropertyRef Name="XeMayID" />
+          </Key>
+          <Property Name="XeMayID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CuDanID" Type="Int32" Nullable="false" />
+          <Property Name="BKS" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="CuDan" Relationship="Self.FK_XeMay_CuDan" FromRole="XeMay" ToRole="CuDan" />
+        </EntityType>
+        <EntityType Name="XeOTo">
+          <Key>
+            <PropertyRef Name="XeOToID" />
+          </Key>
+          <Property Name="XeOToID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CuDanID" Type="Int32" Nullable="false" />
+          <Property Name="BKS" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="CuDan" Relationship="Self.FK_XeOTo_CuDan" FromRole="XeOTo" ToRole="CuDan" />
+        </EntityType>
+        <Association Name="FK_ai_InvAudit_VatTu">
+          <End Role="VatTu" Type="Self.VatTu" Multiplicity="1" />
+          <End Role="InventoryAudit" Type="Self.InventoryAudit" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="VatTu">
+              <PropertyRef Name="VatTuID" />
+            </Principal>
+            <Dependent Role="InventoryAudit">
+              <PropertyRef Name="VatTuID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ai_InvFc_Model">
+          <End Role="ModelRegistry" Type="Self.ModelRegistry" Multiplicity="0..1" />
+          <End Role="InventoryForecast" Type="Self.InventoryForecast" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ModelRegistry">
+              <PropertyRef Name="ModelID" />
+            </Principal>
+            <Dependent Role="InventoryForecast">
+              <PropertyRef Name="ModelID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ai_InvFc_VatTu">
+          <End Role="VatTu" Type="Self.VatTu" Multiplicity="1" />
+          <End Role="InventoryForecast" Type="Self.InventoryForecast" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="VatTu">
+              <PropertyRef Name="VatTuID" />
+            </Principal>
+            <Dependent Role="InventoryForecast">
+              <PropertyRef Name="VatTuID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ai_JobRun_Model">
+          <End Role="ModelRegistry" Type="Self.ModelRegistry" Multiplicity="0..1" />
+          <End Role="JobRun" Type="Self.JobRun" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ModelRegistry">
+              <PropertyRef Name="ModelID" />
+            </Principal>
+            <Dependent Role="JobRun">
+              <PropertyRef Name="ModelID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Admin_TaiKhoan">
+          <End Role="TaiKhoan" Type="Self.TaiKhoan" Multiplicity="1" />
+          <End Role="Admin" Type="Self.Admin" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TaiKhoan">
+              <PropertyRef Name="TaiKhoanID" />
+            </Principal>
+            <Dependent Role="Admin">
+              <PropertyRef Name="TaiKhoanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CanHo_CuDan_CanHo">
+          <End Role="CanHo" Type="Self.CanHo" Multiplicity="1" />
+          <End Role="CanHo_CuDan" Type="Self.CanHo_CuDan" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CanHo">
+              <PropertyRef Name="CanHoID" />
+            </Principal>
+            <Dependent Role="CanHo_CuDan">
+              <PropertyRef Name="CanHoID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CanHo_Tang">
+          <End Role="Tang" Type="Self.Tang" Multiplicity="1" />
+          <End Role="CanHo" Type="Self.CanHo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tang">
+              <PropertyRef Name="TangID" />
+            </Principal>
+            <Dependent Role="CanHo">
+              <PropertyRef Name="TangID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CanHo_VatTu_CanHo">
+          <End Role="CanHo" Type="Self.CanHo" Multiplicity="1" />
+          <End Role="CanHo_VatTu" Type="Self.CanHo_VatTu" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CanHo">
+              <PropertyRef Name="CanHoID" />
+            </Principal>
+            <Dependent Role="CanHo_VatTu">
+              <PropertyRef Name="CanHoID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CuDan_CanHo">
+          <End Role="CanHo" Type="Self.CanHo" Multiplicity="0..1" />
+          <End Role="CuDan" Type="Self.CuDan" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CanHo">
+              <PropertyRef Name="CanHoID" />
+            </Principal>
+            <Dependent Role="CuDan">
+              <PropertyRef Name="CanHoID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_HoaDonCuDan_CanHo">
+          <End Role="CanHo" Type="Self.CanHo" Multiplicity="1" />
+          <End Role="HoaDonCuDan" Type="Self.HoaDonCuDan" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CanHo">
+              <PropertyRef Name="CanHoID" />
+            </Principal>
+            <Dependent Role="HoaDonCuDan">
+              <PropertyRef Name="CanHoID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CanHo_CuDan_CuDan">
+          <End Role="CuDan" Type="Self.CuDan" Multiplicity="1" />
+          <End Role="CanHo_CuDan" Type="Self.CanHo_CuDan" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CuDan">
+              <PropertyRef Name="CuDanID" />
+            </Principal>
+            <Dependent Role="CanHo_CuDan">
+              <PropertyRef Name="CuDanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CanHo_VatTu_VatTu">
+          <End Role="VatTu" Type="Self.VatTu" Multiplicity="1" />
+          <End Role="CanHo_VatTu" Type="Self.CanHo_VatTu" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="VatTu">
+              <PropertyRef Name="VatTuID" />
+            </Principal>
+            <Dependent Role="CanHo_VatTu">
+              <PropertyRef Name="VatTuID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_HoaDonCuDan_CuDan">
+          <End Role="CuDan" Type="Self.CuDan" Multiplicity="1" />
+          <End Role="HoaDonCuDan" Type="Self.HoaDonCuDan" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CuDan">
+              <PropertyRef Name="CuDanID" />
+            </Principal>
+            <Dependent Role="HoaDonCuDan">
+              <PropertyRef Name="CuDanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_XeDap_CuDan">
+          <End Role="CuDan" Type="Self.CuDan" Multiplicity="1" />
+          <End Role="XeDap" Type="Self.XeDap" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CuDan">
+              <PropertyRef Name="CuDanID" />
+            </Principal>
+            <Dependent Role="XeDap">
+              <PropertyRef Name="CuDanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_XeMay_CuDan">
+          <End Role="CuDan" Type="Self.CuDan" Multiplicity="1" />
+          <End Role="XeMay" Type="Self.XeMay" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CuDan">
+              <PropertyRef Name="CuDanID" />
+            </Principal>
+            <Dependent Role="XeMay">
+              <PropertyRef Name="CuDanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_XeOTo_CuDan">
+          <End Role="CuDan" Type="Self.CuDan" Multiplicity="1" />
+          <End Role="XeOTo" Type="Self.XeOTo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CuDan">
+              <PropertyRef Name="CuDanID" />
+            </Principal>
+            <Dependent Role="XeOTo">
+              <PropertyRef Name="CuDanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_HDTMCT_HoaDon">
+          <End Role="HoaDonTM" Type="Self.HoaDonTM" Multiplicity="1" />
+          <End Role="HoaDonTM_ChiTiet" Type="Self.HoaDonTM_ChiTiet" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="HoaDonTM">
+              <PropertyRef Name="HoaDonTMID" />
+            </Principal>
+            <Dependent Role="HoaDonTM_ChiTiet">
+              <PropertyRef Name="HoaDonTMID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_HoaDonTM_MatBang">
+          <End Role="MatBangThuongMai" Type="Self.MatBangThuongMai" Multiplicity="1" />
+          <End Role="HoaDonTM" Type="Self.HoaDonTM" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="MatBangThuongMai">
+              <PropertyRef Name="MatBangID" />
+            </Principal>
+            <Dependent Role="HoaDonTM">
+              <PropertyRef Name="MatBangID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_HDTMCT_VatTu">
+          <End Role="VatTu" Type="Self.VatTu" Multiplicity="1" />
+          <End Role="HoaDonTM_ChiTiet" Type="Self.HoaDonTM_ChiTiet" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="VatTu">
+              <PropertyRef Name="VatTuID" />
+            </Principal>
+            <Dependent Role="HoaDonTM_ChiTiet">
+              <PropertyRef Name="VatTuID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MBV_MatBang">
+          <End Role="MatBangThuongMai" Type="Self.MatBangThuongMai" Multiplicity="1" />
+          <End Role="MatBang_VatTu" Type="Self.MatBang_VatTu" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="MatBangThuongMai">
+              <PropertyRef Name="MatBangID" />
+            </Principal>
+            <Dependent Role="MatBang_VatTu">
+              <PropertyRef Name="MatBangID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MBV_VatTu">
+          <End Role="VatTu" Type="Self.VatTu" Multiplicity="1" />
+          <End Role="MatBang_VatTu" Type="Self.MatBang_VatTu" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="VatTu">
+              <PropertyRef Name="VatTuID" />
+            </Principal>
+            <Dependent Role="MatBang_VatTu">
+              <PropertyRef Name="VatTuID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OAuthAcc_Provider">
+          <End Role="OAuthProvider" Type="Self.OAuthProvider" Multiplicity="1" />
+          <End Role="OAuthAccount" Type="Self.OAuthAccount" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OAuthProvider">
+              <PropertyRef Name="ProviderID" />
+            </Principal>
+            <Dependent Role="OAuthAccount">
+              <PropertyRef Name="ProviderID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OAuthAcc_TaiKhoan">
+          <End Role="TaiKhoan" Type="Self.TaiKhoan" Multiplicity="1" />
+          <End Role="OAuthAccount" Type="Self.OAuthAccount" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TaiKhoan">
+              <PropertyRef Name="TaiKhoanID" />
+            </Principal>
+            <Dependent Role="OAuthAccount">
+              <PropertyRef Name="TaiKhoanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OAuthToken_Account">
+          <End Role="OAuthAccount" Type="Self.OAuthAccount" Multiplicity="1" />
+          <End Role="OAuthToken" Type="Self.OAuthToken" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OAuthAccount">
+              <PropertyRef Name="OAuthAccountID" />
+            </Principal>
+            <Dependent Role="OAuthToken">
+              <PropertyRef Name="OAuthAccountID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PwdHist_TaiKhoan">
+          <End Role="TaiKhoan" Type="Self.TaiKhoan" Multiplicity="1" />
+          <End Role="PasswordHistory" Type="Self.PasswordHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TaiKhoan">
+              <PropertyRef Name="TaiKhoanID" />
+            </Principal>
+            <Dependent Role="PasswordHistory">
+              <PropertyRef Name="TaiKhoanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_User_TaiKhoan">
+          <End Role="TaiKhoan" Type="Self.TaiKhoan" Multiplicity="1" />
+          <End Role="User" Type="Self.User" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TaiKhoan">
+              <PropertyRef Name="TaiKhoanID" />
+            </Principal>
+            <Dependent Role="User">
+              <PropertyRef Name="TaiKhoanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="NhanVien_VaiTro">
+          <End Role="NhanVien" Type="Self.NhanVien" Multiplicity="*" />
+          <End Role="VaiTro" Type="Self.VaiTro" Multiplicity="*" />
+        </Association>
+        <Association Name="TaiKhoan_VaiTro">
+          <End Role="TaiKhoan" Type="Self.TaiKhoan" Multiplicity="*" />
+          <End Role="VaiTro" Type="Self.VaiTro" Multiplicity="*" />
+        </Association>
+        <EntityContainer Name="QuanlychungcuEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="CostSeries" EntityType="Self.CostSery" />
+          <EntitySet Name="InventoryAudits" EntityType="Self.InventoryAudit" />
+          <EntitySet Name="InventoryForecasts" EntityType="Self.InventoryForecast" />
+          <EntitySet Name="JobRuns" EntityType="Self.JobRun" />
+          <EntitySet Name="ModelRegistries" EntityType="Self.ModelRegistry" />
+          <EntitySet Name="SearchIndexes" EntityType="Self.SearchIndex" />
+          <EntitySet Name="Admins" EntityType="Self.Admin" />
+          <EntitySet Name="CanHoes" EntityType="Self.CanHo" />
+          <EntitySet Name="CanHo_CuDan" EntityType="Self.CanHo_CuDan" />
+          <EntitySet Name="CanHo_VatTu" EntityType="Self.CanHo_VatTu" />
+          <EntitySet Name="CuDans" EntityType="Self.CuDan" />
+          <EntitySet Name="HoaDonCuDans" EntityType="Self.HoaDonCuDan" />
+          <EntitySet Name="HoaDonTMs" EntityType="Self.HoaDonTM" />
+          <EntitySet Name="HoaDonTM_ChiTiet" EntityType="Self.HoaDonTM_ChiTiet" />
+          <EntitySet Name="LoginAudits" EntityType="Self.LoginAudit" />
+          <EntitySet Name="MatBang_VatTu" EntityType="Self.MatBang_VatTu" />
+          <EntitySet Name="MatBangThuongMais" EntityType="Self.MatBangThuongMai" />
+          <EntitySet Name="NhanViens" EntityType="Self.NhanVien" />
+          <EntitySet Name="OAuthAccounts" EntityType="Self.OAuthAccount" />
+          <EntitySet Name="OAuthProviders" EntityType="Self.OAuthProvider" />
+          <EntitySet Name="OAuthTokens" EntityType="Self.OAuthToken" />
+          <EntitySet Name="PasswordHistories" EntityType="Self.PasswordHistory" />
+          <EntitySet Name="TaiKhoans" EntityType="Self.TaiKhoan" />
+          <EntitySet Name="Tangs" EntityType="Self.Tang" />
+          <EntitySet Name="Users" EntityType="Self.User" />
+          <EntitySet Name="VaiTroes" EntityType="Self.VaiTro" />
+          <EntitySet Name="VatTus" EntityType="Self.VatTu" />
+          <EntitySet Name="XeDaps" EntityType="Self.XeDap" />
+          <EntitySet Name="XeMays" EntityType="Self.XeMay" />
+          <EntitySet Name="XeOToes" EntityType="Self.XeOTo" />
+          <AssociationSet Name="FK_ai_InvAudit_VatTu" Association="Self.FK_ai_InvAudit_VatTu">
+            <End Role="VatTu" EntitySet="VatTus" />
+            <End Role="InventoryAudit" EntitySet="InventoryAudits" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ai_InvFc_Model" Association="Self.FK_ai_InvFc_Model">
+            <End Role="ModelRegistry" EntitySet="ModelRegistries" />
+            <End Role="InventoryForecast" EntitySet="InventoryForecasts" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ai_InvFc_VatTu" Association="Self.FK_ai_InvFc_VatTu">
+            <End Role="VatTu" EntitySet="VatTus" />
+            <End Role="InventoryForecast" EntitySet="InventoryForecasts" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ai_JobRun_Model" Association="Self.FK_ai_JobRun_Model">
+            <End Role="ModelRegistry" EntitySet="ModelRegistries" />
+            <End Role="JobRun" EntitySet="JobRuns" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Admin_TaiKhoan" Association="Self.FK_Admin_TaiKhoan">
+            <End Role="TaiKhoan" EntitySet="TaiKhoans" />
+            <End Role="Admin" EntitySet="Admins" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CanHo_CuDan_CanHo" Association="Self.FK_CanHo_CuDan_CanHo">
+            <End Role="CanHo" EntitySet="CanHoes" />
+            <End Role="CanHo_CuDan" EntitySet="CanHo_CuDan" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CanHo_Tang" Association="Self.FK_CanHo_Tang">
+            <End Role="Tang" EntitySet="Tangs" />
+            <End Role="CanHo" EntitySet="CanHoes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CanHo_VatTu_CanHo" Association="Self.FK_CanHo_VatTu_CanHo">
+            <End Role="CanHo" EntitySet="CanHoes" />
+            <End Role="CanHo_VatTu" EntitySet="CanHo_VatTu" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CuDan_CanHo" Association="Self.FK_CuDan_CanHo">
+            <End Role="CanHo" EntitySet="CanHoes" />
+            <End Role="CuDan" EntitySet="CuDans" />
+          </AssociationSet>
+          <AssociationSet Name="FK_HoaDonCuDan_CanHo" Association="Self.FK_HoaDonCuDan_CanHo">
+            <End Role="CanHo" EntitySet="CanHoes" />
+            <End Role="HoaDonCuDan" EntitySet="HoaDonCuDans" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CanHo_CuDan_CuDan" Association="Self.FK_CanHo_CuDan_CuDan">
+            <End Role="CuDan" EntitySet="CuDans" />
+            <End Role="CanHo_CuDan" EntitySet="CanHo_CuDan" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CanHo_VatTu_VatTu" Association="Self.FK_CanHo_VatTu_VatTu">
+            <End Role="VatTu" EntitySet="VatTus" />
+            <End Role="CanHo_VatTu" EntitySet="CanHo_VatTu" />
+          </AssociationSet>
+          <AssociationSet Name="FK_HoaDonCuDan_CuDan" Association="Self.FK_HoaDonCuDan_CuDan">
+            <End Role="CuDan" EntitySet="CuDans" />
+            <End Role="HoaDonCuDan" EntitySet="HoaDonCuDans" />
+          </AssociationSet>
+          <AssociationSet Name="FK_XeDap_CuDan" Association="Self.FK_XeDap_CuDan">
+            <End Role="CuDan" EntitySet="CuDans" />
+            <End Role="XeDap" EntitySet="XeDaps" />
+          </AssociationSet>
+          <AssociationSet Name="FK_XeMay_CuDan" Association="Self.FK_XeMay_CuDan">
+            <End Role="CuDan" EntitySet="CuDans" />
+            <End Role="XeMay" EntitySet="XeMays" />
+          </AssociationSet>
+          <AssociationSet Name="FK_XeOTo_CuDan" Association="Self.FK_XeOTo_CuDan">
+            <End Role="CuDan" EntitySet="CuDans" />
+            <End Role="XeOTo" EntitySet="XeOToes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_HDTMCT_HoaDon" Association="Self.FK_HDTMCT_HoaDon">
+            <End Role="HoaDonTM" EntitySet="HoaDonTMs" />
+            <End Role="HoaDonTM_ChiTiet" EntitySet="HoaDonTM_ChiTiet" />
+          </AssociationSet>
+          <AssociationSet Name="FK_HoaDonTM_MatBang" Association="Self.FK_HoaDonTM_MatBang">
+            <End Role="MatBangThuongMai" EntitySet="MatBangThuongMais" />
+            <End Role="HoaDonTM" EntitySet="HoaDonTMs" />
+          </AssociationSet>
+          <AssociationSet Name="FK_HDTMCT_VatTu" Association="Self.FK_HDTMCT_VatTu">
+            <End Role="VatTu" EntitySet="VatTus" />
+            <End Role="HoaDonTM_ChiTiet" EntitySet="HoaDonTM_ChiTiet" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MBV_MatBang" Association="Self.FK_MBV_MatBang">
+            <End Role="MatBangThuongMai" EntitySet="MatBangThuongMais" />
+            <End Role="MatBang_VatTu" EntitySet="MatBang_VatTu" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MBV_VatTu" Association="Self.FK_MBV_VatTu">
+            <End Role="VatTu" EntitySet="VatTus" />
+            <End Role="MatBang_VatTu" EntitySet="MatBang_VatTu" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OAuthAcc_Provider" Association="Self.FK_OAuthAcc_Provider">
+            <End Role="OAuthProvider" EntitySet="OAuthProviders" />
+            <End Role="OAuthAccount" EntitySet="OAuthAccounts" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OAuthAcc_TaiKhoan" Association="Self.FK_OAuthAcc_TaiKhoan">
+            <End Role="TaiKhoan" EntitySet="TaiKhoans" />
+            <End Role="OAuthAccount" EntitySet="OAuthAccounts" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OAuthToken_Account" Association="Self.FK_OAuthToken_Account">
+            <End Role="OAuthAccount" EntitySet="OAuthAccounts" />
+            <End Role="OAuthToken" EntitySet="OAuthTokens" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PwdHist_TaiKhoan" Association="Self.FK_PwdHist_TaiKhoan">
+            <End Role="TaiKhoan" EntitySet="TaiKhoans" />
+            <End Role="PasswordHistory" EntitySet="PasswordHistories" />
+          </AssociationSet>
+          <AssociationSet Name="FK_User_TaiKhoan" Association="Self.FK_User_TaiKhoan">
+            <End Role="TaiKhoan" EntitySet="TaiKhoans" />
+            <End Role="User" EntitySet="Users" />
+          </AssociationSet>
+          <AssociationSet Name="NhanVien_VaiTro" Association="Self.NhanVien_VaiTro">
+            <End Role="NhanVien" EntitySet="NhanViens" />
+            <End Role="VaiTro" EntitySet="VaiTroes" />
+          </AssociationSet>
+          <AssociationSet Name="TaiKhoan_VaiTro" Association="Self.TaiKhoan_VaiTro">
+            <End Role="TaiKhoan" EntitySet="TaiKhoans" />
+            <End Role="VaiTro" EntitySet="VaiTroes" />
+          </AssociationSet>
+          <EntitySet Name="ActivityLogs" EntityType="CondoDBModel.ActivityLog" />
+          <EntitySet Name="Tickets" EntityType="CondoDBModel.Ticket" />
+          <AssociationSet Name="FK_Ticket_CuDan" Association="CondoDBModel.FK_Ticket_CuDan">
+            <End Role="CuDan" EntitySet="CuDans" />
+            <End Role="Ticket" EntitySet="Tickets" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Ticket_TaiKhoan_Assigned" Association="CondoDBModel.FK_Ticket_TaiKhoan_Assigned">
+            <End Role="TaiKhoan" EntitySet="TaiKhoans" />
+            <End Role="Ticket" EntitySet="Tickets" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="ActivityLog">
+          <Key>
+            <PropertyRef Name="LogID" />
+          </Key>
+          <Property Name="LogID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserId" Type="Int32" />
+          <Property Name="Action" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="EntityName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="EntityId" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Detail" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedAt" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+        <EntityType Name="Ticket">
+          <Key>
+            <PropertyRef Name="TicketID" />
+          </Key>
+          <Property Name="TicketID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CuDanID" Type="Int32" Nullable="false" />
+          <Property Name="Title" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="Content" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Status" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedAt" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="UpdatedAt" Type="DateTime" Precision="3" />
+          <Property Name="AssignedTo" Type="Int32" />
+          <NavigationProperty Name="CuDan" Relationship="CondoDBModel.FK_Ticket_CuDan" FromRole="Ticket" ToRole="CuDan" />
+          <NavigationProperty Name="TaiKhoan" Relationship="CondoDBModel.FK_Ticket_TaiKhoan_Assigned" FromRole="Ticket" ToRole="TaiKhoan" />
+        </EntityType>
+        <Association Name="FK_Ticket_CuDan">
+          <End Type="CondoDBModel.CuDan" Role="CuDan" Multiplicity="1" />
+          <End Type="CondoDBModel.Ticket" Role="Ticket" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CuDan">
+              <PropertyRef Name="CuDanID" />
+            </Principal>
+            <Dependent Role="Ticket">
+              <PropertyRef Name="CuDanID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Ticket_TaiKhoan_Assigned">
+          <End Type="CondoDBModel.TaiKhoan" Role="TaiKhoan" Multiplicity="0..1" />
+          <End Type="CondoDBModel.Ticket" Role="Ticket" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TaiKhoan">
+              <PropertyRef Name="TaiKhoanID" />
+            </Principal>
+            <Dependent Role="Ticket">
+              <PropertyRef Name="AssignedTo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="CondoDBModelStoreContainer" CdmEntityContainer="QuanlychungcuEntities">
+          <EntitySetMapping Name="CostSeries">
+            <EntityTypeMapping TypeName="CondoDBModel.CostSery">
+              <MappingFragment StoreEntitySet="CostSeries">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="OccurDate" ColumnName="OccurDate" />
+                <ScalarProperty Name="Item" ColumnName="Item" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="UnitCost" ColumnName="UnitCost" />
+                <ScalarProperty Name="Tags" ColumnName="Tags" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="InventoryAudits">
+            <EntityTypeMapping TypeName="CondoDBModel.InventoryAudit">
+              <MappingFragment StoreEntitySet="InventoryAudit">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="VatTuID" ColumnName="VatTuID" />
+                <ScalarProperty Name="SnapshotAt" ColumnName="SnapshotAt" />
+                <ScalarProperty Name="SoLuong" ColumnName="SoLuong" />
+                <ScalarProperty Name="Note" ColumnName="Note" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="InventoryForecasts">
+            <EntityTypeMapping TypeName="CondoDBModel.InventoryForecast">
+              <MappingFragment StoreEntitySet="InventoryForecast">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="VatTuID" ColumnName="VatTuID" />
+                <ScalarProperty Name="ForecastDate" ColumnName="ForecastDate" />
+                <ScalarProperty Name="ForecastQty" ColumnName="ForecastQty" />
+                <ScalarProperty Name="Lower95" ColumnName="Lower95" />
+                <ScalarProperty Name="Upper95" ColumnName="Upper95" />
+                <ScalarProperty Name="ModelID" ColumnName="ModelID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JobRuns">
+            <EntityTypeMapping TypeName="CondoDBModel.JobRun">
+              <MappingFragment StoreEntitySet="JobRun">
+                <ScalarProperty Name="JobID" ColumnName="JobID" />
+                <ScalarProperty Name="JobType" ColumnName="JobType" />
+                <ScalarProperty Name="ModelID" ColumnName="ModelID" />
+                <ScalarProperty Name="ParamsJson" ColumnName="ParamsJson" />
+                <ScalarProperty Name="StartedAt" ColumnName="StartedAt" />
+                <ScalarProperty Name="EndedAt" ColumnName="EndedAt" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Error" ColumnName="Error" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ModelRegistries">
+            <EntityTypeMapping TypeName="CondoDBModel.ModelRegistry">
+              <MappingFragment StoreEntitySet="ModelRegistry">
+                <ScalarProperty Name="ModelID" ColumnName="ModelID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Version" ColumnName="Version" />
+                <ScalarProperty Name="Task" ColumnName="Task" />
+                <ScalarProperty Name="Framework" ColumnName="Framework" />
+                <ScalarProperty Name="Uri" ColumnName="Uri" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="CreatedAt" ColumnName="CreatedAt" />
+                <ScalarProperty Name="Notes" ColumnName="Notes" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SearchIndexes">
+            <EntityTypeMapping TypeName="CondoDBModel.SearchIndex">
+              <MappingFragment StoreEntitySet="SearchIndex">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="EntityType" ColumnName="EntityType" />
+                <ScalarProperty Name="EntityId" ColumnName="EntityId" />
+                <ScalarProperty Name="Content" ColumnName="Content" />
+                <ScalarProperty Name="Embedding" ColumnName="Embedding" />
+                <ScalarProperty Name="UpdatedAt" ColumnName="UpdatedAt" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Admins">
+            <EntityTypeMapping TypeName="CondoDBModel.Admin">
+              <MappingFragment StoreEntitySet="Admin">
+                <ScalarProperty Name="AdminID" ColumnName="AdminID" />
+                <ScalarProperty Name="FullName" ColumnName="FullName" />
+                <ScalarProperty Name="TaiKhoanID" ColumnName="TaiKhoanID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CanHoes">
+            <EntityTypeMapping TypeName="CondoDBModel.CanHo">
+              <MappingFragment StoreEntitySet="CanHo">
+                <ScalarProperty Name="CanHoID" ColumnName="CanHoID" />
+                <ScalarProperty Name="SoCanHo" ColumnName="SoCanHo" />
+                <ScalarProperty Name="DienTich" ColumnName="DienTich" />
+                <ScalarProperty Name="GiaTri" ColumnName="GiaTri" />
+                <ScalarProperty Name="TangID" ColumnName="TangID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CanHo_CuDan">
+            <EntityTypeMapping TypeName="CondoDBModel.CanHo_CuDan">
+              <MappingFragment StoreEntitySet="CanHo_CuDan">
+                <ScalarProperty Name="CuDanID" ColumnName="CuDanID" />
+                <ScalarProperty Name="CanHoID" ColumnName="CanHoID" />
+                <ScalarProperty Name="ChuHo" ColumnName="ChuHo" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CanHo_VatTu">
+            <EntityTypeMapping TypeName="CondoDBModel.CanHo_VatTu">
+              <MappingFragment StoreEntitySet="CanHo_VatTu">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="CanHoID" ColumnName="CanHoID" />
+                <ScalarProperty Name="VatTuID" ColumnName="VatTuID" />
+                <ScalarProperty Name="SoLuong" ColumnName="SoLuong" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CuDans">
+            <EntityTypeMapping TypeName="CondoDBModel.CuDan">
+              <MappingFragment StoreEntitySet="CuDan">
+                <ScalarProperty Name="CuDanID" ColumnName="CuDanID" />
+                <ScalarProperty Name="HoTen" ColumnName="HoTen" />
+                <ScalarProperty Name="NgaySinh" ColumnName="NgaySinh" />
+                <ScalarProperty Name="DienThoai" ColumnName="DienThoai" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="CanHoID" ColumnName="CanHoID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="HoaDonCuDans">
+            <EntityTypeMapping TypeName="CondoDBModel.HoaDonCuDan">
+              <MappingFragment StoreEntitySet="HoaDonCuDan">
+                <ScalarProperty Name="HoaDonID" ColumnName="HoaDonID" />
+                <ScalarProperty Name="CuDanID" ColumnName="CuDanID" />
+                <ScalarProperty Name="CanHoID" ColumnName="CanHoID" />
+                <ScalarProperty Name="LoaiDichVu" ColumnName="LoaiDichVu" />
+                <ScalarProperty Name="SoTien" ColumnName="SoTien" />
+                <ScalarProperty Name="TrangThai" ColumnName="TrangThai" />
+                <ScalarProperty Name="NgayLap" ColumnName="NgayLap" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="HoaDonTMs">
+            <EntityTypeMapping TypeName="CondoDBModel.HoaDonTM">
+              <MappingFragment StoreEntitySet="HoaDonTM">
+                <ScalarProperty Name="HoaDonTMID" ColumnName="HoaDonTMID" />
+                <ScalarProperty Name="MatBangID" ColumnName="MatBangID" />
+                <ScalarProperty Name="NoiDung" ColumnName="NoiDung" />
+                <ScalarProperty Name="SoTien" ColumnName="SoTien" />
+                <ScalarProperty Name="TrangThai" ColumnName="TrangThai" />
+                <ScalarProperty Name="NgayLap" ColumnName="NgayLap" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="HoaDonTM_ChiTiet">
+            <EntityTypeMapping TypeName="CondoDBModel.HoaDonTM_ChiTiet">
+              <MappingFragment StoreEntitySet="HoaDonTM_ChiTiet">
+                <ScalarProperty Name="HoaDonTMID" ColumnName="HoaDonTMID" />
+                <ScalarProperty Name="VatTuID" ColumnName="VatTuID" />
+                <ScalarProperty Name="SoLuong" ColumnName="SoLuong" />
+                <ScalarProperty Name="DonGia" ColumnName="DonGia" />
+                <ScalarProperty Name="ThanhTien" ColumnName="ThanhTien" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="LoginAudits">
+            <EntityTypeMapping TypeName="CondoDBModel.LoginAudit">
+              <MappingFragment StoreEntitySet="LoginAudit">
+                <ScalarProperty Name="AuditID" ColumnName="AuditID" />
+                <ScalarProperty Name="TaiKhoanID" ColumnName="TaiKhoanID" />
+                <ScalarProperty Name="Username" ColumnName="Username" />
+                <ScalarProperty Name="ProviderName" ColumnName="ProviderName" />
+                <ScalarProperty Name="Success" ColumnName="Success" />
+                <ScalarProperty Name="ClientIP" ColumnName="ClientIP" />
+                <ScalarProperty Name="UserAgent" ColumnName="UserAgent" />
+                <ScalarProperty Name="LoggedAt" ColumnName="LoggedAt" />
+                <ScalarProperty Name="Message" ColumnName="Message" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="MatBang_VatTu">
+            <EntityTypeMapping TypeName="CondoDBModel.MatBang_VatTu">
+              <MappingFragment StoreEntitySet="MatBang_VatTu">
+                <ScalarProperty Name="MatBangID" ColumnName="MatBangID" />
+                <ScalarProperty Name="VatTuID" ColumnName="VatTuID" />
+                <ScalarProperty Name="SoLuong" ColumnName="SoLuong" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="MatBangThuongMais">
+            <EntityTypeMapping TypeName="CondoDBModel.MatBangThuongMai">
+              <MappingFragment StoreEntitySet="MatBangThuongMai">
+                <ScalarProperty Name="GhiChu" ColumnName="GhiChu" />
+                <ScalarProperty Name="MatBangID" ColumnName="MatBangID" />
+                <ScalarProperty Name="TenMatBang" ColumnName="TenMatBang" />
+                <ScalarProperty Name="DienTich" ColumnName="DienTich" />
+                <ScalarProperty Name="GiaThue" ColumnName="GiaThue" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="NhanViens">
+            <EntityTypeMapping TypeName="CondoDBModel.NhanVien">
+              <MappingFragment StoreEntitySet="NhanVien">
+                <ScalarProperty Name="NhanVienID" ColumnName="NhanVienID" />
+                <ScalarProperty Name="HoTen" ColumnName="HoTen" />
+                <ScalarProperty Name="DienThoai" ColumnName="DienThoai" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OAuthAccounts">
+            <EntityTypeMapping TypeName="CondoDBModel.OAuthAccount">
+              <MappingFragment StoreEntitySet="OAuthAccount">
+                <ScalarProperty Name="OAuthAccountID" ColumnName="OAuthAccountID" />
+                <ScalarProperty Name="TaiKhoanID" ColumnName="TaiKhoanID" />
+                <ScalarProperty Name="ProviderID" ColumnName="ProviderID" />
+                <ScalarProperty Name="ProviderUserId" ColumnName="ProviderUserId" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="FullName" ColumnName="FullName" />
+                <ScalarProperty Name="LinkedAt" ColumnName="LinkedAt" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OAuthProviders">
+            <EntityTypeMapping TypeName="CondoDBModel.OAuthProvider">
+              <MappingFragment StoreEntitySet="OAuthProvider">
+                <ScalarProperty Name="ProviderID" ColumnName="ProviderID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="DisplayName" ColumnName="DisplayName" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OAuthTokens">
+            <EntityTypeMapping TypeName="CondoDBModel.OAuthToken">
+              <MappingFragment StoreEntitySet="OAuthToken">
+                <ScalarProperty Name="TokenID" ColumnName="TokenID" />
+                <ScalarProperty Name="OAuthAccountID" ColumnName="OAuthAccountID" />
+                <ScalarProperty Name="AccessToken" ColumnName="AccessToken" />
+                <ScalarProperty Name="RefreshToken" ColumnName="RefreshToken" />
+                <ScalarProperty Name="ExpiresAt" ColumnName="ExpiresAt" />
+                <ScalarProperty Name="Scope" ColumnName="Scope" />
+                <ScalarProperty Name="CreatedAt" ColumnName="CreatedAt" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PasswordHistories">
+            <EntityTypeMapping TypeName="CondoDBModel.PasswordHistory">
+              <MappingFragment StoreEntitySet="PasswordHistory">
+                <ScalarProperty Name="HistoryID" ColumnName="HistoryID" />
+                <ScalarProperty Name="TaiKhoanID" ColumnName="TaiKhoanID" />
+                <ScalarProperty Name="OldHash" ColumnName="OldHash" />
+                <ScalarProperty Name="NewHash" ColumnName="NewHash" />
+                <ScalarProperty Name="ChangedAt" ColumnName="ChangedAt" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TaiKhoans">
+            <EntityTypeMapping TypeName="CondoDBModel.TaiKhoan">
+              <MappingFragment StoreEntitySet="TaiKhoan">
+                <ScalarProperty Name="TaiKhoanID" ColumnName="TaiKhoanID" />
+                <ScalarProperty Name="Username" ColumnName="Username" />
+                <ScalarProperty Name="PasswordHash" ColumnName="PasswordHash" />
+                <ScalarProperty Name="VaiTro" ColumnName="VaiTro" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="CreatedAt" ColumnName="CreatedAt" />
+                <ScalarProperty Name="SecurityStamp" ColumnName="SecurityStamp" />
+                <ScalarProperty Name="LastLoginAt" ColumnName="LastLoginAt" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Tangs">
+            <EntityTypeMapping TypeName="CondoDBModel.Tang">
+              <MappingFragment StoreEntitySet="Tang">
+                <ScalarProperty Name="TangID" ColumnName="TangID" />
+                <ScalarProperty Name="TenTang" ColumnName="TenTang" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="CondoDBModel.User">
+              <MappingFragment StoreEntitySet="User">
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+                <ScalarProperty Name="TaiKhoanID" ColumnName="TaiKhoanID" />
+                <ScalarProperty Name="FullName" ColumnName="FullName" />
+                <ScalarProperty Name="Phone" ColumnName="Phone" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="UserType" ColumnName="UserType" />
+                <ScalarProperty Name="RefId" ColumnName="RefId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="VaiTroes">
+            <EntityTypeMapping TypeName="CondoDBModel.VaiTro">
+              <MappingFragment StoreEntitySet="VaiTro">
+                <ScalarProperty Name="VaiTroID" ColumnName="VaiTroID" />
+                <ScalarProperty Name="TenVaiTro" ColumnName="TenVaiTro" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="VatTus">
+            <EntityTypeMapping TypeName="CondoDBModel.VatTu">
+              <MappingFragment StoreEntitySet="VatTu">
+                <ScalarProperty Name="VatTuID" ColumnName="VatTuID" />
+                <ScalarProperty Name="TenVatTu" ColumnName="TenVatTu" />
+                <ScalarProperty Name="DonVi" ColumnName="DonVi" />
+                <ScalarProperty Name="SoLuong" ColumnName="SoLuong" />
+                <ScalarProperty Name="Gia" ColumnName="Gia" />
+                <ScalarProperty Name="GhiChu" ColumnName="GhiChu" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="XeDaps">
+            <EntityTypeMapping TypeName="CondoDBModel.XeDap">
+              <MappingFragment StoreEntitySet="XeDap">
+                <ScalarProperty Name="XeDapID" ColumnName="XeDapID" />
+                <ScalarProperty Name="CuDanID" ColumnName="CuDanID" />
+                <ScalarProperty Name="BKS" ColumnName="BKS" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="XeMays">
+            <EntityTypeMapping TypeName="CondoDBModel.XeMay">
+              <MappingFragment StoreEntitySet="XeMay">
+                <ScalarProperty Name="XeMayID" ColumnName="XeMayID" />
+                <ScalarProperty Name="CuDanID" ColumnName="CuDanID" />
+                <ScalarProperty Name="BKS" ColumnName="BKS" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="XeOToes">
+            <EntityTypeMapping TypeName="CondoDBModel.XeOTo">
+              <MappingFragment StoreEntitySet="XeOTo">
+                <ScalarProperty Name="XeOToID" ColumnName="XeOToID" />
+                <ScalarProperty Name="CuDanID" ColumnName="CuDanID" />
+                <ScalarProperty Name="BKS" ColumnName="BKS" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <AssociationSetMapping Name="NhanVien_VaiTro" TypeName="CondoDBModel.NhanVien_VaiTro" StoreEntitySet="NhanVien_VaiTro">
+            <EndProperty Name="NhanVien">
+              <ScalarProperty Name="NhanVienID" ColumnName="NhanVienID" />
+            </EndProperty>
+            <EndProperty Name="VaiTro">
+              <ScalarProperty Name="VaiTroID" ColumnName="VaiTroID" />
+            </EndProperty>
+          </AssociationSetMapping>
+          <AssociationSetMapping Name="TaiKhoan_VaiTro" TypeName="CondoDBModel.TaiKhoan_VaiTro" StoreEntitySet="TaiKhoan_VaiTro">
+            <EndProperty Name="TaiKhoan">
+              <ScalarProperty Name="TaiKhoanID" ColumnName="TaiKhoanID" />
+            </EndProperty>
+            <EndProperty Name="VaiTro">
+              <ScalarProperty Name="VaiTroID" ColumnName="VaiTroID" />
+            </EndProperty>
+          </AssociationSetMapping>
+          <EntitySetMapping Name="ActivityLogs">
+            <EntityTypeMapping TypeName="CondoDBModel.ActivityLog">
+              <MappingFragment StoreEntitySet="ActivityLog">
+                <ScalarProperty Name="CreatedAt" ColumnName="CreatedAt" />
+                <ScalarProperty Name="Detail" ColumnName="Detail" />
+                <ScalarProperty Name="EntityId" ColumnName="EntityId" />
+                <ScalarProperty Name="EntityName" ColumnName="EntityName" />
+                <ScalarProperty Name="Action" ColumnName="Action" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="LogID" ColumnName="LogID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Tickets">
+            <EntityTypeMapping TypeName="CondoDBModel.Ticket">
+              <MappingFragment StoreEntitySet="Ticket">
+                <ScalarProperty Name="AssignedTo" ColumnName="AssignedTo" />
+                <ScalarProperty Name="UpdatedAt" ColumnName="UpdatedAt" />
+                <ScalarProperty Name="CreatedAt" ColumnName="CreatedAt" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Content" ColumnName="Content" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="CuDanID" ColumnName="CuDanID" />
+                <ScalarProperty Name="TicketID" ColumnName="TicketID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="5d97238af0c24235abb31ddb32ca97d0" Name="Diagram1" ZoomLevel="44">
+        <EntityTypeShape EntityType="CondoDBModel.CostSery" Width="1.5" PointX="0.75" PointY="2" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.InventoryAudit" Width="1.5" PointX="5.25" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.InventoryForecast" Width="1.5" PointX="8" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.JobRun" Width="1.5" PointX="8" PointY="7.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.ModelRegistry" Width="1.5" PointX="5.75" PointY="3.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.SearchIndex" Width="1.5" PointX="0.75" PointY="14" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.Admin" Width="1.5" PointX="15" PointY="5.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.CanHo" Width="1.5" PointX="3" PointY="9.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.CanHo_CuDan" Width="1.5" PointX="7.5" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.CanHo_VatTu" Width="1.5" PointX="5.25" PointY="9.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.CuDan" Width="1.5" PointX="5.25" PointY="14.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.HoaDonCuDan" Width="1.5" PointX="10.5" PointY="12.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.HoaDonTM" Width="1.5" PointX="20" PointY="3.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.HoaDonTM_ChiTiet" Width="1.5" PointX="22.25" PointY="4.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.LoginAudit" Width="1.5" PointX="9.75" PointY="16" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.MatBang_VatTu" Width="1.5" PointX="21" PointY="8.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.MatBangThuongMai" Width="1.5" PointX="17.75" PointY="3.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.NhanVien" Width="1.5" PointX="15.75" PointY="2.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.OAuthAccount" Width="1.5" PointX="15" PointY="8.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.OAuthProvider" Width="1.5" PointX="12.75" PointY="4.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.OAuthToken" Width="1.5" PointX="17.25" PointY="11.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.PasswordHistory" Width="1.5" PointX="15" PointY="12.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.TaiKhoan" Width="1.5" PointX="12.75" PointY="8" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.Tang" Width="1.5" PointX="0.75" PointY="10" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.User" Width="1.5" PointX="15" PointY="15" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.VaiTro" Width="1.5" PointX="18" PointY="9" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.VatTu" Width="1.5" PointX="3" PointY="5.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.XeDap" Width="1.5" PointX="7.5" PointY="16.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.XeMay" Width="1.5" PointX="7.5" PointY="19.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="CondoDBModel.XeOTo" Width="1.5" PointX="7.5" PointY="21.625" IsExpanded="true" />
+        <AssociationConnector Association="CondoDBModel.FK_ai_InvAudit_VatTu" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_ai_InvFc_Model" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_ai_InvFc_VatTu" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_ai_JobRun_Model" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_Admin_TaiKhoan" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_CanHo_CuDan_CanHo" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_CanHo_Tang" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_CanHo_VatTu_CanHo" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_CuDan_CanHo" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_HoaDonCuDan_CanHo" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_CanHo_CuDan_CuDan" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_CanHo_VatTu_VatTu" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_HoaDonCuDan_CuDan" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_XeDap_CuDan" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_XeMay_CuDan" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_XeOTo_CuDan" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_HDTMCT_HoaDon" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_HoaDonTM_MatBang" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_HDTMCT_VatTu" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_MBV_MatBang" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_MBV_VatTu" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_OAuthAcc_Provider" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_OAuthAcc_TaiKhoan" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_OAuthToken_Account" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_PwdHist_TaiKhoan" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.FK_User_TaiKhoan" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.NhanVien_VaiTro" ManuallyRouted="false" />
+        <AssociationConnector Association="CondoDBModel.TaiKhoan_VaiTro" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="CondoDBModel.ActivityLog" Width="1.5" PointX="10.375" PointY="0.75" />
+        <EntityTypeShape EntityType="CondoDBModel.Ticket" Width="1.5" PointX="18" PointY="15.75" />
+        <AssociationConnector Association="CondoDBModel.FK_Ticket_CuDan" />
+        <AssociationConnector Association="CondoDBModel.FK_Ticket_TaiKhoan_Assigned" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

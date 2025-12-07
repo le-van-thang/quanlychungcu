@@ -1,0 +1,31 @@
+﻿# VS / .NET
+.vs/
+**/bin/
+**/obj/
+TestResults/
+*.user
+*.suo
+*.cache
+*.log
+
+# NuGet
+packages/
+**/packages/*
+*.nupkg
+!**/packages/repositories.config
+
+# Databases (local only)
+*.mdf
+*.ldf
+*.sqlite*
+*.db*
+*.sql
+
+# App.config: ignore tất cả, chỉ giữ 2 file
+**/App.config
+!WpfApp1/App.config
+!WpfApp1.Tests/App.config
+
+# Secrets: ignore file thật, allow example
+WpfApp1/App.Secrets.config
+!WpfApp1/App.Secrets.example.config

@@ -1,0 +1,219 @@
+﻿<UserControl x:Class="WpfApp1.HoaDonCuDanControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="Transparent">
+
+    <!-- =============== RESOURCES =============== -->
+    <UserControl.Resources>
+
+        <!-- Đổ bóng cho card -->
+        <DropShadowEffect x:Key="HdCardShadow"
+                          Color="#000000"
+                          Direction="270"
+                          ShadowDepth="8"
+                          BlurRadius="20"
+                          Opacity="0.30"/>
+
+        <!-- Nền card hơi xanh -->
+        <LinearGradientBrush x:Key="HdCardBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#F8FBFF" Offset="0"/>
+            <GradientStop Color="#ECF3FF" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Header Gradient -->
+        <LinearGradientBrush x:Key="HdHeaderGradientBrush" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#43A047" Offset="0"/>
+            <GradientStop Color="#1E88E5" Offset="1"/>
+        </LinearGradientBrush>
+
+        <SolidColorBrush x:Key="HdHeaderTextBrush" Color="White"/>
+
+        <!-- Căn giữa -->
+        <Style x:Key="HdCenterCell" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Grid hiện đại: giống Cư dân (scroll chỉ trong DataGrid) -->
+        <Style x:Key="HdModernGrid" TargetType="{x:Type DataGrid}">
+            <Setter Property="RowBackground" Value="#FFFFFF"/>
+            <Setter Property="AlternatingRowBackground" Value="#F4F6F7"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#D0D7E2"/>
+            <Setter Property="VerticalGridLinesBrush" Value="#D0D7E2"/>
+            <Setter Property="BorderThickness" Value="0"/>
+
+            <!-- DataGrid tự quyết hiện thanh kéo khi tràn -->
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+        </Style>
+
+        <!-- Hover row -->
+        <Style x:Key="HdRowHoverStyle" TargetType="DataGridRow">
+            <Setter Property="Background" Value="{x:Null}"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E3F2FD"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#BBDEFB"/>
+                    <Setter Property="FontWeight" Value="SemiBold"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+    </UserControl.Resources>
+
+    <!-- =============== MAIN CARD =============== -->
+    <Border Background="{StaticResource HdCardBackgroundBrush}"
+            CornerRadius="26"
+            Padding="22"
+            Margin="35"
+            VerticalAlignment="Top"
+            MinHeight="520"
+            Effect="{StaticResource HdCardShadow}">
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- header -->
+                <RowDefinition Height="Auto"/>
+                <!-- search -->
+                <RowDefinition Height="Auto"/>
+                <!-- buttons -->
+                <RowDefinition Height="*"/>
+                <!-- grid -->
+            </Grid.RowDefinitions>
+
+            <!-- HEADER -->
+            <Border Grid.Row="0"
+                    Background="{StaticResource HdHeaderGradientBrush}"
+                    CornerRadius="20"
+                    Padding="18"
+                    Margin="0 0 0 18">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="📑"
+                               FontSize="24"
+                               Margin="0,0,10,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Hóa đơn cư dân"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource HdHeaderTextBrush}"/>
+                        <TextBlock Text="Theo dõi và quản lý hóa đơn theo căn hộ / cư dân / trạng thái"
+                                   FontSize="12"
+                                   Foreground="#F0F3FF"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- SEARCH -->
+            <StackPanel Grid.Row="1"
+                        Orientation="Horizontal"
+                        Margin="10,0,0,10">
+                <TextBox x:Name="txtSearch"
+                         Width="320" Height="35"
+                         Margin="0,0,10,0"
+                         FontSize="14"
+                         Padding="8"
+                         Style="{StaticResource InputTextBox}"
+                         Tag="Tìm theo số căn / trạng thái / cư dân"/>
+                <Button x:Name="btnSearch"
+                        Content="🔍 Tìm kiếm"
+                        Width="120" Height="35"
+                        Margin="0,0,8,0"
+                        Style="{StaticResource ModernButton}"
+                        Background="#7D3C98"
+                        Click="BtnSearch_Click"/>
+                <Button x:Name="btnReload"
+                        Content="🔄 Tải lại"
+                        Width="120" Height="35"
+                        Style="{StaticResource ModernButton}"
+                        Background="#2ECC71"
+                        Click="BtnReload_Click"/>
+            </StackPanel>
+
+            <!-- ACTION BUTTONS -->
+            <StackPanel Grid.Row="2"
+                        Orientation="Horizontal"
+                        Margin="10,0,0,10">
+                <Button x:Name="btnView"
+                        Content="👁 Xem"
+                        Width="110" Height="35"
+                        Margin="0,0,8,0"
+                        Style="{StaticResource ModernButton}"
+                        Background="#5DADE2"
+                        Click="BtnView_Click"/>
+                <Button x:Name="btnAdd"
+                        Content="➕ Thêm"
+                        Width="110" Height="35"
+                        Margin="0,0,8,0"
+                        Style="{StaticResource ModernButton}"
+                        Background="#58D68D"
+                        Click="BtnAdd_Click"/>
+                <Button x:Name="btnEdit"
+                        Content="✏ Sửa"
+                        Width="110" Height="35"
+                        Margin="0,0,8,0"
+                        Style="{StaticResource ModernButton}"
+                        Background="#F5B041"
+                        Click="BtnEdit_Click"/>
+                <Button x:Name="btnDelete"
+                        Content="🗑 Xóa"
+                        Width="110" Height="35"
+                        Style="{StaticResource ModernButton}"
+                        Background="#E74C3C"
+                        Click="BtnDelete_Click"/>
+            </StackPanel>
+
+            <!-- GRID: giống Cư dân, scroll bên trong -->
+            <DataGrid x:Name="dgHoaDon"
+                      Grid.Row="3"
+                      Margin="0,5,0,0"
+                      MaxHeight="430"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      CanUserAddRows="False"
+                      Style="{StaticResource HdModernGrid}"
+                      RowStyle="{StaticResource HdRowHoverStyle}"
+                      HeadersVisibility="Column"
+                      SelectionMode="Single"
+                      SelectionUnit="FullRow"
+                      ScrollViewer.VerticalScrollBarVisibility="Auto"
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                      ScrollViewer.CanContentScroll="True">
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID"
+                                        Binding="{Binding HoaDonID}"
+                                        Width="70"
+                                        ElementStyle="{StaticResource HdCenterCell}"/>
+                    <DataGridTextColumn Header="Số căn"
+                                        Binding="{Binding SoCanHo}"
+                                        Width="110"
+                                        ElementStyle="{StaticResource HdCenterCell}"/>
+                    <DataGridTextColumn Header="Cư dân"
+                                        Binding="{Binding CuDan}"
+                                        Width="180"/>
+                    <DataGridTextColumn Header="Dịch vụ"
+                                        Binding="{Binding LoaiDichVu}"
+                                        Width="140"/>
+                    <DataGridTextColumn Header="Số tiền"
+                                        Binding="{Binding SoTien, StringFormat={}{0:N0}}"
+                                        Width="150"
+                                        ElementStyle="{StaticResource HdCenterCell}"/>
+                    <DataGridTextColumn Header="Ngày lập"
+                                        Binding="{Binding NgayLap, StringFormat={}{0:dd/MM/yyyy}}"
+                                        Width="150"
+                                        ElementStyle="{StaticResource HdCenterCell}"/>
+                    <DataGridTextColumn Header="Trạng thái"
+                                        Binding="{Binding TrangThai}"
+                                        Width="120"
+                                        ElementStyle="{StaticResource HdCenterCell}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+        </Grid>
+    </Border>
+</UserControl>

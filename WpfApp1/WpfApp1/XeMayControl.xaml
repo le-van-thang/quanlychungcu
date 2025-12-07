@@ -1,0 +1,204 @@
+﻿<UserControl x:Class="WpfApp1.XeMayControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="Transparent">
+
+    <UserControl.Resources>
+
+        <DropShadowEffect x:Key="XmCardShadow"
+                          Color="#000000"
+                          Direction="270"
+                          ShadowDepth="8"
+                          BlurRadius="20"
+                          Opacity="0.30"/>
+
+        <LinearGradientBrush x:Key="XmCardBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#F8FBFF" Offset="0"/>
+            <GradientStop Color="#ECF3FF" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="XmHeaderGradientBrush" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#9B59B6" Offset="0"/>
+            <GradientStop Color="#3498DB" Offset="1"/>
+        </LinearGradientBrush>
+
+        <SolidColorBrush x:Key="XmHeaderTextBrush" Color="White"/>
+
+        <Style x:Key="XmCenterCell" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="XmModernGrid" TargetType="{x:Type DataGrid}">
+            <Setter Property="RowBackground" Value="#FFFFFF"/>
+            <Setter Property="AlternatingRowBackground" Value="#F4F6F7"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#D0D7E2"/>
+            <Setter Property="VerticalGridLinesBrush" Value="#D0D7E2"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Visible"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+        </Style>
+
+        <Style x:Key="XmRowHoverStyle" TargetType="DataGridRow">
+            <Setter Property="Background" Value="{x:Null}"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E3F2FD"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#BBDEFB"/>
+                    <Setter Property="FontWeight" Value="SemiBold"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Border Background="{StaticResource XmCardBackgroundBrush}"
+            CornerRadius="26"
+            Padding="22"
+            Margin="35"
+            VerticalAlignment="Top"
+            MinHeight="520"
+            Effect="{StaticResource XmCardShadow}">
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- header -->
+                <RowDefinition Height="Auto"/>
+                <!-- search -->
+                <RowDefinition Height="Auto"/>
+                <!-- actions -->
+                <RowDefinition Height="*"/>
+                <!-- grid -->
+            </Grid.RowDefinitions>
+
+            <!-- HEADER -->
+            <Border Grid.Row="0"
+                    Background="{StaticResource XmHeaderGradientBrush}"
+                    CornerRadius="20"
+                    Padding="18"
+                    Margin="0 0 0 18">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="🏍"
+                               FontSize="24"
+                               Margin="0,0,10,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Quản lý xe máy"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource XmHeaderTextBrush}"/>
+                        <TextBlock Text="Theo dõi xe máy, cư dân sở hữu và biển số"
+                                   FontSize="12"
+                                   Foreground="#F0F3FF"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- SEARCH -->
+            <StackPanel Grid.Row="1"
+                        Orientation="Horizontal"
+                        Margin="10,0,0,10">
+                <TextBox x:Name="txtSearch"
+                         Width="320" Height="35"
+                         Margin="0,0,10,0"
+                         FontSize="14"
+                         Padding="8"
+                         Style="{StaticResource InputTextBox}"
+                         Tag="Tìm theo biển số / tên cư dân"/>
+                <Button x:Name="btnSearch"
+                        Content="🔍 Tìm kiếm"
+                        Width="120" Height="35"
+                        Margin="0,0,8,0"
+                        Style="{StaticResource ModernButton}"
+                        Background="#7D3C98"
+                        Click="BtnSearch_Click"/>
+                <Button x:Name="btnLoad"
+                        Content="🔄 Tải lại"
+                        Width="120" Height="35"
+                        Style="{StaticResource ModernButton}"
+                        Background="#2ECC71"
+                        Click="BtnLoad_Click"/>
+            </StackPanel>
+
+            <!-- ACTIONS -->
+            <StackPanel Grid.Row="2"
+                        Orientation="Horizontal"
+                        Margin="10,0,0,10">
+                <Button x:Name="btnView"
+                        Content="👁 Xem"
+                        Width="110" Height="35"
+                        Margin="0,0,8,0"
+                        Style="{StaticResource ModernButton}"
+                        Background="#5DADE2"
+                        Click="BtnView_Click"/>
+                <Button x:Name="btnAdd"
+                        Content="➕ Thêm"
+                        Width="110" Height="35"
+                        Margin="0,0,8,0"
+                        Style="{StaticResource ModernButton}"
+                        Background="#58D68D"
+                        Click="BtnAdd_Click"/>
+                <Button x:Name="btnEdit"
+                        Content="✏ Sửa"
+                        Width="110" Height="35"
+                        Margin="0,0,8,0"
+                        Style="{StaticResource ModernButton}"
+                        Background="#F5B041"
+                        Click="BtnEdit_Click"/>
+                <Button x:Name="btnDelete"
+                        Content="🗑 Xóa"
+                        Width="110" Height="35"
+                        Style="{StaticResource ModernButton}"
+                        Background="#E74C3C"
+                        Click="BtnDelete_Click"/>
+            </StackPanel>
+
+            <!-- GRID -->
+            <DataGrid x:Name="dgXeMay"
+                      Grid.Row="3"
+                      Margin="0,5,0,0"
+                      MaxHeight="430"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      CanUserAddRows="False"
+                      Style="{StaticResource XmModernGrid}"
+                      RowStyle="{StaticResource XmRowHoverStyle}"
+                      HeadersVisibility="Column"
+                      SelectionMode="Single"
+                      SelectionUnit="FullRow"
+                      ScrollViewer.VerticalScrollBarVisibility="Visible"
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto">
+
+                <DataGrid.Resources>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                        <Setter Property="VerticalContentAlignment"   Value="Center"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="Padding"    Value="8,0"/>
+                    </Style>
+                </DataGrid.Resources>
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Mã xe máy"
+                                        Binding="{Binding XeMayID}"
+                                        Width="90"
+                                        ElementStyle="{StaticResource XmCenterCell}"/>
+                    <DataGridTextColumn Header="Biển số"
+                                        Binding="{Binding BKS}"
+                                        Width="150"/>
+                    <DataGridTextColumn Header="ID cư dân"
+                                        Binding="{Binding CuDanID}"
+                                        Width="90"
+                                        ElementStyle="{StaticResource XmCenterCell}"/>
+                    <DataGridTextColumn Header="Tên cư dân"
+                                        Binding="{Binding TenCuDan}"
+                                        Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </Border>
+</UserControl>

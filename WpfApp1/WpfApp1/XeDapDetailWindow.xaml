@@ -1,0 +1,127 @@
+﻿<Window x:Class="WpfApp1.XeDapDetailWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Thông tin xe đạp"
+        Height="340" Width="640"
+        MinHeight="320" MinWidth="620"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        Background="Transparent"
+        WindowStyle="SingleBorderWindow">
+
+    <!-- STYLE CHO COMBOBOX INPUT -->
+    <Window.Resources>
+        <Style x:Key="InputComboBox" TargetType="ComboBox">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="8,2"/>
+            <Setter Property="BorderBrush" Value="#BDC3C7"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+
+    <Border CornerRadius="12"
+            Background="White"
+            BorderBrush="#D5DBDB"
+            BorderThickness="1"
+            Padding="0"
+            Margin="8">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- HEADER -->
+            <Border Grid.Row="0"
+                    Background="#3498DB"
+                    Padding="14"
+                    CornerRadius="12,12,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="🚲"
+                               FontSize="22"
+                               Margin="0,0,10,0"/>
+                    <StackPanel>
+                        <TextBlock x:Name="lblHeader"
+                                   Text="Thông tin xe đạp"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="White"/>
+                        <TextBlock Text="Gán xe đạp cho cư dân và biển số"
+                                   FontSize="12"
+                                   Foreground="#ECF0F1"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- FORM -->
+            <Grid Grid.Row="1" Margin="20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- ID -->
+                <StackPanel Grid.Row="0" Grid.Column="0" Margin="5">
+                    <TextBlock Text="ID xe đạp (tự tăng)"
+                               FontWeight="Bold"
+                               Foreground="#2C3E50"/>
+                    <TextBox x:Name="txtId"
+                             Margin="0,5,0,0"
+                             IsReadOnly="True"
+                             Style="{StaticResource InputTextBox}"
+                             Background="#ECF0F1"/>
+                </StackPanel>
+
+                <!-- Biển số -->
+                <StackPanel Grid.Row="0" Grid.Column="1" Margin="5">
+                    <TextBlock Text="Biển số (bắt buộc)"
+                               FontWeight="Bold"
+                               Foreground="#2C3E50"/>
+                    <TextBox x:Name="txtBKS"
+                             Margin="0,5,0,0"
+                             Style="{StaticResource InputTextBox}"/>
+                </StackPanel>
+
+                <!-- Cư dân -->
+                <StackPanel Grid.Row="1" Grid.Column="0" Margin="5">
+                    <TextBlock Text="Cư dân (bắt buộc)"
+                               FontWeight="Bold"
+                               Foreground="#2C3E50"/>
+                    <ComboBox x:Name="cbCuDan"
+                              Margin="0,5,0,0"
+                              DisplayMemberPath="HoTen"
+                              SelectedValuePath="CuDanID"
+                              Style="{StaticResource InputComboBox}"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- BUTTONS -->
+            <StackPanel Grid.Row="2"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Margin="0,0,20,20">
+                <Button x:Name="btnSave"
+                        Content="💾 Lưu"
+                        Width="120" Height="35"
+                        Margin="5,0,0,0"
+                        Style="{StaticResource ModernButton}"
+                        Background="#27AE60"
+                        Click="BtnSave_Click"/>
+                <Button Content="Đóng"
+                        Width="120" Height="35"
+                        Margin="5,0,0,0"
+                        Style="{StaticResource ModernButton}"
+                        Background="#7F8C8D"
+                        Click="BtnClose_Click"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>
