@@ -21,14 +21,14 @@ jobs:
         uses: microsoft/setup-msbuild@v2
 
       - name: Restore packages
-        run: nuget restore WpfApp1.sln
+        run: nuget restore WpfApp1/WpfApp1.sln
 
       - name: Build (Release)
-        run: msbuild WpfApp1.sln /t:Build /p:Configuration=Release /m
+        run: msbuild WpfApp1/WpfApp1.sln /t:Build /p:Configuration=Release /m
 
       - name: Upload artifact (app binaries)
         uses: actions/upload-artifact@v4
         with:
           name: WpfApp1-bin-Release
           path: |
-            WpfApp1/bin/Release/
+            WpfApp1/WpfApp1/bin/Release/
