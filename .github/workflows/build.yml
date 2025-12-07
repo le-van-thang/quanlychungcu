@@ -26,11 +26,10 @@ jobs:
       - name: Build (Release)
         run: msbuild WpfApp1/WpfApp1.sln /t:Build /p:Configuration=Release /m
 
-      # 🔹 Tạo thư mục lưu kết quả test
       - name: Prepare test results folder
         run: New-Item -ItemType Directory -Path WpfApp1/Reports/TestResults -Force
 
-      # 🔹 Chạy Unit + Integration tests, xuất TRX vào Reports/TestResults
+      # Chạy cả WpfApp1.Tests + WpfApp1.UiTests, xuất TRX đúng thư mục
       - name: Run automated tests
         run: |
           dotnet test WpfApp1/WpfApp1.Tests/WpfApp1.Tests.csproj `
@@ -43,11 +42,10 @@ jobs:
             --logger "trx;LogFileName=UiTests.trx" `
             --results-directory WpfApp1/Reports/TestResults
 
-      # 🔹 Từ các file .trx đó sinh HTML report
+      # Sinh HTML từ các file .trx (nếu không có thì bỏ qua, không làm fail)
       - name: Generate HTML test report
         run: pwsh -File WpfApp1/GenerateTestReport.ps1
 
-      # 🔹 Upload toàn bộ report (TRX + HTML) làm evidence
       - name: Upload test reports
         uses: actions/upload-artifact@v4
         with:
@@ -55,7 +53,6 @@ jobs:
           path: |
             WpfApp1/Reports/TestResults/
 
-      # 🔹 Upload luôn bản build Release của app
       - name: Upload artifact (app binaries)
         uses: actions/upload-artifact@v4
         with:
