@@ -44,6 +44,7 @@ jobs:
 
       # Sinh HTML từ các file .trx (nếu không có thì bỏ qua, không làm fail)
       - name: Generate HTML test report
+        shell: pwsh
         run: pwsh -File WpfApp1/GenerateTestReport.ps1
 
       - name: Upload test reports
