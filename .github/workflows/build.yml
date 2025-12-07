@@ -29,22 +29,19 @@ jobs:
       - name: Prepare test results folder
         run: New-Item -ItemType Directory -Path WpfApp1/Reports/TestResults -Force
 
-      # Chạy cả WpfApp1.Tests + WpfApp1.UiTests, xuất TRX đúng thư mục
+      # Chạy cả WpfApp1.Tests + WpfApp1.UiTests
       - name: Run automated tests
         run: |
           dotnet test WpfApp1/WpfApp1.Tests/WpfApp1.Tests.csproj `
             --configuration Release `
-            --logger "trx;LogFileName=UnitAndIntegration.trx" `
-            --results-directory WpfApp1/Reports/TestResults
+            --logger "trx;LogFileName=UnitAndIntegration.trx"
 
           dotnet test WpfApp1/WpfApp1.UiTests/WpfApp1.UiTests.csproj `
             --configuration Release `
-            --logger "trx;LogFileName=UiTests.trx" `
-            --results-directory WpfApp1/Reports/TestResults
+            --logger "trx;LogFileName=UiTests.trx"
 
-      # Sinh HTML từ các file .trx (nếu không có thì bỏ qua, không làm fail)
+      # Sinh HTML từ file .trx mới nhất (script sẽ tự tìm)
       - name: Generate HTML test report
-        shell: pwsh
         run: pwsh -File WpfApp1/GenerateTestReport.ps1
 
       - name: Upload test reports
